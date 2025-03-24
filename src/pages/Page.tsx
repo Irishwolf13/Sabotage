@@ -24,6 +24,8 @@ const Page: React.FC = () => {
             <IonTitle size="large">{name}</IonTitle>
           </IonToolbar>
         </IonHeader>
+        {/* Conditionally Render Content for Test */}
+        {name === "Test" && (<div className="Test-special-content"> Frank </div> )}
         <ExploreContainer name={name} />
       </IonContent>
     </IonPage>
