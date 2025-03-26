@@ -1,6 +1,7 @@
 import React from 'react';
 import { IonButton, IonList, IonItem, IonLabel } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom'; // Import useHistory
 import { v4 as uuidv4 } from 'uuid';
 import { addGame } from '../stores/gameSlice'; 
 import { AppDispatch, RootState } from '../stores/store';
@@ -18,6 +19,7 @@ const generateRandomCode = (length: number) => {
 
 const NewGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const history = useHistory(); // Initialize useHistory
   const games = useSelector((state: RootState) => state.games);
 
   const handleNewGame = () => {
@@ -25,22 +27,25 @@ const NewGameButton: React.FC = () => {
     const randomCode = generateRandomCode(5);
     const newGame = {
       id: newUUID,
-      name: `Game ${newUUID}`,
+      name: `${newUUID}`,
       code: randomCode,
     };
     dispatch(addGame(newGame));
+
+    // Push to the new route with newUUID
+    history.push(`/game/${newUUID}`);
   };
 
   return (
     <div>
       <IonButton onClick={handleNewGame}>Create Game</IonButton>
-      <IonList>
+      {/* <IonList>
         {games.map(game => (
           <IonItem key={game.id}>
             <IonLabel>{game.name} - Code: {game.code}</IonLabel>
           </IonItem>
         ))}
-      </IonList>
+      </IonList> */}
     </div>
   );
 };

@@ -33,6 +33,7 @@ import './theme/variables.css';
 import Home from './pages/Home/Home';
 import Splash from './pages/Splash/Splash';
 import Login from './pages/Login/Login';
+import Lobby from './pages/Lobby/Lobby';
 
 setupIonicReact();
 
@@ -43,6 +44,7 @@ const App: React.FC = () => (
         <IonReactRouter>
           <IonRouterOutlet>
             <PrivateRoute exact path="/home" component={Home} />
+            <PrivateRoute path="/game/:uuid" component={Lobby} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/" component={Splash} />
           </IonRouterOutlet>
