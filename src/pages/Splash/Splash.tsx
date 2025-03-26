@@ -27,7 +27,7 @@ const Splash: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
           <div style={{ textAlign: 'center', marginTop: '50%' }}>
-            <h1>Welcome to Our App!</h1>
+            <h1>Hello!</h1>
             <IonButton expand="full" onClick={navigateToLogin}>
               Login / Sign Up
             </IonButton>
