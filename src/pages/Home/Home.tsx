@@ -1,18 +1,18 @@
 import React from 'react';
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonButton } from '@ionic/react';
+import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonButton, IonFooter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { signOut } from 'firebase/auth'; // Import signOut
-import { auth } from '../../firebase/config'; // Import the auth object from your config
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase/config';
 import './Home.css';
 
 const Home: React.FC = () => {
-  const history = useHistory(); // Initialize useHistory for navigation
+  const history = useHistory();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       console.log('User signed out successfully');
-      history.push('/login'); // Redirect to login page after signing out
+      history.push('/login');
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -32,9 +32,14 @@ const Home: React.FC = () => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
+      <IonContent>
         {/* Content of the Home Page */}
       </IonContent>
+      <IonFooter>
+        <IonToolbar>
+          <IonTitle size="small">© 2025 Dancing Goat Studios</IonTitle>
+        </IonToolbar>
+      </IonFooter>
     </IonPage>
   );
 };
