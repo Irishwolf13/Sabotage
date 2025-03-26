@@ -21,7 +21,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ component: Component, ...re
         ) : user ? (
           <Component {...props} />
         ) : (
-          <Redirect to="/login" />
+          <Redirect to="/" />
         )
       }
     />

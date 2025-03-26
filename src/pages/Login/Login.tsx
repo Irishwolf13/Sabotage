@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { createPlayerAccount } from '../../firebase/controller';
 import {
   IonButton,
   IonButtons,
@@ -15,49 +16,57 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
+  IonLoading,
+  useIonViewWillEnter
 } from '@ionic/react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [playerName, setPlayerName] = useState(''); // New state for player name
-  const [isSignUp, setIsSignUp] = useState(false); // State to toggle between Login and Sign Up
+  const [playerName, setPlayerName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const history = useHistory();
+  const [showLoading, setShowLoading] = useState(false);
+  const [authSuccess, setAuthSuccess] = useState(false);
+
+  useIonViewWillEnter(() => {
+    setAuthSuccess(false);
+  });
+
+  useEffect(() => {
+    if (authSuccess) {
+      history.push('/home');
+    }
+  }, [authSuccess, history]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
+    setShowLoading(true);
 
-    if (isSignUp) {
-      try {
-        // Create a new user account
-        await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      if (isSignUp) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('User registered successfully');
 
-        // Clear the form fields before redirecting
+        const user = userCredential.user;
+        await createPlayerAccount(user.uid, email, playerName);
+
         setEmail('');
         setPassword('');
         setPlayerName('');
-
-        // Redirect to /home after sign-up
-        history.push('/home');
-      } catch (err) {
-        alert('Sign-up failed. Please check your inputs.');
-      }
-    } else {
-      try {
-        // Sign-in existing user
+      } else {
         await signInWithEmailAndPassword(auth, email, password);
         console.log('User signed in successfully');
 
-        // Clear the form fields before redirecting
         setEmail('');
         setPassword('');
-
-        // Redirect to /home on successful login
-        history.push('/home');
-      } catch (err) {
-        alert('Login failed. Please check your credentials.');
       }
+
+      setAuthSuccess(true);
+    } catch (err) {
+      alert(isSignUp ? 'Sign-up failed. Please check your inputs.' : 'Login failed. Please check your credentials.');
+    } finally {
+      setShowLoading(false);
     }
   };
 
@@ -76,6 +85,11 @@ const Login: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+        <IonLoading
+          isOpen={showLoading}
+          message={isSignUp ? "Creating account..." : "Logging in..."}
+          duration={0}
+        />
         <div className="login-container" style={{ padding: '16px' }}>
           <IonSegment value={isSignUp ? 'signup' : 'login'} onIonChange={(e) => setIsSignUp(e.detail.value === 'signup')}>
             <IonSegmentButton value="login">
@@ -85,7 +99,6 @@ const Login: React.FC = () => {
               <IonLabel>Sign Up</IonLabel>
             </IonSegmentButton>
           </IonSegment>
-
           <h2>{isSignUp ? 'Create an Account' : 'Welcome Back!'}</h2>
           <form onSubmit={handleLogin}>
             {isSignUp && (
