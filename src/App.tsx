@@ -1,10 +1,13 @@
 // App.tsx
+
 import React from 'react';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route } from 'react-router-dom';
 import { AuthProvider } from './firebase/AuthContext';
 import PrivateRoute from './firebase/PrivateRoute';
+import { Provider } from 'react-redux'; // Import Provider from react-redux
+import store from './stores/store'; // Import the configured Redux store
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,16 +38,17 @@ setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <AuthProvider>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <PrivateRoute exact path="/home" component={Home} />
-
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/" component={Splash} />
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <PrivateRoute exact path="/home" component={Home} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/" component={Splash} />
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </AuthProvider>
+    </Provider>
   </IonApp>
 );
 

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { IonButtons, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonButton, IonFooter } from '@ionic/react';
-// import { useHistory } from 'react-router-dom';
+import {
+  IonButtons, IonContent, IonHeader, IonMenuButton,
+  IonPage, IonTitle, IonToolbar, IonButton, IonFooter,
+} from '@ionic/react';
+import './Home.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import './Home.css';
+import NewGameButton from '../../components/NewGameButton';
 
 const Home: React.FC = () => {
-  // const history = useHistory();
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for the current user and update the email state
     const user = auth.currentUser;
     if (user) {
       setEmail(user.email);
@@ -21,7 +22,6 @@ const Home: React.FC = () => {
     try {
       await signOut(auth);
       console.log('User signed out successfully');
-      // history.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -40,9 +40,14 @@ const Home: React.FC = () => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
-        {/* Content of the Home Page */}
+
+      <IonContent fullscreen className="ion-padding">
+        <div style={{ textAlign: 'center', marginTop: '20%' }}>
+          <NewGameButton />
+          <IonButton>Join Game</IonButton>
+        </div>
       </IonContent>
+
       <IonFooter>
         <IonToolbar>
           <IonTitle size="small">© 2025 Dancing Goat Studios</IonTitle>

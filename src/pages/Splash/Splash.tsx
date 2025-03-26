@@ -8,12 +8,6 @@ const Splash: React.FC = () => {
   const history = useHistory();
   const { user } = useAuth();
 
-  // useEffect(() => {
-  //   if (user) {
-  //     history.push('/home');
-  //   }
-  // }, [user, history]);
-
   const navigateToLogin = () => {
     history.push('/login');
   };
