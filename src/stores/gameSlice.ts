@@ -4,6 +4,8 @@ interface Game {
   id: string;
   name: string;
   code: string;
+  players: string[];
+  isEnded: boolean;
 }
 
 type GamesState = Game[];

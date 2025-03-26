@@ -7,6 +7,7 @@ import './Home.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import NewGameButton from '../../components/NewGameButton';
+import JoinGameButton from '../../components/JoinGameButton';
 
 const Home: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
@@ -44,7 +45,8 @@ const Home: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '20%' }}>
           <NewGameButton />
-          <IonButton>Join Game</IonButton>
+          <br></br>
+          <JoinGameButton />
         </div>
       </IonContent>
 

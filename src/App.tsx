@@ -33,7 +33,7 @@ import './theme/variables.css';
 import Home from './pages/Home/Home';
 import Splash from './pages/Splash/Splash';
 import Login from './pages/Login/Login';
-import Lobby from './pages/Lobby/Lobby';
+import Lobby from './pages/CreatorLobby/CreatorLobby';
 
 setupIonicReact();
 
