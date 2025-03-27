@@ -1,20 +1,25 @@
 import { db } from "./config";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, } from "firebase/firestore";
-// Function to subscribe and listen for changes
-export const listenForGameEnd = (gameId: string, onGameEnd: () => void) => {
-  const gameDocRef = doc(db, "games", gameId);
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs } from "firebase/firestore";
 
-  // Set up a listener for the 'isEnded' field
-  onSnapshot(gameDocRef, (docSnap) => {
+
+//////////////////////////////// LISTENING ////////////////////////////////
+// Function to subscribe and listen for changes
+export const listenForGameChanges = (gameId: string, onChange: (data: any) => void) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  // Set up a listener for the 'players' field
+  const unsubscribe = onSnapshot(gameDocRef, (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.isEnded) {
-        onGameEnd();
-      }
+      onChange(data);
     }
   });
+
+  // Return the unsubscribe function to allow cleanup
+  return unsubscribe;
 };
 
+//////////////////////////////// CREATING ////////////////////////////////
 // Function to create a new player account in the Firestore database
 export const createPlayerAccount = async (uid: string, email: string, playerName: string) => {
   try {
@@ -46,8 +51,10 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       gameName,
       gameCode,
       creator,
-      players: [creator, ],
+      players: [creator],
       isEnded: false,
+      isStarted: false,
+      isDead: false,
       createdAt: new Date().toISOString()
     };
 
@@ -58,34 +65,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
   }
 };
 
-// Function to subscribe and listen for changes
-export const listenForGameChanges = (gameId: string, onChange: (data: any) => void) => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-
-  // Set up a listener for the 'players' field
-  const unsubscribe = onSnapshot(gameDocRef, (docSnap) => {
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      onChange(data);
-    }
-  });
-
-  // Return the unsubscribe function to allow cleanup
-  return unsubscribe;
-};
-
-// Add this in controller.ts or wherever you manage Firestore interactions
-export const toggleGameEndedStatus = async (gameId: string, currentStatus: boolean) => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-  try {
-    await updateDoc(gameDocRef, {
-      isEnded: !currentStatus
-    });
-  } catch (error) {
-    console.error("Error updating game status: ", error);
-  }
-};
-
+//////////////////////////////// JOINING ////////////////////////////////
 // Function to join a game by adding the user's email to the players array
 export const joinGame = async (gameCode: string, email: string): Promise<string | null> => {
   try {
@@ -118,5 +98,18 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
   } catch (error) {
     console.error("Error joining game:", error);
     return null;
+  }
+};
+
+//////////////////////////////// EDITING DATABASE ////////////////////////////////
+// Function to toggle a boolean field in a Firestore document
+export const toggleBooleanField = async (gameId: string, fieldName: string, currentStatus: boolean) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  try {
+    await updateDoc(gameDocRef, {
+      [fieldName]: !currentStatus
+    });
+  } catch (error) {
+    console.error(`Error updating ${fieldName} status: `, error);
   }
 };

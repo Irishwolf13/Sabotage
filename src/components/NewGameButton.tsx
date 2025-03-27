@@ -51,6 +51,8 @@ const NewGameButton: React.FC = () => {
       code: randomCode,
       players: [email],
       isEnded: false,
+      isStarted: false,
+      isDead: false,
     };
 
     // Dispatch the new game to the Redux store

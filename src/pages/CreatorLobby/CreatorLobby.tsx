@@ -11,7 +11,7 @@ import {
 import './CreatorLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges, toggleGameEndedStatus } from '../../firebase/controller';
+import { listenForGameChanges, toggleBooleanField } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 
 const CreatorLobby: React.FC = () => {
@@ -29,6 +29,8 @@ const CreatorLobby: React.FC = () => {
               code: data.gameCode,
               players: data.players,
               isEnded: data.isEnded,
+              isStarted: data.isStarted,
+              isDead: data.isDead,
             },
           ])
         );
@@ -43,8 +45,8 @@ const CreatorLobby: React.FC = () => {
     return <p>No game available</p>;
   }
 
-  const handleToggleStatus = async () => {
-    await toggleGameEndedStatus(game.id, game.isEnded);
+  const handleToggleStatus = async (key:any, value:any) => {
+    await toggleBooleanField(game.id, key, value);
   };
 
   return (
@@ -65,7 +67,8 @@ const CreatorLobby: React.FC = () => {
             {game.players && game.players.map((player) => <li key={player}>{player}</li>)}
           </ul>
           <h3>Game Status: {game.isEnded ? 'Ended' : 'In Progress'}</h3>
-          <IonButton onClick={handleToggleStatus}>Toggle Game Status</IonButton>
+          <IonButton onClick={() => handleToggleStatus('isEnded', game.isEnded)}>Toggle Game Status</IonButton>
+          <IonButton onClick={() => handleToggleStatus('isStarted', game.isStarted)}>Start Game!</IonButton>
         </div>
       </IonContent>
       <IonFooter>
