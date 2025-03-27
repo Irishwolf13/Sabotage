@@ -32,7 +32,7 @@ const PlayerLobby: React.FC = () => {
 
   // Function to handle button click
   const handleToggleStatus = async () => {
-    await toggleGameEndedStatus(game.id, game.isEnded);
+    await toggleGameEndedStatus(game.id, !game.isEnded);
   };
 
   return (
@@ -55,7 +55,7 @@ const PlayerLobby: React.FC = () => {
           <h3>Game Status: {game.isEnded ? "Ended" : "In Progress"}</h3>
           <IonButton onClick={handleToggleStatus}>
             Toggle Game Status
-          </IonButton> {/* New button */}
+          </IonButton>
         </div>
       </IonContent>
       <IonFooter>

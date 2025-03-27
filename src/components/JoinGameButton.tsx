@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { AppDispatch, RootState } from '../stores/store';
 import { auth } from '../firebase/config';
-import { joinGame } from '../firebase/controller'; // Adjust the import path accordingly
+import { joinGame } from '../firebase/controller';
 
 const NewGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,12 +28,17 @@ const NewGameButton: React.FC = () => {
       alert('Please log in to join a game.');
       return;
     }
-
+  
     if (gameCode.length === 5) {
       try {
-        await joinGame(gameCode, email);
+        const result = await joinGame(gameCode, email);
+        if (result) {
+          alert(`Successfully joined the game: ${result}`);
+        } else {
+          alert('Failed to join the game. Please check the game code.');
+        }
       } catch (error) {
-        // alert(error.message);
+        alert('An unexpected error occurred.');
       }
     } else {
       alert('Please enter a 5-letter game code.');

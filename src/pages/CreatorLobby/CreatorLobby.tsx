@@ -1,5 +1,13 @@
 import React, { useEffect } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton } from '@ionic/react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonFooter,
+  IonButton,
+} from '@ionic/react';
 import './CreatorLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
@@ -11,26 +19,30 @@ const CreatorLobby: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
 
   useEffect(() => {
-    if (game) {
+    if (game?.id) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        dispatch(setGames([{ 
-            id: game.id, 
-            name: data.gameName, 
-            code: data.gameCode, 
-            players: data.players,
-            isEnded: data.isEnded,  
-        }]));
+        dispatch(
+          setGames([
+            {
+              id: game.id,
+              name: data.gameName,
+              code: data.gameCode,
+              players: data.players,
+              isEnded: data.isEnded,
+            },
+          ])
+        );
       });
 
+      // Cleanup subscription on unmount
       return () => unsubscribe();
     }
-  }, [dispatch, game]);
+  }, [dispatch, game?.id]); // Listening for game.id changes
 
   if (!game) {
     return <p>No game available</p>;
   }
 
-  // Function to handle button click
   const handleToggleStatus = async () => {
     await toggleGameEndedStatus(game.id, game.isEnded);
   };
@@ -44,18 +56,16 @@ const CreatorLobby: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
-          <h1>Join Code: <strong>{game.code}</strong></h1>
+          <h1>
+            Join Code: <strong>{game.code}</strong>
+          </h1>
           <p><strong>{game.name}</strong></p>
           <h2>Players:</h2>
           <ul>
-            {game.players && game.players.map(player => (
-              <li key={player}>{player}</li>
-            ))}
+            {game.players && game.players.map((player) => <li key={player}>{player}</li>)}
           </ul>
-          <h3>Game Status: {game.isEnded ? "Ended" : "In Progress"}</h3>
-          <IonButton onClick={handleToggleStatus}>
-            Toggle Game Status
-          </IonButton> {/* New button */}
+          <h3>Game Status: {game.isEnded ? 'Ended' : 'In Progress'}</h3>
+          <IonButton onClick={handleToggleStatus}>Toggle Game Status</IonButton>
         </div>
       </IonContent>
       <IonFooter>

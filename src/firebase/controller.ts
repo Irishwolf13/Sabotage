@@ -87,24 +87,36 @@ export const toggleGameEndedStatus = async (gameId: string, currentStatus: boole
 };
 
 // Function to join a game by adding the user's email to the players array
-export const joinGame = async (gameCode: string, email: string) => {
+export const joinGame = async (gameCode: string, email: string): Promise<string | null> => {
   try {
     const activeGamesRef = collection(db, 'activeGames');
     const q = query(activeGamesRef, where('gameCode', '==', gameCode));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      querySnapshot.forEach(async (docSnap) => {
-        // Update the players array by adding the user's email
+      // Assume there is only one document with a matching game code
+      const docSnap = querySnapshot.docs[0];
+      const gameData = docSnap.data();
+      
+      // Check if the gameName exists in the document
+      if (gameData && gameData.gameName) {
         await updateDoc(docSnap.ref, {
           players: arrayUnion(email)
         });
-        console.log(`Successfully added ${email} to game with code ${gameCode}`);
-      });
+        console.log(`Successfully added ${email} to game named ${gameData.gameName}`);
+        
+        // Return the gameName after successful joining
+        return gameData.gameName; 
+      } else {
+        console.error('The game name is not defined in the document.');
+        return null;
+      }
     } else {
-      throw new Error('No game found with the entered game code.');
+      console.error('No game found with the entered game code.');
+      return null;
     }
   } catch (error) {
     console.error("Error joining game:", error);
+    return null;
   }
 };

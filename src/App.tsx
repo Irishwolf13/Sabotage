@@ -34,6 +34,7 @@ import Home from './pages/Home/Home';
 import Splash from './pages/Splash/Splash';
 import Login from './pages/Login/Login';
 import Lobby from './pages/CreatorLobby/CreatorLobby';
+import JoinLobby from './pages/JoinLobby/JoinLobby';
 
 setupIonicReact();
 
@@ -45,6 +46,7 @@ const App: React.FC = () => (
           <IonRouterOutlet>
             <PrivateRoute exact path="/home" component={Home} />
             <PrivateRoute path="/game/:uuid" component={Lobby} />
+            <PrivateRoute path="/game/:uuid/join" component={JoinLobby} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/" component={Splash} />
           </IonRouterOutlet>
