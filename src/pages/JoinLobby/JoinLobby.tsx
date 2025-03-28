@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal,} from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonList, IonItem,} from '@ionic/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { listenForGameChanges } from '../../firebase/controller';
@@ -15,15 +15,21 @@ const JoinLobby: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [players, setPlayers] = useState<string[]>([]);
 
   useEffect(() => {
     if (currentGame) {
       const unsubscribe = listenForGameChanges(currentGame.id, (data) => {
-        if (data && typeof data.isStarted === 'boolean') {
-          dispatch(updateAttribute({ id: currentGame.id, key: 'isStarted', value: data.isStarted }));
+        if (data) {
+          if (typeof data.isStarted === 'boolean') {
+            dispatch(updateAttribute({ id: currentGame.id, key: 'isStarted', value: data.isStarted }));
+          }
+          if (data.players) {
+            // console.log(data.players)
+            setPlayers(data.players);
+          }
         }
       });
-
       return () => {
         unsubscribe();
       };
@@ -40,7 +46,6 @@ const JoinLobby: React.FC = () => {
           if (prevCount === 1) {
             clearInterval(interval);
             setShowModal(false);
-            console.log("here");
           }
           return prevCount - 1;
         });
@@ -58,6 +63,14 @@ const JoinLobby: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h3>{isStarted ? 'Get READY!' : 'Waiting for Host to Start Game...'}</h3>
+          <p>Players in Lobby</p>
+          <IonList>
+            {Array.from({ length: 8 }).map((_, index) => (
+              <IonItem key={index}>
+                {players[index] ? players[index] : "Open Slot"}
+              </IonItem>
+            ))}
+          </IonList>
         </div>
 
         <IonModal isOpen={showModal} backdropDismiss={false}>

@@ -7,12 +7,15 @@ import {
   IonToolbar,
   IonFooter,
   IonButton,
+  IonList,
+  IonItem,
 } from '@ionic/react';
 import './CreatorLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { listenForGameChanges, toggleBooleanField } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
+import { assignPlayersToRooms } from '../../components/roomAssignment';
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -45,8 +48,20 @@ const CreatorLobby: React.FC = () => {
     return <p>No game available</p>;
   }
 
-  const handleToggleStatus = async (key:any, value:any) => {
+  const handleToggleStatus = async (key: any, value: any) => {
     await toggleBooleanField(game.id, key, value);
+  };
+
+  const handleStartGame = async () => {
+    handleToggleStatus('isStarted', game.isStarted);
+    
+    // Call the room assignment function here
+    const rooms = assignPlayersToRooms(7,7);
+
+    // Log the results or handle them as needed
+    rooms.forEach((room, index) => {
+      console.log(`Room ${index + 1}: Players ${room.map(p => p + 1).join(', ')}`);
+    });
   };
 
   return (
@@ -57,19 +72,18 @@ const CreatorLobby: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        <div style={{ textAlign: 'center', marginTop: '50%' }}>
-          <h1>
-            Join Code: <strong>{game.code}</strong>
-          </h1>
-          <p><strong>{game.name}</strong></p>
-          <h2>Players:</h2>
-          <ul>
-            {game.players && game.players.map((player) => <li key={player}>{player}</li>)}
-          </ul>
-          <h3>Game Status: {game.isEnded ? 'Ended' : 'In Progress'}</h3>
-          <IonButton onClick={() => handleToggleStatus('isEnded', game.isEnded)}>Toggle Game Status</IonButton>
-          <IonButton onClick={() => handleToggleStatus('isStarted', game.isStarted)}>Start Game!</IonButton>
-        </div>
+        <h1>
+          Join Code: <strong>{game.code}</strong>
+        </h1>
+        <h3>{game.isStarted ? 'Get Ready!' : 'In Lobby'}</h3>
+        <IonList>
+          {Array.from({ length: 8 }).map((_, index) => (
+            <IonItem key={index}>
+              {game.players && game.players[index] ? game.players[index] : "Open Slot"}
+            </IonItem>
+          ))}
+        </IonList>
+        <IonButton onClick={handleStartGame}>Start Game!</IonButton>
       </IonContent>
       <IonFooter>
         <IonToolbar>
