@@ -55,7 +55,8 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isEnded: false,
       isStarted: false,
       isDead: false,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      roles: {innocents:[], saboteur:[]}
     };
 
     await setDoc(gameDocRef, gameData);
@@ -111,5 +112,22 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, curr
     });
   } catch (error) {
     console.error(`Error updating ${fieldName} status: `, error);
+  }
+};
+
+//////////////////////////////// UPDATING ROLES ////////////////////////////////
+// Function to update player roles in a Firestore document
+export const updatePlayerRoles = async (gameId: string, saboteur: string[], innocents: string[]) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  try {
+    await updateDoc(gameDocRef, {
+      roles: {
+        saboteur,
+        innocents
+      }
+    });
+    console.log("Player roles updated successfully in Firestore");
+  } catch (error) {
+    console.error("Error updating player roles: ", error);
   }
 };
