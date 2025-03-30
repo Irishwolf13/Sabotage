@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc } from "firebase/firestore";
 
 
 //////////////////////////////// LISTENING ////////////////////////////////
@@ -116,8 +116,12 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, curr
 };
 
 //////////////////////////////// UPDATING ROLES ////////////////////////////////
+interface PlayerRole {
+  email: string;
+  color: string;
+}
 // Function to update player roles in a Firestore document
-export const updatePlayerRoles = async (gameId: string, saboteur: string[], innocents: string[]) => {
+export const updatePlayerRoles = async (gameId: string, saboteur: PlayerRole[], innocents: PlayerRole[]) => {
   const gameDocRef = doc(db, "activeGames", gameId);
   try {
     await updateDoc(gameDocRef, {
@@ -129,5 +133,30 @@ export const updatePlayerRoles = async (gameId: string, saboteur: string[], inno
     console.log("Player roles updated successfully in Firestore");
   } catch (error) {
     console.error("Error updating player roles: ", error);
+  }
+};
+
+// Function to get base colors from the 'preferences' collection in Firestore
+export const getInnocentBaseColors = async (): Promise<string[]> => {
+  try {
+    // Reference to the 'innocentColors' document within 'preferences'
+    const innocentColorsDocRef = doc(db, "preferences", "innocentColors");
+    
+    // Retrieve the document snapshot
+    const docSnap = await getDoc(innocentColorsDocRef);
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const baseColors: string[] = data?.baseColors || [];
+      
+      // Return the array of base colors
+      return baseColors;
+    } else {
+      console.error("No such document found for innocentColors.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching base colors:", error);
+    return [];
   }
 };

@@ -4,12 +4,12 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonBut
 import './CreatorLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges, toggleBooleanField, updatePlayerRoles } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 import { assignPlayersToRooms } from '../../components/roomAssignment';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/StartGameModal';
 import { useRoleId } from '../../components/useRoleId';
+import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors } from '../../firebase/controller';
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -64,51 +64,65 @@ const CreatorLobby: React.FC = () => {
   };
 
   const handleStartGame = async (numSaboteurs: number) => {
+    const innocentColors = await getInnocentBaseColors();
+    console.log('innocent Colors:')
+    console.log(innocentColors)
+  
     // Assign players to rooms
-    // const rooms = assignPlayersToRooms(numRooms, numSlots - 1);
-    // rooms.forEach((room, index) => {
-    //   console.log(`Room ${index + 1}: Players ${room.map(p => p + 1).join(', ')}`);
-    // });
-
+    const rooms = assignPlayersToRooms(numRooms, numSlots - 1);
+    rooms.forEach((room, index) => {
+      console.log(`Room ${index + 1}: Players ${room.map(p => p + 1).join(', ')}`);
+    });
+  
     // Assign roles to players
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
-
+  
       if (numSaboteurs >= totalPlayers) {
         console.error("Number of saboteurs cannot be equal to or exceed total players.");
         return;
       }
-
-      const selectedSaboteurs: Set<number> = new Set();
-
+  
       // Randomly select saboteurs
+      const selectedSaboteurs: Set<number> = new Set();
       while (selectedSaboteurs.size < numSaboteurs) {
         const saboteurIndex = Math.floor(Math.random() * totalPlayers);
         selectedSaboteurs.add(saboteurIndex);
       }
-
-      const innocentPlayers: string[] = [];
-      const saboteurPlayers: string[] = [];
-
+  
+      const innocentPlayers: { email: string, color: string }[] = [];
+      const saboteurPlayers: { email: string, color: string }[] = [];
+      
+      // Shuffle innocent colors for random selection
+      const availableColors = [...innocentColors];
+      
       game.players.forEach((player, index) => {
         if (selectedSaboteurs.has(index)) {
-          saboteurPlayers.push(player);
+          // Assign a white color for saboteurs
+          saboteurPlayers.push({ email: player, color: "(255,255,255)" });
         } else {
-          innocentPlayers.push(player);
+          // Select a unique color for each innocent player
+          if (availableColors.length === 0) {
+            console.error("Not enough unique colors for all innocent players.");
+            return;
+          }
+          
+          const colorIndex = Math.floor(Math.random() * availableColors.length);
+          const color = availableColors.splice(colorIndex, 1)[0]; // Remove color from the pool
+          innocentPlayers.push({ email: player, color });
         }
       });
-
-      // console.log('Saboteurs:', saboteurPlayers.join(', '));
-      // console.log('Innocent Players:', innocentPlayers.join(', '));
-
+  
       // Update roles in Firestore
       await updatePlayerRoles(game.id, saboteurPlayers, innocentPlayers);
+  
       // Toggle the game's "isStarted" status
       await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');
     }
   };
+  
 
   const decreaseNumSlots = () => {
     setnumSlots(prev => Math.max(prev - 1, game.players.length));

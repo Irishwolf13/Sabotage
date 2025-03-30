@@ -16,12 +16,12 @@ const Innocent: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Innocent Page</IonTitle>
+          <IonTitle>Innocent</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
           <div style={{ textAlign: 'center', marginTop: '50%' }}>
-            <h1>Hello!</h1>
+            <h1>Innocent Splash</h1>
           </div>
       </IonContent>
       <IonFooter>
@@ -33,4 +33,4 @@ const Innocent: React.FC = () => {
   );
 };
 
-export default Innocent;
+export default Innocent; 

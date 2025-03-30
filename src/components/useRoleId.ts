@@ -10,8 +10,8 @@ export const useRoleId = (currentGameId: string | undefined, email: string | nul
       if (data.players) {
         setPlayers(data.players);
       }
-
-      if (data.roles?.saboteur.includes(email)) {
+      console.log(data.roles?.saboteur)
+      if (data.roles?.saboteur.some((player: { email: string }) => player.email === email)) {
         setRoleId("l");
         // console.log('Saboteur role detected, setting roleId to "l"');
       } else {

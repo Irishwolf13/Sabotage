@@ -16,12 +16,12 @@ const Saboteur: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Saboteur Page</IonTitle>
+          <IonTitle>Saboteur</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
           <div style={{ textAlign: 'center', marginTop: '50%' }}>
-            <h1>Hello!</h1>
+            <h1>Saboteur Splash</h1>
           </div>
       </IonContent>
       <IonFooter>
