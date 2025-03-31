@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal } from '@ionic/react';
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonFooter,
+  IonModal,
+} from '@ionic/react';
 import './Innocent.css';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,52 +22,68 @@ const Innocent: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
   const { user } = useAuth();
   const dispatch = useDispatch();
-  
+
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
 
   useEffect(() => {
     if (game?.id) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        dispatch(
-          setGames([
-            {
-              id: game.id,
-              name: data.gameName,
-              code: data.gameCode,
-              players: data.players,
-              isEnded: data.isEnded,
-              isStarted: data.isStarted,
-              foundDead: data.foundDead,
-            },
-          ])
-        );
+        if (user) {
+          const innocentUser = data.roles.innocents.find(
+            (innocent: any) => innocent.email === user.email
+          );
+          const innocentColor = innocentUser ? innocentUser.color : '';
+
+          dispatch(
+            setGames([
+              {
+                id: game.id,
+                name: data.gameName,
+                code: data.gameCode,
+                players: data.players,
+                isEnded: data.isEnded,
+                isStarted: data.isStarted,
+                foundDead: data.foundDead,
+                color: innocentColor,
+              },
+            ])
+          );
+        }
       });
       return () => unsubscribe();
     }
-  }, [dispatch, game?.id]);
+  }, [dispatch, game?.id, user?.email]);
 
+  // Closes all Modals if Dead player is Found by anyone
   useEffect(() => {
-    if (game) {
-      console.log('Current Game Info:', game);
+    if (game.foundDead) {
+      setShowColorModal(false)
+      setShowScannerModal(false)
     }
   }, [game]);
 
-  const handleButtonPressed = () => {
-    setShowColorModal(true); // Open the color modal
+  const handleColorButtonClicked = () => {
+    console.log(game.color);
+    setShowColorModal(true);
   };
 
-  const handleScannerPressed = () => {
-    setShowScannerModal(true); // Open the scanner modal
-  }
+  const handleScannerButtonClicked = () => {
+    setShowScannerModal(true);
+  };
 
   const handleCloseScannerModal = () => {
-    setShowScannerModal(false); // Close the scanner modal
-  }
+    setShowScannerModal(false); 
+  };
 
   const handleCloseColorModal = () => {
-    setShowColorModal(false); // Close the color modal
-  }
+    setShowColorModal(false);
+  };
+  
+  // Extracts numbers and converts them to integers
+  const extractRGB = (colorString: any) => {
+    return colorString.match(/\d+/g).map(Number);
+  };
 
   return (
     <IonPage>
@@ -71,8 +96,8 @@ const Innocent: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Innocent Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          <IonButton onClick={handleScannerPressed}>Scanner</IonButton>
-          <IonButton onClick={handleButtonPressed}>Check Color</IonButton>
+          <IonButton onClick={handleScannerButtonClicked}>Scanner</IonButton>
+          <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton>
         </div>
 
         {/* Scanner Modal implementation */}
@@ -86,7 +111,7 @@ const Innocent: React.FC = () => {
           <IonContent>
             <div style={{ padding: '20px', textAlign: 'center' }}>
               <h2>Scanner Information</h2>
-              <Scanner name='test'/>
+              <Scanner name='test' />
             </div>
           </IonContent>
         </IonModal>
@@ -101,8 +126,16 @@ const Innocent: React.FC = () => {
           </IonHeader>
           <IonContent>
             <div style={{ padding: '20px', textAlign: 'center' }}>
-              <h2>Check Color Information</h2>
-              <p>Here you can display information or functionality related to checking colors.</p>
+              <div
+                style={{
+                  backgroundColor: game?.color
+                    ? `rgb(${extractRGB(game.color).join(',')})`
+                    : 'transparent', // Fallback color
+                  width: '100px',
+                  height: '100px',
+                  margin: '0 auto',
+                }}
+              ></div>
             </div>
           </IonContent>
         </IonModal>

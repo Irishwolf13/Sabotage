@@ -47,6 +47,7 @@ const CreatorLobby: React.FC = () => {
               isEnded: data.isEnded,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
+              color: '',
             },
           ])
         );
@@ -65,16 +66,12 @@ const CreatorLobby: React.FC = () => {
 
   const handleStartGame = async (numSaboteurs: number) => {
     const innocentColors = await getInnocentBaseColors();
-    console.log('innocent Colors:')
-    console.log(innocentColors)
   
-    // Assign players to rooms
     const rooms = assignPlayersToRooms(numRooms, numSlots - 1);
     rooms.forEach((room, index) => {
       console.log(`Room ${index + 1}: Players ${room.map(p => p + 1).join(', ')}`);
     });
   
-    // Assign roles to players
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
   
@@ -82,6 +79,9 @@ const CreatorLobby: React.FC = () => {
         console.error("Number of saboteurs cannot be equal to or exceed total players.");
         return;
       }
+  
+      // Shuffle players to ensure randomness
+      const shuffledPlayers = [...game.players].sort(() => Math.random() - 0.5);
   
       // Randomly select saboteurs
       const selectedSaboteurs: Set<number> = new Set();
@@ -92,16 +92,15 @@ const CreatorLobby: React.FC = () => {
   
       const innocentPlayers: { email: string, color: string }[] = [];
       const saboteurPlayers: { email: string, color: string }[] = [];
-      
+  
       // Shuffle innocent colors for random selection
       const availableColors = [...innocentColors];
-      
-      game.players.forEach((player, index) => {
+  
+      shuffledPlayers.forEach((player, index) => {
         if (selectedSaboteurs.has(index)) {
           // Assign a white color for saboteurs
           saboteurPlayers.push({ email: player, color: "(255,255,255)" });
         } else {
-          // Select a unique color for each innocent player
           if (availableColors.length === 0) {
             console.error("Not enough unique colors for all innocent players.");
             return;
@@ -122,6 +121,7 @@ const CreatorLobby: React.FC = () => {
       console.log('No players available for role assignment.');
     }
   };
+  
   
 
   const decreaseNumSlots = () => {

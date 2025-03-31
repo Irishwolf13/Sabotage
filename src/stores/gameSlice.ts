@@ -9,6 +9,7 @@ interface Game {
   isEnded: boolean;
   isStarted: boolean;
   foundDead: boolean;
+  color: string;
 }
 
 // Define GamesState type

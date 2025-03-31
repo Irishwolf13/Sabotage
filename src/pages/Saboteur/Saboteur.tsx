@@ -1,50 +1,87 @@
-import React, { useEffect } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal } from '@ionic/react';
 import './Saboteur.css';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors } from '../../firebase/controller';
+import { getInnocentBaseColors, listenForGameChanges } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
+import Scanner from '../../components/Scanner/Scanner';
+
+import { useHistory } from 'react-router-dom';
 
 const Saboteur: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
-  const history = useHistory();
   const { user } = useAuth();
   const dispatch = useDispatch();
 
-  const navigateToLogin = () => {
-    history.push('/login');
-  };
+  const [showScannerModal, setShowScannerModal] = useState(false);
+  const [showColorModal, setShowColorModal] = useState(false);
 
   useEffect(() => {
     if (game?.id) {
-      const unsubscribe = listenForGameChanges(game.id, (data) => {
-        dispatch(
-          setGames([
-            {
-              id: game.id,
-              name: data.gameName,
-              code: data.gameCode,
-              players: data.players,
-              isEnded: data.isEnded,
-              isStarted: data.isStarted,
-              foundDead: data.foundDead,
-            },
-          ])
-        );
+      const unsubscribe = listenForGameChanges(game.id, async (data) => {
+        if (user) {
+          const innocentColors = await getInnocentBaseColors();
+
+          // Select a random color from the innocentColors array
+          let fankeColor = '';
+          if (innocentColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * innocentColors.length);
+            fankeColor = innocentColors[randomIndex];
+          }
+
+          dispatch(
+            setGames([
+              {
+                id: game.id,
+                name: data.gameName,
+                code: data.gameCode,
+                players: data.players,
+                isEnded: data.isEnded,
+                isStarted: data.isStarted,
+                foundDead: data.foundDead,
+                color: fankeColor,
+              },
+            ])
+          );
+        }
       });
+  
       return () => unsubscribe();
     }
-  }, [dispatch, game?.id]);
+  }, [dispatch, game?.id, user?.email]);
 
+  // Closes all Modals if Dead player is Found by anyone
   useEffect(() => {
-    if (game) {
-      console.log('Current Game Info:', game);
+    if (game.foundDead) {
+      setShowColorModal(false)
+      setShowScannerModal(false)
     }
   }, [game]);
+
+  const handleColorButtonClicked = () => {
+    console.log(game.color);
+    setShowColorModal(true);
+  };
+
+  const handleScannerButtonClicked = () => {
+    setShowScannerModal(true);
+  };
+
+  const handleCloseScannerModal = () => {
+    setShowScannerModal(false); 
+  };
+
+  const handleCloseColorModal = () => {
+    setShowColorModal(false);
+  };
+  
+  // Extracts numbers and converts them to integers
+  const extractRGB = (colorString: any) => {
+    return colorString.match(/\d+/g).map(Number);
+  };
 
   return (
     <IonPage>
@@ -57,7 +94,49 @@ const Saboteur: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Saboteur Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
+          <IonButton onClick={handleScannerButtonClicked}>Scanner</IonButton>
+          <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton>
         </div>
+
+        {/* Scanner Modal implementation */}
+        <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Scanner Modal</IonTitle>
+              <IonButton slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              <h2>Scanner Information</h2>
+              <Scanner name='test' />
+            </div>
+          </IonContent>
+        </IonModal>
+
+        {/* Color Modal implementation */}
+        <IonModal isOpen={showColorModal} onDidDismiss={handleCloseColorModal}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Color Information</IonTitle>
+              <IonButton slot="end" onClick={handleCloseColorModal}>Close</IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              <div
+                style={{
+                  backgroundColor: game?.color
+                    ? `rgb(${extractRGB(game.color).join(',')})`
+                    : 'transparent', // Fallback color
+                  width: '100px',
+                  height: '100px',
+                  margin: '0 auto',
+                }}
+              ></div>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
       <IonFooter>
         <IonToolbar>
