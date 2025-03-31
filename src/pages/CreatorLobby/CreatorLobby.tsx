@@ -7,7 +7,7 @@ import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
 import { assignPlayersToRooms } from '../../components/roomAssignment';
 import { auth } from '../../firebase/config';
-import StartGameModal from '../../components/StartGameModal';
+import StartGameModal from '../../components/Modals/StartGameModal';
 import { useRoleId } from '../../components/useRoleId';
 import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors } from '../../firebase/controller';
 
@@ -46,7 +46,7 @@ const CreatorLobby: React.FC = () => {
               players: data.players,
               isEnded: data.isEnded,
               isStarted: data.isStarted,
-              isDead: data.isDead,
+              foundDead: data.foundDead,
             },
           ])
         );

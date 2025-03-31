@@ -54,7 +54,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       players: [creator],
       isEnded: false,
       isStarted: false,
-      isDead: false,
+      foundDead: false,
       createdAt: new Date().toISOString(),
       roles: {innocents:[], saboteur:[]}
     };

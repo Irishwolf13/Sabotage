@@ -6,8 +6,8 @@ import {
 import './Home.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase/config';
-import NewGameButton from '../../components/NewGameButton';
-import JoinGameButton from '../../components/JoinGameButton';
+import NewGameButton from '../../components/Buttons/NewGameButton';
+import JoinGameButton from '../../components/Buttons/JoinGameButton';
 
 const Home: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);

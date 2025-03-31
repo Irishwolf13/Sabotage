@@ -3,10 +3,10 @@ import { IonButton } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { addGame } from '../stores/gameSlice'; 
-import { AppDispatch, RootState } from '../stores/store';
-import { createGameDocument } from '../firebase/controller';
-import { auth } from '../firebase/config';
+import { addGame } from '../../stores/gameSlice'; 
+import { AppDispatch, RootState } from '../../stores/store';
+import { createGameDocument } from '../../firebase/controller';
+import { auth } from '../../firebase/config';
 
 // Function to generate a random 5-letter code
 const generateRandomCode = (length: number) => {
@@ -52,7 +52,7 @@ const NewGameButton: React.FC = () => {
       players: [email],
       isEnded: false,
       isStarted: false,
-      isDead: false,
+      foundDead: false,
     }
 
     // Dispatch the new game to the Redux store

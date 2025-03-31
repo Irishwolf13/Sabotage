@@ -8,7 +8,7 @@ interface Game {
   players: string[];
   isEnded: boolean;
   isStarted: boolean;
-  isDead: boolean;
+  foundDead: boolean;
 }
 
 // Define GamesState type

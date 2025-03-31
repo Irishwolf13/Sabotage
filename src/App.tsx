@@ -37,6 +37,7 @@ import Lobby from './pages/CreatorLobby/CreatorLobby';
 import JoinLobby from './pages/JoinLobby/JoinLobby';
 import Innocent from './pages/Innocent/Innocent';
 import Saboteur from './pages/Saboteur/Saboteur';
+import VotingLobby from './pages/VotingLobby/VotingLobby';
 
 setupIonicReact();
 
@@ -50,6 +51,7 @@ const App: React.FC = () => (
             <PrivateRoute exact path="/game/:uuid" component={Lobby} />
             <PrivateRoute exact path="/game/:uuid/player/1" component={Innocent} />
             <PrivateRoute exact path="/game/:uuid/player/l" component={Saboteur} />
+            <PrivateRoute exact path="/game/:uuid/player/votinglobby" component={VotingLobby} />
             <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/" component={Splash} />

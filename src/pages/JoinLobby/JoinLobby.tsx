@@ -6,7 +6,7 @@ import { listenForGameChanges } from '../../firebase/controller';
 import { updateAttribute } from '../../stores/gameSlice';
 import './JoinLobby.css';
 import { auth } from '../../firebase/config';
-import StartGameModal from '../../components/StartGameModal';
+import StartGameModal from '../../components/Modals/StartGameModal';
 import { useRoleId } from '../../components/useRoleId'
 
 const JoinLobby: React.FC = () => {

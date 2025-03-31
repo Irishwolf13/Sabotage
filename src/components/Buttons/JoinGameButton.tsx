@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { IonButton, IonInput } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { AppDispatch, RootState } from '../stores/store';
-import { auth } from '../firebase/config';
-import { joinGame } from '../firebase/controller';
-import { setGames } from '../stores/gameSlice';
+import { AppDispatch, RootState } from '../../stores/store';
+import { auth } from '../../firebase/config';
+import { joinGame } from '../../firebase/controller';
+import { setGames } from '../../stores/gameSlice';
 const NewGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const history = useHistory();
@@ -46,7 +46,7 @@ const NewGameButton: React.FC = () => {
             players: [email], 
             isEnded: false,
             isStarted: false, 
-            isDead: false,
+            foundDead: false,
           }]));
         } else {
           alert('Failed to join the game. Please check the game code.');
