@@ -13,11 +13,11 @@ import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocen
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
-  const history = useHistory(); // Initialize useHistory
+  const history = useHistory();
 
   const game = useSelector((state: RootState) => state.games[0]);
   const [numSlots, setnumSlots] = useState(8);
-  const [numRooms, setnumRooms] = useState(7);
+  const [numRooms, setnumRooms] = useState(6);
   const [numSaboteurs, setNumSaboteurs] = useState(1);
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
@@ -65,15 +65,13 @@ const CreatorLobby: React.FC = () => {
   };
 
   const handleStartGame = async (numSaboteurs: number) => {
-    const innocentColors = await getInnocentBaseColors();
-  
-    const rooms = assignPlayersToRooms(numRooms, numSlots - 1);
-    rooms.forEach((room, index) => {
-      console.log(`Room ${index + 1}: Players ${room.map(p => p + 1).join(', ')}`);
-    });
-  
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
+      const availableColors = await getInnocentBaseColors();
+    
+      const rooms = assignPlayersToRooms(numRooms, totalPlayers, availableColors);
+      console.log('rooms')
+      console.log(rooms)
   
       if (numSaboteurs >= totalPlayers) {
         console.error("Number of saboteurs cannot be equal to or exceed total players.");
@@ -92,9 +90,6 @@ const CreatorLobby: React.FC = () => {
   
       const innocentPlayers: { email: string, color: string }[] = [];
       const saboteurPlayers: { email: string, color: string }[] = [];
-  
-      // Shuffle innocent colors for random selection
-      const availableColors = [...innocentColors];
   
       shuffledPlayers.forEach((player, index) => {
         if (selectedSaboteurs.has(index)) {
