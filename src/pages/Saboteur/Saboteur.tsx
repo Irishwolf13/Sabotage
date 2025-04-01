@@ -94,8 +94,8 @@ const Saboteur: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Saboteur Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          <IonButton onClick={handleScannerButtonClicked}>Scanner</IonButton>
-          <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton>
+          <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
+          <IonButton className='halfWidthButton' onClick={handleColorButtonClicked}>Sabotage</IonButton>
         </div>
 
         {/* Scanner Modal implementation */}

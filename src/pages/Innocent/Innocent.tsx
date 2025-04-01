@@ -8,6 +8,11 @@ import {
   IonToolbar,
   IonFooter,
   IonModal,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
 } from '@ionic/react';
 import './Innocent.css';
 import { useAuth } from '../../firebase/AuthContext';
@@ -96,8 +101,8 @@ const Innocent: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Innocent Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          <IonButton onClick={handleScannerButtonClicked}>Scanner</IonButton>
-          <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton>
+          <IonButton className='fullWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
+          {/* <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton> */}
         </div>
 
         {/* Scanner Modal implementation */}
@@ -109,10 +114,26 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <h2>Scanner Information</h2>
-              <Scanner name='test' />
-            </div>
+            <IonCard>
+              <IonCardHeader>
+                <IonCardTitle style={{ textAlign: 'center' }}>
+                  Your Color                   
+                  <div style={{
+                    backgroundColor: game?.color
+                    ? `rgb(${extractRGB(game.color).join(',')})`
+                    : 'transparent', // Fallback color
+                    width: '100px',
+                    height: '20px',
+                    margin: '0 auto',
+                  }}
+                  ></div></IonCardTitle>
+                <IonCardSubtitle>
+
+                </IonCardSubtitle>
+              </IonCardHeader>
+              <IonCardContent>Scan Room QR: See available puzzles.<br></br> Scan Dead Player QR: Call for a vote.</IonCardContent>
+            </IonCard>
+            <Scanner name={game.color} />
           </IonContent>
         </IonModal>
 
@@ -125,18 +146,7 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <div
-                style={{
-                  backgroundColor: game?.color
-                    ? `rgb(${extractRGB(game.color).join(',')})`
-                    : 'transparent', // Fallback color
-                  width: '100px',
-                  height: '100px',
-                  margin: '0 auto',
-                }}
-              ></div>
-            </div>
+
           </IonContent>
         </IonModal>
       </IonContent>
