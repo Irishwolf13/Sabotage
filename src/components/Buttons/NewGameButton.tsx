@@ -53,6 +53,8 @@ const NewGameButton: React.FC = () => {
       isEnded: false,
       isStarted: false,
       foundDead: false,
+      color: '',
+      isSaboteur: false,
     }
 
     // Dispatch the new game to the Redux store

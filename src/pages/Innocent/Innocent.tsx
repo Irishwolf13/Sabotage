@@ -22,14 +22,15 @@ import { listenForGameChanges } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
+import { useHistory } from 'react-router';
 
 const Innocent: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
   const { user } = useAuth();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [showScannerModal, setShowScannerModal] = useState(false);
-  const [showColorModal, setShowColorModal] = useState(false);
 
   useEffect(() => {
     if (game?.id) {
@@ -51,6 +52,7 @@ const Innocent: React.FC = () => {
                 isStarted: data.isStarted,
                 foundDead: data.foundDead,
                 color: innocentColor,
+                isSaboteur: false,
               },
             ])
           );
@@ -63,15 +65,9 @@ const Innocent: React.FC = () => {
   // Closes all Modals if Dead player is Found by anyone
   useEffect(() => {
     if (game.foundDead) {
-      setShowColorModal(false)
       setShowScannerModal(false)
     }
   }, [game]);
-
-  const handleColorButtonClicked = () => {
-    console.log(game.color);
-    setShowColorModal(true);
-  };
 
   const handleScannerButtonClicked = () => {
     setShowScannerModal(true);
@@ -80,15 +76,16 @@ const Innocent: React.FC = () => {
   const handleCloseScannerModal = () => {
     setShowScannerModal(false); 
   };
-
-  const handleCloseColorModal = () => {
-    setShowColorModal(false);
-  };
   
   // Extracts numbers and converts them to integers
   const extractRGB = (colorString: any) => {
     return colorString.match(/\d+/g).map(Number);
   };
+
+  const handleSolvePuzzleButton = () => {
+    setShowScannerModal(false)
+    history.push('/game/:uuid/puzzles');
+  }
 
   return (
     <IonPage>
@@ -114,7 +111,7 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <Scanner name={game.color} />
+            <Scanner name={game.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />
             <IonCard>
               <IonCardHeader>
                 <IonCardTitle style={{ textAlign: 'center' }}>
@@ -133,19 +130,6 @@ const Innocent: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>Scan Room QR: See available puzzles.<br></br> Scan Dead Player QR: Call for a vote.</IonCardContent>
             </IonCard>
-          </IonContent>
-        </IonModal>
-
-        {/* Color Modal implementation */}
-        <IonModal isOpen={showColorModal} onDidDismiss={handleCloseColorModal}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Color Information</IonTitle>
-              <IonButton slot="end" onClick={handleCloseColorModal}>Close</IonButton>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-
           </IonContent>
         </IonModal>
       </IonContent>

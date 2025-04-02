@@ -8,9 +8,10 @@ import { useSelector } from 'react-redux';
 
 interface ContainerProps {
   name: string;
+  handleSolvePuzzleButton: () => void;
 }
 
-const Scanner: React.FC<ContainerProps> = ({ name }) => {
+const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) => {
   const [roomColors, setRoomColors] = useState<string[]>([]);
   const [isNameInRoomColors, setIsNameInRoomColors] = useState<boolean>(false);
   const [showScanner, setShowScanner] = useState<boolean>(true);
@@ -72,7 +73,6 @@ const Scanner: React.FC<ContainerProps> = ({ name }) => {
 
   return (
     <div>
-      {/* <button onClick={testButton}>Test Button</button> */}
       <div className='colorHolder'>
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (
@@ -86,8 +86,9 @@ const Scanner: React.FC<ContainerProps> = ({ name }) => {
           />
         ))}
       </div>
+      <IonButton onClick={handleSolvePuzzleButton}>Test Puzzle</IonButton>
       <div className='buttonHolder'>
-        {isNameInRoomColors && <IonButton>Solve Puzzle?</IonButton>}
+        {isNameInRoomColors && <IonButton onClick={handleSolvePuzzleButton}>Solve Puzzle?</IonButton>}
       </div>
 
       {showScanner && (

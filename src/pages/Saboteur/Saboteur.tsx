@@ -15,6 +15,7 @@ const Saboteur: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
   const { user } = useAuth();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
@@ -43,6 +44,7 @@ const Saboteur: React.FC = () => {
                 isStarted: data.isStarted,
                 foundDead: data.foundDead,
                 color: fankeColor,
+                isSaboteur: true,
               },
             ])
           );
@@ -83,6 +85,11 @@ const Saboteur: React.FC = () => {
     return colorString.match(/\d+/g).map(Number);
   };
 
+  const handleSolvePuzzleButton = () => {
+    setShowScannerModal(false)
+    history.push('/game/:uuid/puzzles');
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -109,7 +116,7 @@ const Saboteur: React.FC = () => {
           <IonContent>
             <div style={{ padding: '20px', textAlign: 'center' }}>
               <h2>Scanner Information</h2>
-              <Scanner name='test' />
+              <Scanner name='test' handleSolvePuzzleButton={handleSolvePuzzleButton}/>
             </div>
           </IonContent>
         </IonModal>

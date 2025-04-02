@@ -3,7 +3,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonBut
 import './PlayerLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges, toggleGameEndedStatus } from '../../firebase/controller';
+import { listenForGameChanges } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 
 const PlayerLobby: React.FC = () => {
@@ -14,11 +14,14 @@ const PlayerLobby: React.FC = () => {
     if (game) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
         dispatch(setGames([{ 
-            id: game.id, 
-            name: data.gameName, 
-            code: data.gameCode, 
-            players: data.players,
-            isEnded: data.isEnded,  
+          id: game.id,
+          name: data.gameName,
+          code: data.gameCode,
+          players: data.players,
+          isEnded: data.isEnded,
+          isStarted: data.isStarted,
+          foundDead: data.foundDead,
+          color: '',
         }]));
       });
 
@@ -31,9 +34,9 @@ const PlayerLobby: React.FC = () => {
   }
 
   // Function to handle button click
-  const handleToggleStatus = async () => {
-    await toggleGameEndedStatus(game.id, !game.isEnded);
-  };
+  // const handleToggleStatus = async () => {
+  //   await toggleGameEndedStatus(game.id, !game.isEnded);
+  // };
 
   return (
     <IonPage>
@@ -53,9 +56,9 @@ const PlayerLobby: React.FC = () => {
             ))}
           </ul>
           <h3>Game Status: {game.isEnded ? "Ended" : "In Progress"}</h3>
-          <IonButton onClick={handleToggleStatus}>
+          {/* <IonButton onClick={handleToggleStatus}>
             Toggle Game Status
-          </IonButton>
+          </IonButton> */}
         </div>
       </IonContent>
       <IonFooter>
