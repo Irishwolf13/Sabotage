@@ -115,6 +115,25 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, curr
   }
 };
 
+// Function to add room colors (or assignments) to a game document in Firestore
+export const addRoomColors = async (gameId: string, roomAssignments: { player: number, color: string }[][]) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  // Flatten the nested array into objects with room IDs
+  const formattedAssignments = roomAssignments.map((room, index) => ({
+    roomId: index,
+    players: room
+  }));
+
+  try {
+    await updateDoc(gameDocRef, {
+      roomAssignments: formattedAssignments
+    });
+    console.log("Room colors/assignments added successfully in Firestore");
+  } catch (error) {
+    console.error("Error adding room colors/assignments:", error);
+  }
+};
 //////////////////////////////// UPDATING ROLES ////////////////////////////////
 interface PlayerRole {
   email: string;
@@ -159,4 +178,34 @@ export const getInnocentBaseColors = async (): Promise<string[]> => {
     console.error("Error fetching base colors:", error);
     return [];
   }
+};
+
+// Function to retrieve room colors for a specific room from Firestore
+export const getRoomColors = async (gameId: string, myNumber: number): Promise<string[]> => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Retrieve the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const roomAssignments: { roomId: number; players: { color: string }[] }[] = data?.roomAssignments || [];
+
+      // Find the matching room by roomId
+      const myRoom = roomAssignments.find(room => room.roomId === myNumber);
+
+      if (myRoom) {
+        // Extract and return the colors for players in the specified room
+        return myRoom.players.map(player => player.color);
+      }
+    } else {
+      console.error("No such document found for the given gameId.");
+    }
+  } catch (error) {
+    console.error("Error fetching room colors:", error);
+  }
+
+  // Return an empty array if no colors were found or an error occurred
+  return [];
 };

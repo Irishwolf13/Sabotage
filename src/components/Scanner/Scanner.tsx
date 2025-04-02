@@ -2,19 +2,37 @@ import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
 import { IonButton } from '@ionic/react';
+import { getRoomColors } from '../../firebase/controller';
+import { RootState } from '../../stores/store';
+import { useSelector } from 'react-redux';
 
 interface ContainerProps {
   name: string;
 }
 
 const Scanner: React.FC<ContainerProps> = ({ name }) => {
-  const [roomColors, setRoomColors] = useState<string[]>(['(255, 255, 0)']);
+  const [roomColors, setRoomColors] = useState<string[]>([]);
   const [isNameInRoomColors, setIsNameInRoomColors] = useState<boolean>(false);
+  const [showScanner, setShowScanner] = useState<boolean>(true);
+  const game = useSelector((state: RootState) => state.games[0]);
 
   useEffect(() => {
-    const onScanSuccess = (decodedText: string, decodedResult: any) => {
+    if (!showScanner) return;
+
+    const onScanSuccess = async (decodedText: string, decodedResult: any) => {
       console.log('result:', decodedResult);
       console.log('text:', decodedText);
+
+      // Extract the number from the 'decodedText'
+      const roomNumberString = decodedText.replace("Room ", "");
+      const roomNumber = parseInt(roomNumberString, 10);
+
+      // Use the extracted number in the function call
+      const colors = await getRoomColors(game.id, roomNumber);
+      setRoomColors(colors);
+
+      // Hide scanner after a successful scan
+      setShowScanner(false);
     };
 
     const onScanError = (errorMessage: string) => {
@@ -33,7 +51,7 @@ const Scanner: React.FC<ContainerProps> = ({ name }) => {
     return () => {
       scanner.clear();
     };
-  }, []);
+  }, [game.id, showScanner]);
 
   // Updates whether the name exists in roomColors whenever either changes
   useEffect(() => {
@@ -46,7 +64,7 @@ const Scanner: React.FC<ContainerProps> = ({ name }) => {
     return colorString.match(/\d+/g).map(Number);
   };
 
-  const testButton = () => {
+  const testButton = async () => {
     console.log(name);
     console.log(roomColors);
     console.log(isNameInRoomColors);
@@ -71,10 +89,12 @@ const Scanner: React.FC<ContainerProps> = ({ name }) => {
       <div className='buttonHolder'>
         {isNameInRoomColors && <IonButton>Solve Puzzle?</IonButton>}
       </div>
-     
-      <div id="container">
-        <div id="qr-reader"></div>
-      </div>
+
+      {showScanner && (
+        <div id="container">
+          <div id="qr-reader"></div>
+        </div>
+      )}
     </div>
   );
 };

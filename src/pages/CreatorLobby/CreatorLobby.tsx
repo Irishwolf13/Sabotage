@@ -9,7 +9,7 @@ import { assignPlayersToRooms } from '../../components/roomAssignment';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
 import { useRoleId } from '../../components/useRoleId';
-import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors } from '../../firebase/controller';
+import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors, addRoomColors } from '../../firebase/controller';
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -17,7 +17,8 @@ const CreatorLobby: React.FC = () => {
 
   const game = useSelector((state: RootState) => state.games[0]);
   const [numSlots, setnumSlots] = useState(8);
-  const [numRooms, setnumRooms] = useState(6);
+  const [numRooms, setnumRooms] = useState(5);
+  const testNumberOfInnocents = 7;
   const [numSaboteurs, setNumSaboteurs] = useState(1);
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
@@ -69,9 +70,22 @@ const CreatorLobby: React.FC = () => {
       const totalPlayers = game.players.length;
       const availableColors = await getInnocentBaseColors();
     
+      // testNumberOfInnocents will need to be replaced by totalPlayers at some point
       const rooms = assignPlayersToRooms(numRooms, totalPlayers, availableColors);
       console.log('rooms')
       console.log(rooms)
+      console.log(game.id)
+      addRoomColors(game.id, rooms)
+
+      // Selects all the colors used, to assign to players later...
+      const colorsSet = new Set<string>();
+      rooms.forEach(room => {
+        room.forEach(playerAssignment => {
+          colorsSet.add(playerAssignment.color);
+        });
+      });
+  
+      const uniqueColors = Array.from(colorsSet);
   
       if (numSaboteurs >= totalPlayers) {
         console.error("Number of saboteurs cannot be equal to or exceed total players.");
@@ -96,13 +110,13 @@ const CreatorLobby: React.FC = () => {
           // Assign a white color for saboteurs
           saboteurPlayers.push({ email: player, color: "(255,255,255)" });
         } else {
-          if (availableColors.length === 0) {
+          if (uniqueColors.length === 0) {
             console.error("Not enough unique colors for all innocent players.");
             return;
           }
           
-          const colorIndex = Math.floor(Math.random() * availableColors.length);
-          const color = availableColors.splice(colorIndex, 1)[0]; // Remove color from the pool
+          const colorIndex = Math.floor(Math.random() * uniqueColors.length);
+          const color = uniqueColors.splice(colorIndex, 1)[0]; // Remove color from the pool
           innocentPlayers.push({ email: player, color });
         }
       });

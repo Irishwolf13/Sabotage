@@ -114,6 +114,7 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
+            <Scanner name={game.color} />
             <IonCard>
               <IonCardHeader>
                 <IonCardTitle style={{ textAlign: 'center' }}>
@@ -128,12 +129,10 @@ const Innocent: React.FC = () => {
                   }}
                   ></div></IonCardTitle>
                 <IonCardSubtitle>
-
                 </IonCardSubtitle>
               </IonCardHeader>
               <IonCardContent>Scan Room QR: See available puzzles.<br></br> Scan Dead Player QR: Call for a vote.</IonCardContent>
             </IonCard>
-            <Scanner name={game.color} />
           </IonContent>
         </IonModal>
 
