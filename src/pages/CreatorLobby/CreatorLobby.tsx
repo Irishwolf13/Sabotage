@@ -49,6 +49,7 @@ const CreatorLobby: React.FC = () => {
               isStarted: data.isStarted,
               foundDead: data.foundDead,
               color: '',
+              isSaboteur: false,
             },
           ])
         );

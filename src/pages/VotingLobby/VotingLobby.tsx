@@ -1,15 +1,24 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './VotingLobby.css';
-import { useAuth } from '../../firebase/AuthContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../stores/store';
+import { useGameSubscription } from '../../components/hooks/useGameSubscription';
+import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 
 const VotingLobby: React.FC = () => {
+  useGameSubscription()
   const history = useHistory();
-  const { user } = useAuth();
+  const game = useSelector((state: RootState) => state.games[0]);
 
-  const navigateToLogin = () => {
-    history.push('/login');
+  const navigateToPlayerPage = () => {
+    console.log(game)
+    if (game.isSaboteur) {
+        history.push(`/game/${game.id}/player/l`);
+    } else {
+        history.push(`/game/${game.id}/player/1`);
+    }
   };
 
   return (
@@ -20,9 +29,9 @@ const VotingLobby: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-          <div style={{ textAlign: 'center', marginTop: '50%' }}>
-            <h1>This is the Voting Page</h1>
-          </div>
+        <h1>VotingLobby Page</h1>
+        <IonButton onClick={navigateToPlayerPage}>Cast Vote</IonButton>
+        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
       </IonContent>
       <IonFooter>
         <IonToolbar>
