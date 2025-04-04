@@ -15,7 +15,6 @@ const Puzzles: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
 
   const navigateToPlayerPage = () => {
-    console.log(game)
     if (game.isSaboteur) {
         history.push(`/game/${game.id}/player/l`);
     } else {

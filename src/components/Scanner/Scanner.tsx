@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
 import { IonButton } from '@ionic/react';
-import { getRoomColors } from '../../firebase/controller';
+import { getRoomColors, toggleBooleanField } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
 import { useSelector } from 'react-redux';
 
@@ -23,16 +23,16 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
     const onScanSuccess = async (decodedText: string, decodedResult: any) => {
       console.log('result:', decodedResult);
       console.log('text:', decodedText);
-
-      // Extract the number from the 'decodedText'
-      const roomNumberString = decodedText.replace("Room ", "");
-      const roomNumber = parseInt(roomNumberString, 10);
-
-      // Use the extracted number in the function call
-      const colors = await getRoomColors(game.id, roomNumber);
-      setRoomColors(colors);
-
-      // Hide scanner after a successful scan
+      
+      if (decodedText.includes("Room")) {
+        const roomNumberString = decodedText.replace("Room ", "");
+        const roomNumber = parseInt(roomNumberString, 10);
+        const colors = await getRoomColors(game.id, roomNumber);
+        setRoomColors(colors);
+      }
+      if (decodedText.includes("Dead")) {
+        await toggleBooleanField(game.id, "foundDead", false);
+      }
       setShowScanner(false);
     };
 
@@ -86,6 +86,7 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
           />
         ))}
       </div>
+
       <IonButton onClick={handleSolvePuzzleButton}>Test Puzzle</IonButton>
       <div className='buttonHolder'>
         {isNameInRoomColors && <IonButton onClick={handleSolvePuzzleButton}>Solve Puzzle?</IonButton>}

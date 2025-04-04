@@ -1,5 +1,5 @@
-import React from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter } from '@ionic/react';
+import React, { useState } from 'react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonList, IonRadioGroup, IonItem, IonLabel, IonRadio } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './VotingLobby.css';
 import { useSelector } from 'react-redux';
@@ -8,16 +8,25 @@ import { useGameSubscription } from '../../components/hooks/useGameSubscription'
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 
 const VotingLobby: React.FC = () => {
-  useGameSubscription()
+  useGameSubscription();
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
+  // console.log(game);
 
-  const navigateToPlayerPage = () => {
-    console.log(game)
-    if (game.isSaboteur) {
-        history.push(`/game/${game.id}/player/l`);
+  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+
+  const handleVote = () => {
+    if (selectedPlayer) {
+        console.log(`Voted for player: ${selectedPlayer}`);
+        if (game.isSaboteur) {
+          setSelectedPlayer('')
+          history.push(`/game/${game.id}/player/l`);
+        } else {
+          setSelectedPlayer('')
+          history.push(`/game/${game.id}/player/1`);
+        }
     } else {
-        history.push(`/game/${game.id}/player/1`);
+        console.log("No player selected");
     }
   };
 
@@ -30,8 +39,18 @@ const VotingLobby: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <h1>VotingLobby Page</h1>
-        <IonButton onClick={navigateToPlayerPage}>Cast Vote</IonButton>
-        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
+        <IonList>
+          <IonRadioGroup value={selectedPlayer} onIonChange={(e) => setSelectedPlayer(e.detail.value)}>
+            {game?.players && game.players.map((player, index) => (
+              <IonItem key={index} button onClick={() => setSelectedPlayer(player)}>
+                <IonLabel>{player}</IonLabel>
+                <IonRadio slot="start" value={player} />
+              </IonItem>
+            ))}
+          </IonRadioGroup>
+        </IonList>
+        <IonButton onClick={handleVote}>Cast Vote</IonButton>
+        {/* <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} /> */}
       </IonContent>
       <IonFooter>
         <IonToolbar>

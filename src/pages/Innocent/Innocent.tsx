@@ -84,8 +84,8 @@ const Innocent: React.FC = () => {
 
   const handleSolvePuzzleButton = () => {
     setShowScannerModal(false)
-    history.push('/game/:uuid/puzzles');
-  }
+    history.push(`/game/${game.id}/puzzles`);
+  } 
 
   return (
     <IonPage>
