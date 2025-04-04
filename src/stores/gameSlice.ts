@@ -5,11 +5,18 @@ interface Game {
   id: string;
   name: string;
   code: string;
-  players: string[];
   isEnded: boolean;
   isStarted: boolean;
   foundDead: boolean;
+  players: Player[];
+}
+
+// Define Player interface
+interface Player {
+  screenName: string;
+  email: string;
   color: string;
+  ghost: boolean;
   isSaboteur: boolean;
 }
 

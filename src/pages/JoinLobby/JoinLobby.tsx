@@ -27,7 +27,7 @@ const JoinLobby: React.FC = () => {
 
   // Use the custom hook to manage roleId and players list
   const { roleId, players } = useRoleId(currentGame?.id, email);
-
+  console.log(players)
   useEffect(() => {
     if (currentGame) {
       const unsubscribe = listenForGameChanges(currentGame.id, (data) => {
@@ -55,7 +55,7 @@ const JoinLobby: React.FC = () => {
           <IonList>
             {players.map((player, index) => (
               <IonItem key={index}>
-                {player}
+                {player.email}
               </IonItem>
             ))}
           </IonList>

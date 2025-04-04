@@ -42,7 +42,7 @@ export const createPlayerAccount = async (uid: string, email: string, playerName
 };
 
 // Function to create a new game instance in the Firestore database
-export const createGameDocument = async (id: string, gameName: string, gameCode: string, creator: string) => {
+export const createGameDocument = async (id: string, gameName: string, gameCode: string, creator: string, screenName: string) => {
   try {
     const gameDocRef = doc(db, "activeGames", id);
 
@@ -51,12 +51,11 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       gameName,
       gameCode,
       creator,
-      players: [creator],
+      createdAt: new Date().toISOString(),
       isEnded: false,
       isStarted: false,
       foundDead: false,
-      createdAt: new Date().toISOString(),
-      roles: {innocents:[], saboteur:[]}
+      players: [{screenName: screenName, email:creator, ghost:false, color:'', isSaboteur: false}],
     };
 
     await setDoc(gameDocRef, gameData);
@@ -81,9 +80,19 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
       
       // Check if the gameName exists in the document
       if (gameData && gameData.gameName) {
+        // Update to include an object with necessary details like email
+        const playerObject = {
+          email,          // User's email
+          screenName: '', // Default or fetched screen name
+          ghost: false,   // Initial value, change as needed
+          color: '',      // Default color, change as needed
+          isSaboteur: false // Initial role, adjust as per your logic
+        };
+
         await updateDoc(docSnap.ref, {
-          players: arrayUnion(email)
+          players: arrayUnion(playerObject)
         });
+
         console.log(`Successfully added ${email} to game named ${gameData.gameName}`);
         
         // Return the gameName after successful joining
@@ -115,43 +124,55 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, curr
   }
 };
 
-// Function to add room colors (or assignments) to a game document in Firestore
-export const addRoomColors = async (gameId: string, roomAssignments: { player: number, color: string }[][]) => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-
-  // Flatten the nested array into objects with room IDs
-  const formattedAssignments = roomAssignments.map((room, index) => ({
-    roomId: index,
-    players: room
-  }));
-
+// Function to set a player's isSaboteur field to true
+export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) => {
   try {
-    await updateDoc(gameDocRef, {
-      roomAssignments: formattedAssignments
-    });
-    console.log("Room colors/assignments added successfully in Firestore");
+    // Reference to the game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+    
+    // Retrieve the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      
+      if (data && data.players) {
+        // Map over players to update the isSaboteur property for the matching email
+        const updatedPlayers = data.players.map((player: any) => 
+          player.email === playerEmail ? { ...player, isSaboteur: true } : player
+        );
+
+        // Update the Firestore document with the new players array
+        await updateDoc(gameDocRef, { players: updatedPlayers });
+
+        console.log(`Successfully set ${playerEmail} as a saboteur.`);
+      } else {
+        console.error("The players array does not exist in the document.");
+      }
+    } else {
+      console.error("No such document found for the given gameId.");
+    }
   } catch (error) {
-    console.error("Error adding room colors/assignments:", error);
+    console.error("Error setting player as saboteur:", error);
   }
 };
-//////////////////////////////// UPDATING ROLES ////////////////////////////////
-interface PlayerRole {
-  email: string;
-  color: string;
-}
-// Function to update player roles in a Firestore document
-export const updatePlayerRoles = async (gameId: string, saboteur: PlayerRole[], innocents: PlayerRole[]) => {
+
+
+// Function to add room colors (or assignments) to a game document in Firestore
+type colorPlayer = { player: number; solved: boolean; type: number; room: number };
+export const addRoomColors = async (
+  gameId: string,
+  resultArray: colorPlayer[]
+) => {
   const gameDocRef = doc(db, "activeGames", gameId);
+
   try {
     await updateDoc(gameDocRef, {
-      roles: {
-        saboteur,
-        innocents
-      }
+      roomPuzzles: resultArray
     });
-    console.log("Player roles updated successfully in Firestore");
+    console.log("Room puzzles added successfully in Firestore");
   } catch (error) {
-    console.error("Error updating player roles: ", error);
+    console.error("Error adding room puzzles:", error);
   }
 };
 

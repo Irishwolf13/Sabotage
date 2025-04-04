@@ -49,19 +49,17 @@ const NewGameButton: React.FC = () => {
       id: newUUID,
       name: `${newUUID}`,
       code: randomCode,
-      players: [email],
       isEnded: false,
       isStarted: false,
       foundDead: false,
-      color: '',
-      isSaboteur: false,
+      players: [{screenName: 'Frank', email: email, color:'', ghost: false, isSaboteur: false}],
     }
 
     // Dispatch the new game to the Redux store
     dispatch(addGame(newGame));
 
     // Use the imported function to create the game document in Firestore
-    await createGameDocument(newUUID, newGame.name, randomCode, email);
+    await createGameDocument(newUUID, newGame.name, randomCode, email, 'Frank');
 
     // Redirect to the new route with newUUID
     history.push(`/game/${newUUID}`);

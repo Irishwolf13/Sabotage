@@ -42,11 +42,11 @@ const NewGameButton: React.FC = () => {
           dispatch(setGames([{ 
             id: result, 
             name: result, 
-            code: gameCode, 
-            players: [email], 
+            code: gameCode,
             isEnded: false,
             isStarted: false, 
             foundDead: false,
+            players: [{screenName: 'Frank', email: email, color:'', ghost: false, isSaboteur: false}],
           }]));
         } else {
           alert('Failed to join the game. Please check the game code.');

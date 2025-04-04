@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem } from '@ionic/react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonFooter,
+  IonButton,
+  IonList,
+  IonItem,
+} from '@ionic/react';
 import './CreatorLobby.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
-import { assignPlayersToRooms } from '../../components/roomAssignment';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
 import { useRoleId } from '../../components/useRoleId';
-import { listenForGameChanges, toggleBooleanField, updatePlayerRoles, getInnocentBaseColors, addRoomColors } from '../../firebase/controller';
+import {
+  listenForGameChanges,
+  toggleBooleanField,
+  getInnocentBaseColors,
+  addRoomColors,
+  setPlayerAsSaboteur,
+} from '../../firebase/controller';
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -18,7 +33,6 @@ const CreatorLobby: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
   const [numSlots, setnumSlots] = useState(8);
   const [numRooms, setnumRooms] = useState(5);
-  const testNumberOfInnocents = 7;
   const [numSaboteurs, setNumSaboteurs] = useState(1);
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
@@ -48,8 +62,6 @@ const CreatorLobby: React.FC = () => {
               isEnded: data.isEnded,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
-              color: '',
-              isSaboteur: false,
             },
           ])
         );
@@ -66,88 +78,154 @@ const CreatorLobby: React.FC = () => {
     await toggleBooleanField(game.id, key, value);
   };
 
+  const shuffleArray = (array: any) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  };
+
+  const selectRandomColors = (
+    availableColors: any,
+    totalPlayers: any,
+    myPlayers: any
+  ) => {
+    const usedColors = new Set<string>();
+
+    if (availableColors.length < totalPlayers) {
+      console.log('Not enough available colors for all players.');
+      return;
+    }
+
+    // Assign unique colors to each player
+    myPlayers.forEach((player: any, index: any) => {
+      player.color = availableColors[index];
+      usedColors.add(player.color);
+    });
+
+    console.log('myPlayers with assigned colors:', myPlayers);
+  };
+
+  const selectRandomSaboteur = async (totalPlayers: any, myPlayers: any) => {
+    // Randomly assign saboteurs
+    for (let i = 0; i < numSaboteurs; i++) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * totalPlayers);
+        console.log(randomIndex)
+      } while (myPlayers[randomIndex].isSaboteur);
+      console.log(randomIndex)
+      myPlayers[randomIndex].isSaboteur = true;
+      await setPlayerAsSaboteur(game.id, myPlayers[randomIndex].email)
+    }
+  };
+
+  type roomPlayer = { player: number; solved: boolean; type: number };
+  const assignPlayersEvenly = (
+    numberOfPlayers: number,
+    numberOfRooms: number
+  ) => {
+    const roomPuzzles: roomPlayer[][] = Array.from(
+      { length: numberOfRooms },
+      () => []
+    );
+    const playerAssignments = Array.from(
+      { length: numberOfPlayers },
+      () => new Set<number>()
+    );
+    const roomCounts = Array(numberOfRooms).fill(0);
+    const playerTypeCounter: number[] = Array(numberOfPlayers).fill(0);
+
+    for (let player = 0; player < numberOfPlayers; player++) {
+      while (playerAssignments[player].size < 3) {
+        const thresholds = [...new Set(roomCounts)].sort((a, b) => a - b);
+        let assigned = false;
+
+        for (const threshold of thresholds) {
+          const candidates = roomCounts
+            .map((count, index) => ({ count, index }))
+            .filter(
+              (r) =>
+                r.count === threshold && !playerAssignments[player].has(r.index)
+            )
+            .map((r) => r.index);
+
+          if (candidates.length > 0) {
+            const room =
+              candidates[Math.floor(Math.random() * candidates.length)];
+            playerAssignments[player].add(room);
+
+            // Add player to room with a type count
+            roomPuzzles[room].push({
+              player: player,
+              solved: false,
+              type: playerTypeCounter[player]++,
+            });
+
+            roomCounts[room]++;
+            assigned = true;
+            break;
+          }
+        }
+
+        if (!assigned) {
+          throw new Error(`Unable to assign player ${player + 1} a third room`);
+        }
+      }
+    }
+
+    // Create the new array with added 'room' key
+    const resultArray = [];
+    for (let roomIndex = 0; roomIndex < roomPuzzles.length; roomIndex++) {
+      for (const playerObject of roomPuzzles[roomIndex]) {
+        resultArray.push({
+          room: roomIndex,
+          ...playerObject,
+        });
+      }
+    }
+    return resultArray;
+  };
+
   const handleStartGame = async (numSaboteurs: number) => {
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
-      const availableColors = await getInnocentBaseColors();
-    
-      // testNumberOfInnocents will need to be replaced by totalPlayers at some point
-      const rooms = assignPlayersToRooms(numRooms, totalPlayers, availableColors);
-      console.log('rooms')
-      console.log(rooms)
-      console.log(game.id)
-      addRoomColors(game.id, rooms)
+      let availableColors = await getInnocentBaseColors();
+      let myPlayers = [...game.players.map((player) => ({ ...player }))];
 
-      // Selects all the colors used, to assign to players later...
-      const colorsSet = new Set<string>();
-      rooms.forEach(room => {
-        room.forEach(playerAssignment => {
-          colorsSet.add(playerAssignment.color);
-        });
-      });
-  
-      const uniqueColors = Array.from(colorsSet);
-  
-      if (numSaboteurs >= totalPlayers) {
-        console.error("Number of saboteurs cannot be equal to or exceed total players.");
-        return;
-      }
-  
-      // Shuffle players to ensure randomness
-      const shuffledPlayers = [...game.players].sort(() => Math.random() - 0.5);
-  
-      // Randomly select saboteurs
-      const selectedSaboteurs: Set<number> = new Set();
-      while (selectedSaboteurs.size < numSaboteurs) {
-        const saboteurIndex = Math.floor(Math.random() * totalPlayers);
-        selectedSaboteurs.add(saboteurIndex);
-      }
-  
-      const innocentPlayers: { email: string, color: string }[] = [];
-      const saboteurPlayers: { email: string, color: string }[] = [];
-  
-      shuffledPlayers.forEach((player, index) => {
-        if (selectedSaboteurs.has(index)) {
-          // Assign a white color for saboteurs
-          saboteurPlayers.push({ email: player, color: "(255,255,255)" });
-        } else {
-          if (uniqueColors.length === 0) {
-            console.error("Not enough unique colors for all innocent players.");
-            return;
-          }
-          
-          const colorIndex = Math.floor(Math.random() * uniqueColors.length);
-          const color = uniqueColors.splice(colorIndex, 1)[0]; // Remove color from the pool
-          innocentPlayers.push({ email: player, color });
-        }
-      });
-  
-      // Update roles in Firestore
-      await updatePlayerRoles(game.id, saboteurPlayers, innocentPlayers);
-  
-      // Toggle the game's "isStarted" status
+      // Shuffle the available colors
+      shuffleArray(availableColors);
+      selectRandomSaboteur(totalPlayers, myPlayers);
+      selectRandomColors(availableColors, totalPlayers, myPlayers);
+
+      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, 3);
+
+      console.log('after it all')
+      console.log(myPlayers);
+
+      console.log(roomPuzzles);
+      // update backend players
+      addRoomColors(game.id, roomPuzzles);
       await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');
     }
   };
-  
-  
 
   const decreaseNumSlots = () => {
-    setnumSlots(prev => Math.max(prev - 1, game.players.length));
+    setnumSlots((prev) => Math.max(prev - 1, game.players.length));
   };
 
   const increaseNumSlots = () => {
-    setnumSlots(prev => Math.min(prev + 1, 16));
+    setnumSlots((prev) => Math.min(prev + 1, 16));
   };
 
   const decreaseNumRooms = () => {
-    setnumRooms(prev => Math.max(prev - 1, 1));
+    setnumRooms((prev) => Math.max(prev - 1, 1));
   };
 
   const increaseNumRooms = () => {
-    setnumRooms(prev => Math.min(prev + 1, 16));
+    setnumRooms((prev) => Math.min(prev + 1, 16));
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,7 +237,7 @@ const CreatorLobby: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{email || "User"}</IonTitle>
+          <IonTitle>{email || 'User'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
@@ -174,19 +252,24 @@ const CreatorLobby: React.FC = () => {
         <IonButton onClick={increaseNumRooms}>Room +</IonButton>
         {numRooms}
         <IonList>
-          {Array.from({ length: numSlots }).map((_, index) => (
-            <IonItem key={index}>
-              {game.players && game.players[index] ? game.players[index] : "Open Slot"}
-            </IonItem>
-          ))}
+          {Array(numSlots)
+            .fill(null)
+            .map((_, index) => (
+              <IonItem key={index}>
+                {/* This will be screenName instead of player.email soon enough */}
+                {game.players[index]
+                  ? game.players[index].email
+                  : 'Open Slot'}
+              </IonItem>
+            ))}
         </IonList>
         <div>
           <label htmlFor="saboteurs">Number of Saboteurs:</label>
           <input
             id="saboteurs"
-            type="number"
+            type="number" 
             min="1"
-            max="10" // Adjust max based on your game constraints
+            max="3" // Adjust max based on your game constraints
             value={numSaboteurs}
             onChange={handleChange}
           />
