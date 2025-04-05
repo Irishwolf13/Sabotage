@@ -15,14 +15,14 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
   const [roomColors, setRoomColors] = useState<string[]>([]);
   const [isNameInRoomColors, setIsNameInRoomColors] = useState<boolean>(false);
   const [showScanner, setShowScanner] = useState<boolean>(true);
-  const [testText, setTestText] = useState('text...')
+  // const [testText, setTestText] = useState('text...')
   const game = useSelector((state: RootState) => state.games[0]);
 
   useEffect(() => {
     if (!showScanner) return;
 
     const onScanSuccess = async (decodedText: string, decodedResult: any) => {
-      setTestText(decodedText);
+      // setTestText(decodedText);
       
       if (decodedText.includes("Room")) {
         const roomNumberString = decodedText.replace("Room ", "");
@@ -75,7 +75,7 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
   return (
     <div>
       <button onClick={testButton}>test</button>
-      <p>{testText}</p>
+      {/* <p>{testText}</p> */}
       <div className='colorHolder'>
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (

@@ -195,7 +195,7 @@ const CreatorLobby: React.FC = () => {
       shuffleArray(availableColors);
       selectRandomSaboteur(totalPlayers, myPlayers);
       selectRandomColors(availableColors, totalPlayers, myPlayers);
-      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, 3);
+      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, numRooms);
       await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
       await updatePlayerColors(game.id, myPlayers, availableColors)
