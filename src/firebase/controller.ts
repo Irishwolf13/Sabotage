@@ -326,25 +326,31 @@ export const getInnocentBaseColors = async (): Promise<string[]> => {
   }
 };
 
-// Function to retrieve room colors for a specific room from Firestore
+// Function to retrieve player colors for a specific room from Firestore
 export const getRoomColors = async (gameId: string, myNumber: number): Promise<string[]> => {
   const gameDocRef = doc(db, "activeGames", gameId);
-
   try {
     // Retrieve the document snapshot
     const docSnap = await getDoc(gameDocRef);
 
     if (docSnap.exists()) {
       const data = docSnap.data();
-      const roomAssignments: { roomId: number; players: { color: string }[] }[] = data?.roomAssignments || [];
+      const roomPuzzles: { room: number; player: number }[] = data?.roomPuzzles || [];
+      const players: { number: number; color: string }[] = data?.players || [];
 
-      // Find the matching room by roomId
-      const myRoom = roomAssignments.find(room => room.roomId === myNumber);
+      // Collect player numbers for the specified room
+      const playerNumbersSet = new Set<number>(
+        roomPuzzles
+          .filter(puzzle => puzzle.room === myNumber)
+          .map(puzzle => puzzle.player)
+      );
 
-      if (myRoom) {
-        // Extract and return the colors for players in the specified room
-        return myRoom.players.map(player => player.color);
-      }
+      // Extract colors of players whose numbers are in the set
+      const playerColors = players
+        .filter(player => playerNumbersSet.has(player.number))
+        .map(player => player.color);
+
+      return playerColors;
     } else {
       console.error("No such document found for the given gameId.");
     }

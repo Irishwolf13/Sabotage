@@ -118,7 +118,7 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <Scanner name={currentUserPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />
+            {currentUserPlayer && <Scanner name={currentUserPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />}
             <IonCard>
               <IonCardHeader>
                 <IonCardTitle style={{ textAlign: 'center' }}>

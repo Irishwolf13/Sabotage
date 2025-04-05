@@ -39,17 +39,12 @@ const CreatorLobby: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
   const currentGame = games.length > 0 ? games[0] : undefined;
-  const [testPlayers, setTestPlayers] = useState()
-  const [testColors, setTestColors] = useState()
-
-  // Use the custom hook to manage roleId and players list
-  const { roleId, players } = useRoleId(currentGame?.id, email);
+  const { roleId } = useRoleId(currentGame?.id, email);
 
   useEffect(() => {
     const user = auth.currentUser;
     if (user) {
       setEmail(user.email);
-      // console.log(`User email: ${user.email}`);
     }
   }, []);
 
@@ -110,8 +105,8 @@ const CreatorLobby: React.FC = () => {
     console.log('myPlayers with assigned colors:', myPlayers);
   };
 
+  // Randomly assign saboteurs
   const selectRandomSaboteur = async (totalPlayers: any, myPlayers: any) => {
-    // Randomly assign saboteurs
     for (let i = 0; i < numSaboteurs; i++) {
       let randomIndex;
       do {
@@ -197,18 +192,10 @@ const CreatorLobby: React.FC = () => {
       let availableColors = await getInnocentBaseColors();
       let myPlayers = [...game.players.map((player) => ({ ...player }))];
 
-      // Shuffle the available colors
       shuffleArray(availableColors);
       selectRandomSaboteur(totalPlayers, myPlayers);
       selectRandomColors(availableColors, totalPlayers, myPlayers);
-      // await updatePlayerColors(game.id, myPlayers, availableColors)
       const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, 3);
-      // console.log('after it all')
-      // console.log(myPlayers);
-      // setTestPlayers(myPlayers)
-      // setTestColors(availableColors)
-      // console.log(roomPuzzles);
-      // update backend players
       await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
       await updatePlayerColors(game.id, myPlayers, availableColors)
@@ -239,12 +226,6 @@ const CreatorLobby: React.FC = () => {
     setNumSaboteurs(isNaN(value) ? 1 : value);
   };
 
-  const runTest = () => {
-    console.log(testPlayers)
-    console.log(testColors)
-    updatePlayerColors(game.id, testPlayers, testColors)
-  }
-
   return (
     <IonPage>
       <IonHeader>
@@ -253,7 +234,6 @@ const CreatorLobby: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        <IonButton onClick={runTest}>Test</IonButton>
         <h1>
           Join Code: <strong>{game.code}</strong>
         </h1>
