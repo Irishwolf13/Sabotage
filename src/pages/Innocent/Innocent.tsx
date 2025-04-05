@@ -33,39 +33,38 @@ const Innocent: React.FC = () => {
   const [showScannerModal, setShowScannerModal] = useState(false);
 
   useEffect(() => {
-    if (game?.id) {
+    if (game?.id && user) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        if (user) {
-          const innocentUser = data.roles.innocents.find(
-            (innocent: any) => innocent.email === user.email
-          );
-          const innocentColor = innocentUser ? innocentUser.color : '';
+        const currentUserPlayer = data.players.find(
+          (player: any) => player.email === user.email
+        );
 
+        if (currentUserPlayer) {
           dispatch(
             setGames([
               {
-                id: game.id,
+                ...game,
                 name: data.gameName,
                 code: data.gameCode,
                 players: data.players,
                 isEnded: data.isEnded,
                 isStarted: data.isStarted,
                 foundDead: data.foundDead,
-                color: innocentColor,
-                isSaboteur: false,
               },
             ])
           );
+
+          // You may want additional logic here if needed
         }
       });
       return () => unsubscribe();
     }
-  }, [dispatch, game?.id, user?.email]);
+  }, [dispatch, game?.id, user]);
 
   // Closes all Modals if Dead player is Found by anyone
   useEffect(() => {
     if (game.foundDead) {
-      setShowScannerModal(false)
+      setShowScannerModal(false);
     }
   }, [game]);
 
@@ -74,18 +73,25 @@ const Innocent: React.FC = () => {
   };
 
   const handleCloseScannerModal = () => {
-    setShowScannerModal(false); 
+    setShowScannerModal(false);
   };
-  
+
   // Extracts numbers and converts them to integers
   const extractRGB = (colorString: any) => {
     return colorString.match(/\d+/g).map(Number);
   };
 
   const handleSolvePuzzleButton = () => {
-    setShowScannerModal(false)
+    setShowScannerModal(false);
     history.push(`/game/${game.id}/puzzles`);
-  } 
+  };
+
+  // Find the current user's player details
+  const currentUserPlayer = game.players.find(
+    (player: any) => player.email === user?.email
+  );
+
+  const isUserInnocent = currentUserPlayer && !currentUserPlayer.isSaboteur;
 
   return (
     <IonPage>
@@ -98,8 +104,9 @@ const Innocent: React.FC = () => {
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Innocent Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          <IonButton className='fullWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
-          {/* <IonButton onClick={handleColorButtonClicked}>Check Color</IonButton> */}
+          {isUserInnocent && (
+            <IonButton className='fullWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
+          )}
         </div>
 
         {/* Scanner Modal implementation */}
@@ -111,15 +118,15 @@ const Innocent: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <Scanner name={game.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />
+            <Scanner name={currentUserPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />
             <IonCard>
               <IonCardHeader>
                 <IonCardTitle style={{ textAlign: 'center' }}>
                   Your Color                   
                   <div style={{
-                    backgroundColor: game?.color
-                    ? `rgb(${extractRGB(game.color).join(',')})`
-                    : 'transparent', // Fallback color
+                    backgroundColor: currentUserPlayer?.color
+                      ? `rgb(${extractRGB(currentUserPlayer.color).join(',')})`
+                      : 'transparent',
                     width: '100px',
                     height: '20px',
                     margin: '0 auto',
@@ -128,7 +135,7 @@ const Innocent: React.FC = () => {
                 <IonCardSubtitle>
                 </IonCardSubtitle>
               </IonCardHeader>
-              <IonCardContent>Scan Room QR: See available puzzles.<br></br> Scan Dead Player QR: Call for a vote.</IonCardContent>
+              <IonCardContent>Scan Room QR: See available puzzles.<br/> Scan Dead Player QR: Call for a vote.</IonCardContent>
             </IonCard>
           </IonContent>
         </IonModal>

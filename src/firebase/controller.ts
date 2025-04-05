@@ -176,6 +176,131 @@ export const addRoomColors = async (
   }
 };
 
+
+
+
+
+
+
+
+type Player = {
+  email: string;
+  color: string;
+  ghost: boolean;
+  isSaboteur: boolean;
+  screenName: string;
+};
+
+export const updatePlayerColors = async (
+  gameId: string,
+  playersToUpdate: Player[],
+  availableColors: string[]
+) => {
+  const gameDocRef = doc(db, 'activeGames', gameId);
+
+  try {
+    const docSnap = await getDoc(gameDocRef);
+
+    if (!docSnap.exists()) {
+      console.error('No such document found for the given gameId.');
+      return;
+    }
+
+    const data = docSnap.data();
+    const currentPlayers = data?.players || [];
+
+    // Track assigned colors to prevent duplicates
+    const assignedColors = new Set<string>();
+
+    // Populate assignedColors with existing player colors
+    currentPlayers.forEach((player: any) => {
+      if (player.color) assignedColors.add(player.color);
+    });
+
+    // Assign colors ensuring uniqueness
+    const updatedPlayers = currentPlayers.map((player: any) => {
+      const updateInfo = playersToUpdate.find(p => p.email === player.email);
+      
+      if (updateInfo) {
+        // Select an unused color
+        const availableColor = availableColors.find(color => !assignedColors.has(color));
+
+        if (availableColor) {
+          assignedColors.add(availableColor); // Mark this color as used
+          return { ...player, color: availableColor }; // Update only the color field
+        } else {
+          console.warn('Not enough colors in availableColors to assign unique colors.');
+          return player; // No change if no colors are left
+        }
+      }
+
+      return player; // Return unchanged if no updateInfo
+    });
+
+    await updateDoc(gameDocRef, {
+      //@ts-ignore
+      players: updatedPlayers.map(player => ({
+        ...player,
+        color: player.color
+      })),
+    });
+
+    console.log('Players updated successfully with unique colors.');
+  } catch (error) {
+    console.error('Error updating player colors:', error);
+  }
+};
+
+
+
+
+
+// Function to assign player numbers and update Firestore
+interface assignedPlayer { email: string; screenName: string; ghost: boolean; color: string; isSaboteur: boolean; player?: number;}
+export const assignAndUpdatePlayers = async (gameId: string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  // Retrieve the existing players array from Firestore
+  let docSnap;
+  try {
+    docSnap = await getDoc(gameDocRef);
+  } catch (error) {
+    console.error("Error retrieving document:", error);
+    return;
+  }
+
+  if (!docSnap.exists()) {
+    console.error("No such document found for the given gameId.");
+    return;
+  }
+  
+  const data = docSnap.data();
+  const players: assignedPlayer[] = data?.players || [];
+
+  // Reassign player numbers locally
+  let playerIndex = 0;
+  const updatedPlayers = players.map((player) => {
+    if (!player.isSaboteur) {
+      player.player = playerIndex;
+      playerIndex += 1;
+    } else {
+      player.player = -1;
+    }
+    return player;
+  });
+
+  // Update the Firestore document with the new players array
+  try {
+    await updateDoc(gameDocRef, {
+      players: updatedPlayers,
+    });
+    console.log("Updated player numbers successfully in Firestore.");
+  } catch (error) {
+    console.error("Error updating players:", error);
+  }
+};
+
+
 // Function to get base colors from the 'preferences' collection in Firestore
 export const getInnocentBaseColors = async (): Promise<string[]> => {
   try {

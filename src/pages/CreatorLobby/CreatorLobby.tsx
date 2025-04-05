@@ -24,6 +24,8 @@ import {
   getInnocentBaseColors,
   addRoomColors,
   setPlayerAsSaboteur,
+  assignAndUpdatePlayers,
+  updatePlayerColors,
 } from '../../firebase/controller';
 
 const CreatorLobby: React.FC = () => {
@@ -37,6 +39,8 @@ const CreatorLobby: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
   const currentGame = games.length > 0 ? games[0] : undefined;
+  const [testPlayers, setTestPlayers] = useState()
+  const [testColors, setTestColors] = useState()
 
   // Use the custom hook to manage roleId and players list
   const { roleId, players } = useRoleId(currentGame?.id, email);
@@ -197,15 +201,17 @@ const CreatorLobby: React.FC = () => {
       shuffleArray(availableColors);
       selectRandomSaboteur(totalPlayers, myPlayers);
       selectRandomColors(availableColors, totalPlayers, myPlayers);
-
+      // await updatePlayerColors(game.id, myPlayers, availableColors)
       const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, 3);
-
-      console.log('after it all')
-      console.log(myPlayers);
-
-      console.log(roomPuzzles);
+      // console.log('after it all')
+      // console.log(myPlayers);
+      // setTestPlayers(myPlayers)
+      // setTestColors(availableColors)
+      // console.log(roomPuzzles);
       // update backend players
-      addRoomColors(game.id, roomPuzzles);
+      await addRoomColors(game.id, roomPuzzles);
+      await assignAndUpdatePlayers(game.id)
+      await updatePlayerColors(game.id, myPlayers, availableColors)
       await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');
@@ -233,6 +239,12 @@ const CreatorLobby: React.FC = () => {
     setNumSaboteurs(isNaN(value) ? 1 : value);
   };
 
+  const runTest = () => {
+    console.log(testPlayers)
+    console.log(testColors)
+    updatePlayerColors(game.id, testPlayers, testColors)
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -241,6 +253,7 @@ const CreatorLobby: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
+        <IonButton onClick={runTest}>Test</IonButton>
         <h1>
           Join Code: <strong>{game.code}</strong>
         </h1>
