@@ -336,7 +336,7 @@ export const getRoomColors = async (gameId: string, myNumber: number): Promise<s
     if (docSnap.exists()) {
       const data = docSnap.data();
       const roomPuzzles: { room: number; player: number }[] = data?.roomPuzzles || [];
-      const players: { number: number; color: string }[] = data?.players || [];
+      const players: { player: number; color: string }[] = data?.players || [];
 
       // Collect player numbers for the specified room
       const playerNumbersSet = new Set<number>(
@@ -347,7 +347,7 @@ export const getRoomColors = async (gameId: string, myNumber: number): Promise<s
 
       // Extract colors of players whose numbers are in the set
       const playerColors = players
-        .filter(player => playerNumbersSet.has(player.number))
+        .filter(player => playerNumbersSet.has(player.player))
         .map(player => player.color);
 
       return playerColors;

@@ -43,6 +43,7 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
+      <p>v.1</p>
         <div style={{ textAlign: 'center', marginTop: '20%' }}>
           <NewGameButton />
           <br></br>
