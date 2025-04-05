@@ -73,10 +73,10 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
   };
 
   return (
-    <div>
-      <button onClick={testButton}>test</button>
+    <div  style={{ margin: '10px' }}>
+      {/* <button onClick={testButton}>test</button> */}
       {/* <p>{testText}</p> */}
-      <div className='colorHolder'>
+      <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (
           <div 
@@ -90,7 +90,7 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
         ))}
       </div>
 
-      <IonButton onClick={handleSolvePuzzleButton}>Test Puzzle</IonButton>
+      {/* <IonButton onClick={handleSolvePuzzleButton}>Test Puzzle</IonButton> */}
       <div className='buttonHolder'>
         {isNameInRoomColors && <IonButton onClick={handleSolvePuzzleButton}>Solve Puzzle?</IonButton>}
       </div>
