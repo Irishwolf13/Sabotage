@@ -55,7 +55,7 @@ const JoinLobby: React.FC = () => {
           <IonList>
             {players.map((player, index) => (
               <IonItem key={index}>
-                {player.email}
+                {player.screenName}
               </IonItem>
             ))}
           </IonList>

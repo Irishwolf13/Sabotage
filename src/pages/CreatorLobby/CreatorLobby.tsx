@@ -59,6 +59,7 @@ const CreatorLobby: React.FC = () => {
               isEnded: data.isEnded,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
+              votes:[]
             },
           ])
         );
@@ -249,7 +250,7 @@ const CreatorLobby: React.FC = () => {
               <IonItem key={index}>
                 {/* This will be screenName instead of player.email soon enough */}
                 {game.players[index]
-                  ? game.players[index].email
+                  ? game.players[index].screenName
                   : 'Open Slot'}
               </IonItem>
             ))}

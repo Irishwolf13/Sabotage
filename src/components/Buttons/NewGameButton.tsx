@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { addGame } from '../../stores/gameSlice'; 
 import { AppDispatch, RootState } from '../../stores/store';
-import { createGameDocument } from '../../firebase/controller';
+import { createGameDocument, getPlayerNameByEmail} from '../../firebase/controller';
 import { auth } from '../../firebase/config';
 
 // Function to generate a random 5-letter code
@@ -42,29 +42,46 @@ const NewGameButton: React.FC = () => {
       console.error("User email is not available");
       return;
     }
-
-    const newUUID = uuidv4();
-    const randomCode = generateRandomCode(5);
-    const newGame = {
-      id: newUUID,
-      name: `${newUUID}`,
-      code: randomCode,
-      isEnded: false,
-      isStarted: false,
-      foundDead: false,
-      players: [{screenName: 'Frank', email: email, color:'', ghost: false, isSaboteur: false}],
+  
+    try {
+      // Wait for the player name to be retrieved
+      const myPlayerName = await getPlayerNameByEmail(email);
+  
+      const newUUID = uuidv4();
+      const randomCode = generateRandomCode(5);
+  
+      const newGame = {
+        id: newUUID,
+        name: `${newUUID}`,
+        code: randomCode,
+        isEnded: false,
+        isStarted: false,
+        foundDead: false,
+        players: [{
+          screenName: myPlayerName,
+          email: email,
+          color: '',
+          ghost: false,
+          isSaboteur: false
+        }],
+        votes: []
+      };
+  
+      // Dispatch the new game to the Redux store
+      dispatch(addGame(newGame));
+  
+      // Create the game document in Firestore
+      await createGameDocument(newUUID, newGame.name, randomCode, email, myPlayerName);
+  
+      // Redirect to the new route with newUUID
+      history.push(`/game/${newUUID}`);
+  
+    } catch (error) {
+      console.error("Error retrieving player name or creating game:", error);
+      // Handle errors appropriately
     }
-
-    // Dispatch the new game to the Redux store
-    dispatch(addGame(newGame));
-
-    // Use the imported function to create the game document in Firestore
-    await createGameDocument(newUUID, newGame.name, randomCode, email, 'Frank');
-
-    // Redirect to the new route with newUUID
-    history.push(`/game/${newUUID}`);
   };
-
+  
   return (
     <div>
       <IonButton onClick={handleNewGame}>Create Game</IonButton>

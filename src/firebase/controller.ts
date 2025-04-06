@@ -72,7 +72,7 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
     const activeGamesRef = collection(db, 'activeGames');
     const q = query(activeGamesRef, where('gameCode', '==', gameCode));
     const querySnapshot = await getDocs(q);
-
+    const myEmail = await getPlayerNameByEmail(email)
     if (!querySnapshot.empty) {
       // Assume there is only one document with a matching game code
       const docSnap = querySnapshot.docs[0];
@@ -83,7 +83,7 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
         // Update to include an object with necessary details like email
         const playerObject = {
           email,          // User's email
-          screenName: '', // Default or fetched screen name
+          screenName: myEmail, // Default or fetched screen name
           ghost: false,   // Initial value, change as needed
           color: '',      // Default color, change as needed
           isSaboteur: false // Initial role, adjust as per your logic
@@ -110,6 +110,39 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
     return null;
   }
 };
+
+
+//////////////////////////////// SEARCHING ////////////////////////////////
+// This function searches for a player account by email and returns the player's name
+export const getPlayerNameByEmail = async (email:string) => {
+  try {
+    // Reference to the playerAccounts collection
+    const playerAccountsRef = collection(db, 'playerAccounts');
+
+    // Create a query against the collection
+    const q = query(playerAccountsRef, where("email", "==", email));
+
+    // Execute the query
+    const querySnapshot = await getDocs(q);
+    
+    // Check if we have any documents matching the query
+    if (!querySnapshot.empty) {
+      // Assuming emails are unique, so only one document should match
+      const doc = querySnapshot.docs[0];
+      const playerData = doc.data();
+      
+      // Return the player's name
+      return playerData.playerName;
+    } else {
+      throw new Error('No player found with the provided email.');
+    }
+  } catch (error) {
+    console.error("Error fetching player name: ", error);
+    throw error; // Re-throw error after logging it
+  }
+}
+
+export default getPlayerNameByEmail;
 
 //////////////////////////////// EDITING DATABASE ////////////////////////////////
 // Function to toggle a boolean field in a Firestore document

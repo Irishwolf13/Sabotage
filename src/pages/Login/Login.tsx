@@ -39,10 +39,6 @@ const Login: React.FC = () => {
     }
   }, [authSuccess, history]);
 
-  useEffect(() => {
-    // HERE
-  }, []);
-
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setShowLoading(true);
