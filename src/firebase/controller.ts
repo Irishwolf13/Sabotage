@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc, DocumentData  } from "firebase/firestore";
 
 
 //////////////////////////////// LISTENING ////////////////////////////////
@@ -389,5 +389,76 @@ export const clearVotes = async (gameId: string) => {
     console.log("All votes cleared successfully.");
   } catch (error) {
     console.error("Error clearing votes:", error);
+  }
+};
+
+
+// Define interfaces for vote and player structures
+interface selectedVote {
+  selected: string;
+  voter: string;
+}
+
+interface selectedPlayer {
+  email: string;
+  ghost: boolean;
+  isSaboteur: boolean;
+}
+
+// Function to determine which player gets voted out and update their status
+export const evaluateVotes = async (gameId: string): Promise<{ email: string; isSaboteur: boolean } | null> => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Fetch the game document
+    const gameDoc = await getDoc(gameDocRef);
+    if (!gameDoc.exists()) {
+      throw new Error("Game does not exist.");
+    }
+
+    const gameData = gameDoc.data() as DocumentData;
+    const votes: selectedVote[] = gameData?.votes || [];
+    const players: selectedPlayer[] = gameData?.players || [];
+
+    // Tally votes
+    const voteCount = votes.reduce<Record<string, number>>((acc, { selected }) => {
+      acc[selected] = (acc[selected] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Determine the player(s) with the most votes
+    const maxVotes = Math.max(...Object.values(voteCount));
+    let candidates = Object.keys(voteCount).filter(player => voteCount[player] === maxVotes);
+
+    if (candidates.length > 1) {
+      // Handle tie situations
+      candidates = candidates.filter(email => !players.find(player => player.email === email)?.isSaboteur);
+      
+      if (candidates.length < 1) {
+        console.log("No valid candidates after checking for saboteurs.");
+        return null;
+      }
+    }
+
+    // Select randomly among tied candidates if needed
+    const chosenEmail = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // Update the chosen player's 'ghost' status
+    const updatedPlayers = players.map(player => {
+      if (player.email === chosenEmail) {
+        return { ...player, ghost: true };
+      }
+      return player;
+    });
+
+    await updateDoc(gameDocRef, { players: updatedPlayers });
+
+    // Return the chosen player's email and isSaboteur status
+    const chosenPlayer = players.find(player => player.email === chosenEmail);
+    return { email: chosenPlayer!.email, isSaboteur: chosenPlayer!.isSaboteur };
+
+  } catch (error) {
+    console.error(`Error processing votes: `, error);
+    return null;
   }
 };
