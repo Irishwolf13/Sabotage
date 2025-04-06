@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonList, IonRadioGroup, IonItem, IonLabel, IonRadio, IonModal } from '@ionic/react';
+import { 
+  IonButton, 
+  IonContent, 
+  IonHeader, 
+  IonPage, 
+  IonTitle, 
+  IonToolbar, 
+  IonFooter, 
+  IonList, 
+  IonItem, 
+  IonModal, 
+  IonLabel
+} from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './TallyLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import { clearVotes, evaluateVotes } from '../../firebase/controller';
+import { clearVotes, evaluateVotes, evaluateGameStatus } from '../../firebase/controller';
 
 const TallyLobby: React.FC = () => {
   useGameSubscription();
@@ -15,24 +27,22 @@ const TallyLobby: React.FC = () => {
 
   const [showVoterModal, setShowVoterModal] = useState(false);
   const [showPlayerVotedOff, setShowPlayerVotedOff] = useState('');
-  const [showTextChanged, setShowTextChanged] = useState('Waitng for all votes to be cast...');
+  const [showTextChanged, setShowTextChanged] = useState('Waiting for all votes to be cast...');
 
   const handleVotingComplete = async () => {
-    await clearVotes(game.id)
+    await clearVotes(game.id);
     setShowVoterModal(false);
     history.push(`/game/${game.id}/player/mainPage`);
   };
 
   const handleCheckVotesButton = () => {
     setShowVoterModal(true);
-  }
+  };
   
   useEffect(() => {
     if (game.votes && livingPlayers) {
       if (game.votes.length === livingPlayers.length) {
-        console.log('frank');
         
-        // Use .then() to handle the promise from evaluateVotes
         evaluateVotes(game.id).then(result => {
           if (result) {
             console.log(result.email);
@@ -40,14 +50,21 @@ const TallyLobby: React.FC = () => {
           }
           
           setShowTextChanged('Tallying all the votes...');
-          
+  
+          // Use .then() to handle the promise from evaluateGameStatus
+          evaluateGameStatus(game.id).then(frank => {
+            console.log('Game results here');
+            console.log(frank); // Log the game status results
+            console.log('End game results');
+          });
+  
           const modalTimer = setTimeout(() => {
             setShowVoterModal(true);
-          }, 2000); // Set this action to run at 2 seconds
+          }, 2000);
   
           const textChangeTimer = setTimeout(() => {
             setShowTextChanged('Waiting for all votes to be cast...');
-          }, 2500); // Set this action to run at 2.5 seconds
+          }, 2500);
   
           return () => {
             clearTimeout(modalTimer);
@@ -70,7 +87,11 @@ const TallyLobby: React.FC = () => {
         <IonButton onClick={handleCheckVotesButton}>Test Button</IonButton>
         <h1>{showTextChanged}</h1>
         <IonList>
-        {/* Going to list out People and their votes here */}
+          {game.votes && game.votes.map((vote, index) => (
+            <IonItem key={index}>
+              <IonLabel>{vote.voter}</IonLabel>
+            </IonItem>
+          ))}
         </IonList>
 
         {/* Scanner Modal implementation */}
@@ -78,11 +99,11 @@ const TallyLobby: React.FC = () => {
           <IonHeader>
             <IonToolbar>
               <IonTitle>Voted Off...</IonTitle>
-            <IonButton slot='end' onClick={handleVotingComplete}>Close</IonButton>
+              <IonButton slot='end' onClick={handleVotingComplete}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent>
-          {showPlayerVotedOff} was kicked!
+            {showPlayerVotedOff} was kicked!
           </IonContent>
         </IonModal>
       </IonContent>
@@ -96,3 +117,4 @@ const TallyLobby: React.FC = () => {
 };
 
 export default TallyLobby;
+

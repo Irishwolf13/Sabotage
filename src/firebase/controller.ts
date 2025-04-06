@@ -462,3 +462,40 @@ export const evaluateVotes = async (gameId: string): Promise<{ email: string; is
     return null;
   }
 };
+
+// Function to evaluate game status based on players' ghost and saboteur status
+export const evaluateGameStatus = async (gameId: string): Promise<{ gameOver: boolean; innocentsWin: boolean }> => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Fetch the game document
+    const gameDoc = await getDoc(gameDocRef);
+    if (!gameDoc.exists()) {
+      throw new Error("Game does not exist.");
+    }
+
+    // Retrieve player data
+    const players: { ghost: boolean; isSaboteur: boolean }[] = gameDoc.data()?.players || [];
+    
+    // Check for active saboteurs
+    const activeSaboteursCount = players.filter(player => player.isSaboteur && !player.ghost).length;
+    if (activeSaboteursCount === 0) {
+      return { gameOver: true, innocentsWin: true }; // Innocents win if no active saboteurs are left
+    }
+
+    // Count active innocents
+    const activeInnocentsCount = players.filter(player => !player.isSaboteur && !player.ghost).length;
+
+    // Determine game outcome based on counts
+    if (activeInnocentsCount <= activeSaboteursCount) {
+      return { gameOver: true, innocentsWin: false }; // Saboteurs win if they are equal to or outnumber active innocents
+    }
+
+    return { gameOver: false, innocentsWin: false }; // Game continues if innocents outnumber saboteurs
+
+  } catch (error) {
+    console.error("Error evaluating game status:", error);
+    // Default return to indicate ongoing game in case of errors
+    return { gameOver: false, innocentsWin: false };
+  }
+};
