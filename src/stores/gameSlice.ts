@@ -9,6 +9,7 @@ interface Game {
   isStarted: boolean;
   foundDead: boolean;
   players: Player[];
+  votes: Vote[]
 }
 
 // Define Player interface
@@ -18,6 +19,12 @@ interface Player {
   color: string;
   ghost: boolean;
   isSaboteur: boolean;
+}
+
+// Define Vote interface
+interface Vote {
+  voter: string;
+  selected: string;
 }
 
 // Define GamesState type

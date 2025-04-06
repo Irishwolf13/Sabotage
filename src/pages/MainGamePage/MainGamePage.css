@@ -1,3 +1,6 @@
 .fullWidthButton {
     width: 100%;
 }
+.halfWidthButton {
+    width: 45%
+}

@@ -17,7 +17,6 @@ import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
-import { useRoleId } from '../../components/useRoleId';
 import {
   listenForGameChanges,
   toggleBooleanField,
@@ -39,7 +38,6 @@ const CreatorLobby: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const games = useSelector((state: RootState) => state.games);
   const currentGame = games.length > 0 ? games[0] : undefined;
-  const { roleId } = useRoleId(currentGame?.id, email);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -74,7 +72,7 @@ const CreatorLobby: React.FC = () => {
   }
 
   const handleToggleStatus = async (key: any, value: any) => {
-    await toggleBooleanField(game.id, key, value);
+    await toggleBooleanField(game.id, key, !value);
   };
 
   const shuffleArray = (array: any) => {
@@ -268,7 +266,7 @@ const CreatorLobby: React.FC = () => {
           />
         </div>
         <IonButton onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
-        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id} roleId={roleId} />
+        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id}/>
       </IonContent>
       <IonFooter>
         <IonToolbar>

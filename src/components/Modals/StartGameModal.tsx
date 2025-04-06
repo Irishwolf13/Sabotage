@@ -5,10 +5,9 @@ import { useHistory } from 'react-router-dom';
 interface StartGameModalProps {
   isStarted: boolean;
   currentGameId?: string;
-  roleId: string;
 }
 
-const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameId, roleId }) => {
+const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameId }) => {
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const history = useHistory();
@@ -31,11 +30,11 @@ const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameI
   useEffect(() => {
       if (countdown === 0 && currentGameId) {
       setShowModal(false);
-      const redirectPath = `/game/${currentGameId}/player/${roleId}`;
+      const redirectPath = `/game/${currentGameId}/player/l`;
       // console.log(`Redirecting to: ${redirectPath}`);
       history.push(redirectPath);
     }
-  }, [countdown, currentGameId, roleId, history]);
+  }, [countdown, currentGameId, history]);
 
   return (
     <IonModal isOpen={showModal} backdropDismiss={false}>

@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { listenForGameChanges } from '../firebase/controller';
 
-export const useRoleId = (currentGameId: string | undefined, email: string | null) => {
-  const [roleId, setRoleId] = useState<string>("1");
+export const setPlayers = (currentGameId: string | undefined, email: string | null) => {
   const [players, setPlayers] = useState<{ 
     color: string; 
     email: string; 
@@ -13,17 +12,8 @@ export const useRoleId = (currentGameId: string | undefined, email: string | nul
 
   const handleGameChange = useCallback(
     (data: any) => {
-      console.log('iran')
-      console.log(players)
       if (data.players) {
         setPlayers(data.players); // Set the entire array of player objects
-        
-        // Check if current user is a saboteur
-        if (data.players.some((player: { email: string; isSaboteur: boolean }) => player.email === email && player.isSaboteur)) {
-          setRoleId("l"); // Saboteur detected
-        } else {
-          setRoleId("1"); // Default role
-        }
       }
     },
     [email]
@@ -36,5 +26,5 @@ export const useRoleId = (currentGameId: string | undefined, email: string | nul
     }
   }, [currentGameId, handleGameChange]);
 
-  return { roleId, players };
+  return { players };
 };

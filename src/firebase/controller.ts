@@ -113,11 +113,11 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
 
 //////////////////////////////// EDITING DATABASE ////////////////////////////////
 // Function to toggle a boolean field in a Firestore document
-export const toggleBooleanField = async (gameId: string, fieldName: string, currentStatus: boolean) => {
+export const toggleBooleanField = async (gameId: string, fieldName: string, statusChange: boolean) => {
   const gameDocRef = doc(db, "activeGames", gameId);
   try {
     await updateDoc(gameDocRef, {
-      [fieldName]: !currentStatus
+      [fieldName]: statusChange
     });
   } catch (error) {
     console.error(`Error updating ${fieldName} status: `, error);
@@ -157,7 +157,6 @@ export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) =
   }
 };
 
-
 // Function to add room colors (or assignments) to a game document in Firestore
 type colorPlayer = { player: number; solved: boolean; type: number; room: number };
 export const addRoomColors = async (
@@ -176,24 +175,11 @@ export const addRoomColors = async (
   }
 };
 
-
-
-
-
-
-
-
-type Player = {
-  email: string;
-  color: string;
-  ghost: boolean;
-  isSaboteur: boolean;
-  screenName: string;
-};
-
+// UPDATE PLAYER COLORS
+type PlayerColorsToChange = { email: string; color: string; ghost: boolean; isSaboteur: boolean; screenName: string;};
 export const updatePlayerColors = async (
   gameId: string,
-  playersToUpdate: Player[],
+  playersToUpdate: PlayerColorsToChange[],
   availableColors: string[]
 ) => {
   const gameDocRef = doc(db, 'activeGames', gameId);
@@ -250,10 +236,6 @@ export const updatePlayerColors = async (
     console.error('Error updating player colors:', error);
   }
 };
-
-
-
-
 
 // Function to assign player numbers and update Firestore
 interface assignedPlayer { email: string; screenName: string; ghost: boolean; color: string; isSaboteur: boolean; player?: number;}
@@ -360,4 +342,52 @@ export const getRoomColors = async (gameId: string, myNumber: number): Promise<s
 
   // Return an empty array if no colors were found or an error occurred
   return [];
+};
+
+// Function to add a vote to a game document in Firestore
+interface Vote { voter: string; selected: string;}
+export const addVote = async (gameId: string, vote: Vote) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Retrieve the current document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      
+      // Check if 'votes' array exists; if not, initialize it
+      if (!data || !data.votes) {
+        await updateDoc(gameDocRef, {
+          votes: [vote]  // Initialize with the first vote
+        });
+        console.log("Votes array created and vote added successfully.");
+      } else {
+        await updateDoc(gameDocRef, {
+          votes: arrayUnion(vote)  // Add vote to existing array
+        });
+        console.log("Vote added successfully to existing votes array.");
+      }
+
+    } else {
+      console.error("No such document found for the given gameId.");
+    }
+  } catch (error) {
+    console.error("Error adding vote:", error);
+  }
+};
+
+// Function to clear all votes from a game document in Firestore
+export const clearVotes = async (gameId: string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Set the 'votes' field to an empty array
+    await updateDoc(gameDocRef, {
+      votes: []  // Clears all objects from the array
+    });
+    console.log("All votes cleared successfully.");
+  } catch (error) {
+    console.error("Error clearing votes:", error);
+  }
 };

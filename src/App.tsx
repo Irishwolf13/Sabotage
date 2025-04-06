@@ -27,10 +27,10 @@ import Splash from './pages/Splash/Splash';
 import Login from './pages/Login/Login';
 import Lobby from './pages/CreatorLobby/CreatorLobby';
 import JoinLobby from './pages/JoinLobby/JoinLobby';
-import Innocent from './pages/Innocent/Innocent';
-import Saboteur from './pages/Saboteur/Saboteur';
+import MainGamePage from './pages/MainGamePage/MainGamePage';
 import VotingLobby from './pages/VotingLobby/VotingLobby';
 import Puzzles from './pages/Puzzles/Puzzles';
+import TallyLobby from './pages/TallyLobby/TallyLobby';
 
 setupIonicReact();
 
@@ -100,11 +100,11 @@ const App: React.FC = () => {
             <IonRouterOutlet>
               <PrivateRoute exact path="/home" component={Home} />
               <PrivateRoute exact path="/game/:uuid" component={Lobby} />
-              <PrivateRoute exact path="/game/:uuid/player/1" component={Innocent} />
-              <PrivateRoute exact path="/game/:uuid/player/l" component={Saboteur} />
+              <PrivateRoute exact path="/game/:uuid/player/l" component={MainGamePage} />
               <PrivateRoute exact path="/game/:uuid/player/votinglobby" component={VotingLobby} />
               <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
               <PrivateRoute exact path="/game/:uuid/puzzles" component={Puzzles} />
+              <PrivateRoute exact path="/game/:uuid/tally" component={TallyLobby} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/" component={Splash} />
             </IonRouterOutlet>

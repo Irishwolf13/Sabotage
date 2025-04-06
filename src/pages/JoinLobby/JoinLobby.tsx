@@ -7,7 +7,7 @@ import { updateAttribute } from '../../stores/gameSlice';
 import './JoinLobby.css';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
-import { useRoleId } from '../../components/useRoleId'
+import { setPlayers } from '../../components/setPlayers'
 
 const JoinLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -26,8 +26,8 @@ const JoinLobby: React.FC = () => {
   }, []);
 
   // Use the custom hook to manage roleId and players list
-  const { roleId, players } = useRoleId(currentGame?.id, email);
-  console.log(players)
+  const { players } = setPlayers(currentGame?.id, email);
+
   useEffect(() => {
     if (currentGame) {
       const unsubscribe = listenForGameChanges(currentGame.id, (data) => {
@@ -62,7 +62,7 @@ const JoinLobby: React.FC = () => {
         </div>
 
         {/* Use the StartGameModal component */}
-        <StartGameModal isStarted={!!isStarted} currentGameId={currentGame?.id} roleId={roleId} />
+        <StartGameModal isStarted={!!isStarted} currentGameId={currentGame?.id}/>
       
       </IonContent>
       <IonFooter>

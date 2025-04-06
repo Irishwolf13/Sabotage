@@ -25,6 +25,7 @@ export const useGameSubscription = () => {
                 isEnded: data.isEnded,
                 isStarted: data.isStarted,
                 foundDead: data.foundDead,
+                votes: data.votes,
               },
             ])
           );

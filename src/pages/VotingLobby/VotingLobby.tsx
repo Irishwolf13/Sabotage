@@ -1,57 +1,91 @@
-import React, { useState } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonList, IonRadioGroup, IonItem, IonLabel, IonRadio } from '@ionic/react';
+import React, { useEffect, useState } from 'react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonList, IonItem, IonLabel } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './VotingLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import FoundBodyModal from '../../components/Modals/FoundBodyModal';
+import { addVote, toggleBooleanField } from '../../firebase/controller';
+import { auth } from '../../firebase/config';
 
 const VotingLobby: React.FC = () => {
   useGameSubscription();
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
-  // console.log(game);
-
+  const [email, setEmail] = useState<string | null>(null);
+  
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+  const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
 
-  const handleVote = () => {
-    if (selectedPlayer) {
-        console.log(`Voted for player: ${selectedPlayer}`);
-        if (game.isSaboteur) {
-          setSelectedPlayer('')
-          history.push(`/game/${game.id}/player/l`);
-        } else {
-          setSelectedPlayer('')
-          history.push(`/game/${game.id}/player/1`);
+    useEffect(() => {
+      const user = auth.currentUser;
+      if (user) {
+        setEmail(user.email);
+      }
+    }, []);
+
+    const handleVote = async () => {
+      if (!email) {
+        console.log("No user email available.");
+        return;
+      }
+      
+      if (selectedPlayer) {
+        try {
+          // Resetting foundDead
+          await toggleBooleanField(game.id, "foundDead", false);
+          
+          const myVote = { voter: email, selected: selectedPlayer };
+          await addVote(game.id, myVote);
+          
+          setSelectedPlayer(null);
+          
+          history.push(`/game/${game.id}/tally`);
+        } catch (error) {
+          console.error("Error casting vote:", error);
         }
-    } else {
+      } else {
         console.log("No player selected");
+      }
+    };
+
+    const testButton = () => {
+      console.log(game.votes)
     }
-  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>VotingLobby Page</IonTitle>
+          <IonTitle>Voting Lobby</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen className="ion-padding">
-        <h1>VotingLobby Page</h1>
+        <IonButton onClick={testButton}>test</IonButton>
+        <h2>Select a player to vote out:</h2>
         <IonList>
-          <IonRadioGroup value={selectedPlayer} onIonChange={(e) => setSelectedPlayer(e.detail.value)}>
-            {game?.players && game.players.map((player, index) => (
-              <IonItem key={index} button onClick={() => setSelectedPlayer(player)}>
-                <IonLabel>{player}</IonLabel>
-                <IonRadio slot="start" value={player} />
-              </IonItem>
-            ))}
-          </IonRadioGroup>
+          {livingPlayers.map(player => (
+            <IonItem
+              key={player.email}
+              button
+              onClick={() => setSelectedPlayer(player.email)}
+              color={selectedPlayer === player.email ? 'danger' : undefined}
+            >
+              <IonLabel>{player.screenName}</IonLabel>
+            </IonItem>
+          ))}
         </IonList>
-        <IonButton onClick={handleVote}>Cast Vote</IonButton>
-        {/* <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} /> */}
+
+        <IonButton
+          expand="block"
+          onClick={handleVote}
+          disabled={!selectedPlayer}
+        >
+          Cast Vote
+        </IonButton>
       </IonContent>
+
       <IonFooter>
         <IonToolbar>
           <IonTitle size="small">© 2025 Dancing Goat Studios</IonTitle>

@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
-import { IonButton } from '@ionic/react';
+import { IonButton, IonCardTitle } from '@ionic/react';
 import { getRoomColors, toggleBooleanField } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
 import { useSelector } from 'react-redux';
 
 interface ContainerProps {
-  name: string;
+  playerColor: string;
   handleSolvePuzzleButton: () => void;
 }
 
-const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) => {
+const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButton }) => {
   const [roomColors, setRoomColors] = useState<string[]>([]);
   const [isNameInRoomColors, setIsNameInRoomColors] = useState<boolean>(false);
   const [showScanner, setShowScanner] = useState<boolean>(true);
@@ -31,7 +31,7 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
         setRoomColors(colors);
       }
       if (decodedText.includes("Dead")) {
-        await toggleBooleanField(game.id, "foundDead", false);
+        await toggleBooleanField(game.id, "foundDead", true);
       }
       setShowScanner(false);
     };
@@ -56,9 +56,9 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
 
   // Updates whether the name exists in roomColors whenever either changes
   useEffect(() => {
-    const checkIfNameInRoomColors = roomColors.some((color) => color.includes(name));
+    const checkIfNameInRoomColors = roomColors.some((color) => color.includes(playerColor));
     setIsNameInRoomColors(checkIfNameInRoomColors);
-  }, [name, roomColors]);
+  }, [playerColor, roomColors]);
 
   // Extracts numbers and converts them to integers
   const extractRGB = (colorString: any) => {
@@ -66,16 +66,12 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
   };
 
   const testButton = async () => {
-    console.log(roomColors);
-    console.log(isNameInRoomColors);
-    const colors = await getRoomColors(game.id, 0);
-    setRoomColors(colors);
+    await toggleBooleanField(game.id, "foundDead", true);
   };
 
   return (
     <div  style={{ margin: '10px' }}>
-      {/* <button onClick={testButton}>test</button> */}
-      {/* <p>{testText}</p> */}
+      <IonButton onClick={testButton}>test</IonButton>
       <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (
@@ -100,6 +96,19 @@ const Scanner: React.FC<ContainerProps> = ({ name, handleSolvePuzzleButton }) =>
           <div id="qr-reader"></div>
         </div>
       )}
+      <IonCardTitle style={{ textAlign: 'center' }}>
+        Your Color                   
+        <div
+          style={{
+            backgroundColor: playerColor
+              ? `rgb(${extractRGB(playerColor).join(',')})`
+              : 'rgb(255,255,255)',
+            width: '100px',
+            height: '20px',
+            margin: '0 auto',
+          }}
+        ></div>
+      </IonCardTitle>
     </div>
   );
 };
