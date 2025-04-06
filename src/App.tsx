@@ -100,7 +100,7 @@ const App: React.FC = () => {
             <IonRouterOutlet>
               <PrivateRoute exact path="/home" component={Home} />
               <PrivateRoute exact path="/game/:uuid" component={Lobby} />
-              <PrivateRoute exact path="/game/:uuid/player/l" component={MainGamePage} />
+              <PrivateRoute exact path="/game/:uuid/player/mainPage" component={MainGamePage} />
               <PrivateRoute exact path="/game/:uuid/player/votinglobby" component={VotingLobby} />
               <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
               <PrivateRoute exact path="/game/:uuid/puzzles" component={Puzzles} />

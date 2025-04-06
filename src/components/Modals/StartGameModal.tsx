@@ -30,7 +30,7 @@ const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameI
   useEffect(() => {
       if (countdown === 0 && currentGameId) {
       setShowModal(false);
-      const redirectPath = `/game/${currentGameId}/player/l`;
+      const redirectPath = `/game/${currentGameId}/player/mainPage`;
       // console.log(`Redirecting to: ${redirectPath}`);
       history.push(redirectPath);
     }

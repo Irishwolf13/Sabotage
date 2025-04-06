@@ -14,12 +14,13 @@ const TallyLobby: React.FC = () => {
   const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
 
   const [showVoterModal, setShowVoterModal] = useState(false);
-  const [showTextForUser, setShowTextForUser] = useState('');
+  const [showPlayerVotedOff, setShowPlayerVotedOff] = useState('');
+  const [showTextChanged, setShowTextChanged] = useState('Waitng for all votes to be cast...');
 
   const handleVotingComplete = async () => {
     await clearVotes(game.id)
     setShowVoterModal(false);
-    history.push(`/game/${game.id}/player/l`);
+    history.push(`/game/${game.id}/player/mainPage`);
   };
 
   const handleCheckVotesButton = () => {
@@ -29,24 +30,34 @@ const TallyLobby: React.FC = () => {
   useEffect(() => {
     if (game.votes && livingPlayers) {
       if (game.votes.length === livingPlayers.length) {
-        setShowTextForUser('Everyone has voted, and the winner is...');
+        console.log('frank');
         
         // Use .then() to handle the promise from evaluateVotes
         evaluateVotes(game.id).then(result => {
           if (result) {
-            console.log(result.email)
-            setShowTextForUser(result.email);
+            console.log(result.email);
+            setShowPlayerVotedOff(result.email);
           }
           
-          const timer = setTimeout(() => {
+          setShowTextChanged('Tallying all the votes...');
+          
+          const modalTimer = setTimeout(() => {
             setShowVoterModal(true);
-          }, 2000);
+          }, 2000); // Set this action to run at 2 seconds
   
-          return () => clearTimeout(timer);
+          const textChangeTimer = setTimeout(() => {
+            setShowTextChanged('Waiting for all votes to be cast...');
+          }, 2500); // Set this action to run at 2.5 seconds
+  
+          return () => {
+            clearTimeout(modalTimer);
+            clearTimeout(textChangeTimer);
+          };
         });
       }
     }
   }, [game.votes, livingPlayers]);
+  
 
   return (
     <IonPage>
@@ -57,7 +68,7 @@ const TallyLobby: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <IonButton onClick={handleCheckVotesButton}>Test Button</IonButton>
-        <h1>TallyLobby Page</h1>
+        <h1>{showTextChanged}</h1>
         <IonList>
         {/* Going to list out People and their votes here */}
         </IonList>
@@ -71,7 +82,7 @@ const TallyLobby: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-          {showTextForUser} was kicked!
+          {showPlayerVotedOff} was kicked!
           </IonContent>
         </IonModal>
       </IonContent>
