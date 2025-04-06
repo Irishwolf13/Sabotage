@@ -31,6 +31,7 @@ import MainGamePage from './pages/MainGamePage/MainGamePage';
 import VotingLobby from './pages/VotingLobby/VotingLobby';
 import Puzzles from './pages/Puzzles/Puzzles';
 import TallyLobby from './pages/TallyLobby/TallyLobby';
+import EndOfGameLobby from './pages/EndOfGameLobby/EndOfGameLobby';
 
 setupIonicReact();
 
@@ -105,6 +106,7 @@ const App: React.FC = () => {
               <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
               <PrivateRoute exact path="/game/:uuid/puzzles" component={Puzzles} />
               <PrivateRoute exact path="/game/:uuid/tally" component={TallyLobby} />
+              <PrivateRoute exact path="/game/:uuid/endGame" component={EndOfGameLobby} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/" component={Splash} />
             </IonRouterOutlet>

@@ -32,7 +32,7 @@ const TallyLobby: React.FC = () => {
   const handleVotingComplete = async () => {
     await clearVotes(game.id);
     setShowVoterModal(false);
-    history.push(`/game/${game.id}/player/mainPage`);
+    history.push(`/game/${game.id}/endGame`);
   };
 
   const handleCheckVotesButton = () => {

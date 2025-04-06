@@ -12,7 +12,7 @@ import { useHistory } from 'react-router';
 
 const MainGamePage: React.FC = () => {
   const { user } = useAuth();
-  const game = useSelector((state: RootState) => state.games[0]);
+  const game = useSelector((state: RootState) => state.games?.[0]);
   const dispatch = useDispatch();
   const history = useHistory();
 

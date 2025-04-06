@@ -47,8 +47,8 @@ const gamesSlice = createSlice({
       state.push(action.payload);
     },
     // Remove game action
-    removeGame(state, action: PayloadAction<{ id: string }>) {
-      return state.filter(game => game.id !== action.payload.id);
+    removeGame() {
+      return [];
     },
     // General update attribute action
     updateAttribute(state, action: PayloadAction<{ id: string; key: keyof Game; value: any }>) {
