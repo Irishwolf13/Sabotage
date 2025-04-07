@@ -65,7 +65,6 @@ const TallyLobby: React.FC = () => {
   useEffect(() => {
     if (game.votes && livingPlayers) {
       if (game.votes.length === livingPlayers.length) {
-        
         evaluateVotes(game.id).then(result => {
           if (result) {
             console.log(result.email);
@@ -140,4 +139,3 @@ const TallyLobby: React.FC = () => {
 };
 
 export default TallyLobby;
-

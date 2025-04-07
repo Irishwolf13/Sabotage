@@ -10,6 +10,7 @@ interface Game {
   isStarted: boolean;
   foundDead: boolean;
   currentRoom: number;
+  calledMeeting: string;
   players: Player[];
   votes: Vote[]
 }

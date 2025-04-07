@@ -157,6 +157,19 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, stat
   }
 };
 
+// Function to update a string field in a Firestore document
+export const updateStringField = async (gameId: string, fieldName: string, newValue: string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  try {
+    await updateDoc(gameDocRef, {
+      [fieldName]: newValue
+    });
+    console.log(`Successfully updated ${fieldName} to ${newValue}`);
+  } catch (error) {
+    console.error(`Error updating ${fieldName}: `, error);
+  }
+};
+
 // Function to set a player's isSaboteur field to true
 export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) => {
   try {

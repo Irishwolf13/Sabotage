@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
 import { IonButton, IonCardTitle } from '@ionic/react';
-import { getRoomColors, toggleBooleanField } from '../../firebase/controller';
+import { getRoomColors, toggleBooleanField, updateStringField } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateAttribute } from '../../stores/gameSlice';
+import { useAuth } from '../../firebase/AuthContext';
 
 interface ContainerProps {
   playerColor: string;
@@ -19,6 +20,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   // const [testText, setTestText] = useState(-1)
   const game = useSelector((state: RootState) => state.games[0]);
   const dispatch = useDispatch();
+  const { user } = useAuth(); 
 
   useEffect(() => {
     if (!showScanner) return;
@@ -74,8 +76,15 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     // await toggleBooleanField(game.id, "foundDead", true);
   };
 
-  const testDeadBody = () => {
-    toggleBooleanField(game.id, "foundDead", true);
+  const testDeadBody = async () => {
+    if (user && user.email) {
+      console.log('I ran Here')
+      console.log(user.email)
+      await updateStringField(game.id, 'calledMeeting', user.email)
+      await toggleBooleanField(game.id, "foundDead", true);
+      console.log('inside textDeadBody')
+      console.log(game)
+    }
   }
 
   return (
