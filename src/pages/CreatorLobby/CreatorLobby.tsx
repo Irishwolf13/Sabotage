@@ -57,6 +57,7 @@ const CreatorLobby: React.FC = () => {
               code: data.gameCode,
               players: data.players,
               isEnded: data.isEnded,
+              saboteurWins: false,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
               currentRoom: -1,

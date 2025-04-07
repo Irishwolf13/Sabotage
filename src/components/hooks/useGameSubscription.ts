@@ -24,6 +24,7 @@ export const useGameSubscription = () => {
                 players: data.players,
                 isEnded: data.isEnded,
                 isStarted: data.isStarted,
+                saboteurWins: data.saboteurWins,
                 foundDead: data.foundDead,
                 votes: data.votes,
               },

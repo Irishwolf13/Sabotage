@@ -2,20 +2,20 @@ import React from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter } from '@ionic/react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import './EndOfGameLobby.css';
-import { removeGame } from '../../stores/gameSlice';
+import './EndGameVotedOff.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 
-const EndOfGameLobby: React.FC = () => {
+const EndOfGameVotedOff: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const game = useSelector((state: RootState) => state.games[0]);
-
+  const game = useSelector((state: RootState) => state.games[0]); 
+  
   const navigateToHome = () => {
     // There might be a more graceful way of doing this, but it's not working for me, for now... this works.
     window.location.href = '/home';
   };
+
   // const testButton = () => {
   //   console.log(game)
   // }
@@ -28,9 +28,8 @@ const EndOfGameLobby: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        <h1>Great Game!</h1>
-        {game.saboteurWins && <h1>Saboteur Wins!</h1>}
-        {!game.saboteurWins && <h1>The Tribe Wins!</h1>}
+        <h1>The Tribe has Spoken!</h1>
+        <h1>You have been eliminated!</h1>
         {/* <IonButton onClick={testButton}>Test</IonButton> */}
         <IonButton expand="full" onClick={navigateToHome}>
           Exit Game
@@ -45,4 +44,4 @@ const EndOfGameLobby: React.FC = () => {
   );
 };
 
-export default EndOfGameLobby;
+export default EndOfGameVotedOff;

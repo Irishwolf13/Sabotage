@@ -16,7 +16,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   const [roomColors, setRoomColors] = useState<string[]>([]);
   const [isNameInRoomColors, setIsNameInRoomColors] = useState<boolean>(false);
   const [showScanner, setShowScanner] = useState<boolean>(true);
-  // const [testText, setTestText] = useState('text...')
+  // const [testText, setTestText] = useState(-1)
   const game = useSelector((state: RootState) => state.games[0]);
   const dispatch = useDispatch();
 
@@ -24,12 +24,12 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     if (!showScanner) return;
 
     const onScanSuccess = async (decodedText: string, decodedResult: any) => {
-      // setTestText(decodedText);
       
       if (decodedText.includes("Room")) {
         const roomNumberString = decodedText.replace("Room ", "");
         const roomNumber = parseInt(roomNumberString);
         dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
+        // setTestText(roomNumber);
         const colors = await getRoomColors(game.id, roomNumber);
         setRoomColors(colors);
       }
@@ -74,9 +74,14 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     // await toggleBooleanField(game.id, "foundDead", true);
   };
 
+  const testDeadBody = () => {
+    toggleBooleanField(game.id, "foundDead", true);
+  }
+
   return (
     <div  style={{ margin: '10px' }}>
       <IonButton onClick={testSolveButton}>Test Solve puzzle</IonButton>
+      <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
       <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (
@@ -91,7 +96,6 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
         ))}
       </div>
 
-      {/* <IonButton onClick={handleSolvePuzzleButton}>Test Puzzle</IonButton> */}
       <div className='buttonHolder'>
         {isNameInRoomColors && <IonButton onClick={handleSolvePuzzleButton}>Solve Puzzle?</IonButton>}
       </div>
@@ -102,6 +106,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
         </div>
       )}
       <IonCardTitle style={{ textAlign: 'center' }}>
+        {/* {testText} */}
         Your Color                   
         <div
           style={{

@@ -6,6 +6,7 @@ interface Game {
   name: string;
   code: string;
   isEnded: boolean;
+  saboteurWins: boolean;
   isStarted: boolean;
   foundDead: boolean;
   currentRoom: number;

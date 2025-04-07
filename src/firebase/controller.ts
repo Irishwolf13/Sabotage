@@ -497,7 +497,7 @@ export const evaluateVotes = async (gameId: string): Promise<{ email: string; is
 };
 
 // Function to evaluate game status based on players' ghost and saboteur status
-export const evaluateGameStatus = async (gameId: string): Promise<{ gameOver: boolean; innocentsWin: boolean }> => {
+export const evaluateGameStatus = async (gameId: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   try {
@@ -513,7 +513,10 @@ export const evaluateGameStatus = async (gameId: string): Promise<{ gameOver: bo
     // Check for active saboteurs
     const activeSaboteursCount = players.filter(player => player.isSaboteur && !player.ghost).length;
     if (activeSaboteursCount === 0) {
-      return { gameOver: true, innocentsWin: true }; // Innocents win if no active saboteurs are left
+      // return { gameOver: true, innocentsWin: true }; // Innocents win if no active saboteurs are left
+      toggleBooleanField(gameDoc.id, 'isEnded', true)
+      toggleBooleanField(gameDoc.id, 'saboteurWins', false)
+      return
     }
 
     // Count active innocents
@@ -521,15 +524,22 @@ export const evaluateGameStatus = async (gameId: string): Promise<{ gameOver: bo
 
     // Determine game outcome based on counts
     if (activeInnocentsCount <= activeSaboteursCount) {
-      return { gameOver: true, innocentsWin: false }; // Saboteurs win if they are equal to or outnumber active innocents
+      // return { gameOver: true, innocentsWin: false }; // Saboteurs win if they are equal to or outnumber active innocents
+    
+      toggleBooleanField(gameDoc.id, 'isEnded', true)
+      toggleBooleanField(gameDoc.id, 'saboteurWins', true)
+      return
     }
 
-    return { gameOver: false, innocentsWin: false }; // Game continues if innocents outnumber saboteurs
+    // return { gameOver: false, innocentsWin: false }; // Game continues if innocents outnumber saboteurs
+
+    toggleBooleanField(gameDoc.id, 'isEnded', false)
+    toggleBooleanField(gameDoc.id, 'saboteurWins', false)
 
   } catch (error) {
     console.error("Error evaluating game status:", error);
     // Default return to indicate ongoing game in case of errors
-    return { gameOver: false, innocentsWin: false };
+    return;
   }
 };
 
@@ -590,5 +600,35 @@ export const updateRoomSabotageStatus = async (gameId: string, room: number) => 
     // console.log(`Updated sabotage status for room: ${room}`);
   } catch (error) {
     console.error("Error updating sabotage status:", error);
+  }
+};
+
+// Function to check if any room with the specified number has been sabotaged
+interface RoomPuzzle { room: number; sabotaged: boolean; solved: boolean;}
+export const isRoomSabotaged = async (gameId: string, roomNumber: number): Promise<boolean> => {
+  try {
+    // Reference to the game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+
+    // Get the document snapshot
+    const gameDocSnap = await getDoc(gameDocRef);
+
+    if (gameDocSnap.exists()) {
+      // Extract data
+      const gameData = gameDocSnap.data();
+
+      // Assuming roomPuzzles is an array in the game document
+      if (Array.isArray(gameData.roomPuzzles)) {
+        // Check for any room with the specified number that is sabotaged
+        return gameData.roomPuzzles.some((puzzle: RoomPuzzle) => 
+          puzzle.room === roomNumber && puzzle.sabotaged === true
+        );
+      }
+    }
+    
+    return false; // Return false if no matching rooms are found or the document does not exist
+  } catch (error) {
+    console.error("Error checking room sabotage status:", error);
+    throw new Error("Failed to check room sabotage status.");
   }
 };

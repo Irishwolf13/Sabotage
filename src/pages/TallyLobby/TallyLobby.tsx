@@ -18,9 +18,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 import { clearVotes, evaluateVotes, evaluateGameStatus } from '../../firebase/controller';
+import { useAuth } from '../../firebase/AuthContext';
+
+interface gameResults { gameOver: boolean; innocentsWin: boolean;}
 
 const TallyLobby: React.FC = () => {
   useGameSubscription();
+  const { user } = useAuth(); 
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
   const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
@@ -30,9 +34,28 @@ const TallyLobby: React.FC = () => {
   const [showTextChanged, setShowTextChanged] = useState('Waiting for all votes to be cast...');
 
   const handleVotingComplete = async () => {
-    await clearVotes(game.id);
-    setShowVoterModal(false);
-    history.push(`/game/${game.id}/endGame`);
+    console.log('Living Players')
+    console.log(livingPlayers)
+    console.log(game)
+    if (game) {
+      await clearVotes(game.id);
+      setShowVoterModal(false);
+      const playerIsAlive = livingPlayers.some((player: { email: string }) => player.email === user?.email);
+      if (!playerIsAlive) {
+        history.push(`/game/${game.id}/votedOff`);
+        return;
+      }
+      if (game.isEnded && !game.saboteurWins) {
+        // Innocents wins
+        history.push(`/game/${game.id}/endGame`);
+      } else if (game.isEnded && game.saboteurWins){
+        // Saboteur wins
+        history.push(`/game/${game.id}/endGame`);
+      } else if (!game.isEnded){
+        // Default
+        history.push(`/game/${game.id}/player/mainPage`);
+      }
+    }
   };
 
   const handleCheckVotesButton = () => {
@@ -52,9 +75,9 @@ const TallyLobby: React.FC = () => {
           setShowTextChanged('Tallying all the votes...');
   
           // Use .then() to handle the promise from evaluateGameStatus
-          evaluateGameStatus(game.id).then(frank => {
+          evaluateGameStatus(game.id).then(result => {
             console.log('Game results here');
-            console.log(frank); // Log the game status results
+            console.log(game); // Log the game status results
             console.log('End game results');
           });
   
