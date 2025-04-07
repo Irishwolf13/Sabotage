@@ -8,6 +8,7 @@ interface Game {
   isEnded: boolean;
   isStarted: boolean;
   foundDead: boolean;
+  currentRoom: number;
   players: Player[];
   votes: Vote[]
 }

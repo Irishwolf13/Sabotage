@@ -20,7 +20,7 @@ import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { listenForGameChanges, updateRoomSabotageStatus, subscribeToRoomPuzzleStatus } from '../../firebase/controller';
-import { setGames } from '../../stores/gameSlice';
+import { setGames, updateAttribute } from '../../stores/gameSlice';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
 import { useHistory } from 'react-router';
@@ -105,10 +105,6 @@ const MainGamePage: React.FC = () => {
     history.push(`/game/${game.id}/puzzles`);
   };
 
-  const testbutton = () => {
-    console.log(game);
-  };
-
   const handleChangeSabotageStatus = (room: number) => {
     const currentRoomStatus = showRoomStatus.find(status => status.room === room);
   
@@ -126,6 +122,10 @@ const MainGamePage: React.FC = () => {
     }
   };
 
+  // const testButton = async () => {
+  //   console.log(game.currentRoom);
+  // };
+
   return (
     <IonPage>
       <IonHeader>
@@ -136,6 +136,7 @@ const MainGamePage: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Splash</h1>
+          {/* <IonButton onClick={testButton}>Test Button</IonButton> */}
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
           {currentUserPlayer?.isSaboteur ? (
             <>
@@ -170,7 +171,6 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <IonButton onClick={testbutton}>Test Button</IonButton>
             {showRoomStatus.map((status, index) => (
               <div key={index}>
                 Room: {status.room}, Sabotaged: 

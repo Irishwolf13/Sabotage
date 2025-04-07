@@ -59,6 +59,7 @@ const CreatorLobby: React.FC = () => {
               isEnded: data.isEnded,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
+              currentRoom: -1,
               votes:[]
             },
           ])

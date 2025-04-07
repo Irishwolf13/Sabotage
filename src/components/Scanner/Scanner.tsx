@@ -4,7 +4,8 @@ import './Scanner.css'; // Import your CSS file
 import { IonButton, IonCardTitle } from '@ionic/react';
 import { getRoomColors, toggleBooleanField } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateAttribute } from '../../stores/gameSlice';
 
 interface ContainerProps {
   playerColor: string;
@@ -17,6 +18,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   const [showScanner, setShowScanner] = useState<boolean>(true);
   // const [testText, setTestText] = useState('text...')
   const game = useSelector((state: RootState) => state.games[0]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!showScanner) return;
@@ -27,6 +29,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
       if (decodedText.includes("Room")) {
         const roomNumberString = decodedText.replace("Room ", "");
         const roomNumber = parseInt(roomNumberString);
+        dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
         const colors = await getRoomColors(game.id, roomNumber);
         setRoomColors(colors);
       }
@@ -65,14 +68,15 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     return colorString.match(/\d+/g).map(Number);
   };
 
-  const testButton = async () => {
+  const testSolveButton = async () => {
+    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: 2 }));
     handleSolvePuzzleButton()
     // await toggleBooleanField(game.id, "foundDead", true);
   };
 
   return (
     <div  style={{ margin: '10px' }}>
-      <IonButton onClick={testButton}>test</IonButton>
+      <IonButton onClick={testSolveButton}>Test Solve puzzle</IonButton>
       <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (

@@ -18,6 +18,10 @@ const Puzzles: React.FC = () => {
     history.push(`/game/${game.id}/player/mainPage`);
   };
 
+  const testButton = () => {
+    console.log(game.currentRoom)
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -27,6 +31,7 @@ const Puzzles: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <h1>Puzzles Page</h1>
+        <IonButton onClick={testButton}>Test Button</IonButton>
         <IonButton onClick={navigateToPlayerPage}>Solve Puzzle</IonButton>
         <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
       </IonContent>
