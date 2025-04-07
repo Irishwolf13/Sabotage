@@ -1,16 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent } from '@ionic/react';
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonFooter,
+  IonModal,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  IonToast
+} from '@ionic/react';
 import './MainGamePage.css';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges } from '../../firebase/controller';
+import { listenForGameChanges, updateRoomSabotageStatus, subscribeToRoomPuzzleStatus } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
 import { useHistory } from 'react-router';
 
 const MainGamePage: React.FC = () => {
+  interface RoomStatus {
+    room: number;
+    sabotaged: boolean;
+  }
+
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
   const dispatch = useDispatch();
@@ -19,6 +39,13 @@ const MainGamePage: React.FC = () => {
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [showSabotageModal, setShowSabotageModal] = useState(false);
   const [showInnocentModal, setShowInnocentModal] = useState(false);
+  const [showRoomStatus, setShowRoomStatus] = useState<RoomStatus[]>([]);
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [showToast, setShowToast] = useState<boolean>(false);
+
+  const currentUserPlayer = game.players.find(
+    (player: any) => player.email === user?.email
+  );
 
   useEffect(() => {
     if (game?.id && user) {
@@ -47,68 +74,82 @@ const MainGamePage: React.FC = () => {
     }
   }, [dispatch, game?.id, user]);
 
-  // Closes all Modals if Dead player is Found by anyone
+  useEffect(() => {
+    if (game?.id) {
+      const unsubscribe = subscribeToRoomPuzzleStatus(game.id, (status) => {
+        setShowRoomStatus(status);
+      });
+      return () => unsubscribe();
+    }
+  }, [game?.id]);
+
   useEffect(() => {
     if (game.foundDead) {
       setShowScannerModal(false);
-      {setShowSabotageModal(false);};
-      {setShowInnocentModal(false);};
+      setShowSabotageModal(false);
+      setShowInnocentModal(false);
     }
   }, [game]);
 
-  const handleScannerButtonClicked = () => {setShowScannerModal(true);};
-  const handleCloseScannerModal = () => {setShowScannerModal(false);};
+  const handleScannerButtonClicked = () => setShowScannerModal(true);
+  const handleCloseScannerModal = () => setShowScannerModal(false);
 
-  const handleSabotageButtonClicked = () => {setShowSabotageModal(true);};
-  const handleCloseSabotageModal = () => {setShowSabotageModal(false);};
+  const handleSabotageButtonClicked = () => setShowSabotageModal(true);
+  const handleCloseSabotageModal = () => setShowSabotageModal(false);
 
-  const handleInnocentButtonClicked = () => {setShowInnocentModal(true);};
-  const handleCloseInnocentModal = () => {setShowInnocentModal(false);};
+  const handleInnocentButtonClicked = () => setShowInnocentModal(true);
+  const handleCloseInnocentModal = () => setShowInnocentModal(false);
 
   const handleSolvePuzzleButton = () => {
     setShowScannerModal(false);
     history.push(`/game/${game.id}/puzzles`);
   };
 
-  // Find the current user's player details
-  const currentUserPlayer = game.players.find(
-    (player: any) => player.email === user?.email
-  );
+  const testbutton = () => {
+    console.log(game);
+  };
 
-  const is = currentUserPlayer && !currentUserPlayer.isSaboteur;
+  const handleChangeSabotageStatus = (room: number) => {
+    const currentRoomStatus = showRoomStatus.find(status => status.room === room);
+  
+    if (currentRoomStatus?.sabotaged) {
+      updateRoomSabotageStatus(game.id, room);
+    } else {
+      const anotherRoomSabotaged = showRoomStatus.some(status => status.sabotaged);
+  
+      if (!anotherRoomSabotaged) {
+        updateRoomSabotageStatus(game.id, room);
+      } else {
+        setToastMessage('Only one room can be sabotaged at a time.');
+        setShowToast(true);
+      }
+    }
+  };
 
-  // const testbutton = () => {
-  //   console.log(game.votes)
-  // }
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>
-            {currentUserPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}
-          </IonTitle>
+          <IonTitle>{currentUserPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
-          {/* <IonButton onClick={testbutton}>Test</IonButton> */}
           <h1>Splash</h1>
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          {currentUserPlayer?.isSaboteur &&
+          {currentUserPlayer?.isSaboteur ? (
             <>
               <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
               <IonButton className='halfWidthButton' onClick={handleSabotageButtonClicked}>Check Stats</IonButton>
             </>
-          }
-          {!currentUserPlayer?.isSaboteur && 
+          ) : (
             <>
               <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
               <IonButton className='halfWidthButton' onClick={handleInnocentButtonClicked}>Check Stats</IonButton>
             </>
-          }
+          )}
         </div>
 
-        {/* Scanner Modal implementation */}
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
           <IonHeader>
             <IonToolbar>
@@ -120,7 +161,7 @@ const MainGamePage: React.FC = () => {
             {currentUserPlayer && <Scanner playerColor={currentUserPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />}
           </IonContent>
         </IonModal>
-        {/* Scanner Modal implementation */}
+
         <IonModal isOpen={showSabotageModal} onDidDismiss={handleCloseSabotageModal}>
           <IonHeader>
             <IonToolbar>
@@ -129,10 +170,21 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            Sabotage Page
+            <IonButton onClick={testbutton}>Test Button</IonButton>
+            {showRoomStatus.map((status, index) => (
+              <div key={index}>
+                Room: {status.room}, Sabotaged: 
+                <IonButton
+                  onClick={() => handleChangeSabotageStatus(status.room)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  {status.sabotaged ? 'Yes' : 'No'}
+                </IonButton>
+              </div>
+            ))}
           </IonContent>
         </IonModal>
-        {/* Scanner Modal implementation */}
+
         <IonModal isOpen={showInnocentModal} onDidDismiss={handleCloseInnocentModal}>
           <IonHeader>
             <IonToolbar>
@@ -144,6 +196,16 @@ const MainGamePage: React.FC = () => {
             Innocent Page
           </IonContent>
         </IonModal>
+
+        {/* IonToast Component */}
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={2000}
+          color="warning"
+        />
+
       </IonContent>
       <IonFooter>
         <IonToolbar>

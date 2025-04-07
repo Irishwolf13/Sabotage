@@ -66,7 +66,8 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   };
 
   const testButton = async () => {
-    await toggleBooleanField(game.id, "foundDead", true);
+    handleSolvePuzzleButton()
+    // await toggleBooleanField(game.id, "foundDead", true);
   };
 
   return (

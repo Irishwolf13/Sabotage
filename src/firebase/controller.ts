@@ -532,3 +532,63 @@ export const evaluateGameStatus = async (gameId: string): Promise<{ gameOver: bo
     return { gameOver: false, innocentsWin: false };
   }
 };
+
+// Function to check room puzzles and return their status as an array of objects
+export const subscribeToRoomPuzzleStatus = (gameId: string, callback: (status: Array<{ room: number; sabotaged: boolean }>) => void) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  const unsubscribe = onSnapshot(gameDocRef, (docSnap) => {
+    if (!docSnap.exists()) {
+      console.error(`Document with id ${gameId} does not exist`);
+      return;
+    }
+
+    const data = docSnap.data();
+
+    if (!data || !Array.isArray(data.roomPuzzles)) {
+      console.error("Invalid or missing 'roomPuzzles' array");
+      return;
+    }
+
+    const roomStatusMap = new Map<number, boolean>();
+
+    data.roomPuzzles.forEach((puzzle: { room: number; sabotaged: boolean }) => {
+      const currentStatus = roomStatusMap.get(puzzle.room) || false;
+      roomStatusMap.set(puzzle.room, currentStatus || puzzle.sabotaged);
+    });
+
+    const roomStatusArray = Array.from(roomStatusMap, ([room, sabotaged]) => ({ room, sabotaged }));
+
+    callback(roomStatusArray);
+  }, (error) => {
+    console.error("Error listening to room puzzles:", error);
+  });
+
+  return unsubscribe; // Call this function to stop listening to updates
+};
+
+// Function to toggle the sabotage status of a specific room
+export const updateRoomSabotageStatus = async (gameId: string, room: number) => {
+  try {
+    const gameRef = doc(db, "activeGames", gameId);
+    const docSnap = await getDoc(gameRef);
+
+    if (!docSnap.exists()) {
+      throw new Error(`Game document with id ${gameId} does not exist`);
+    }
+
+    const data = docSnap.data();
+    if (!data || !Array.isArray(data.roomPuzzles)) {
+      throw new Error("Invalid or missing 'roomPuzzles' array in document");
+    }
+
+    const updatedRoomPuzzles = data.roomPuzzles.map((puzzle: { room: number; sabotaged: boolean }) =>
+      puzzle.room === room ? { ...puzzle, sabotaged: !puzzle.sabotaged } : puzzle
+    );
+
+    await updateDoc(gameRef, { roomPuzzles: updatedRoomPuzzles });
+    // console.log(`Updated sabotage status for room: ${room}`);
+  } catch (error) {
+    console.error("Error updating sabotage status:", error);
+  }
+};

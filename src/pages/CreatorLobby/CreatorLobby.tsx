@@ -118,7 +118,7 @@ const CreatorLobby: React.FC = () => {
     }
   };
 
-  type roomPlayer = { player: number; solved: boolean; type: number };
+  type roomPlayer = { player: number; solved: boolean; sabotaged:boolean, type: number };
   const assignPlayersEvenly = (
     numberOfPlayers: number,
     numberOfRooms: number
@@ -157,6 +157,7 @@ const CreatorLobby: React.FC = () => {
             roomPuzzles[room].push({
               player: player,
               solved: false,
+              sabotaged: false,
               type: playerTypeCounter[player]++,
             });
 
