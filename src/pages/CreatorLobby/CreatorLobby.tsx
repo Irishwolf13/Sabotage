@@ -1,31 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonFooter,
-  IonButton,
-  IonList,
-  IonItem,
-} from '@ionic/react';
-import './CreatorLobby.css';
+import { useHistory } from 'react-router-dom';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem } from '@ionic/react';
+import { listenForGameChanges, toggleBooleanField, getInnocentBaseColors, addRoomColors, setPlayerAsSaboteur, assignAndUpdatePlayers, updatePlayerColors } from '../../firebase/controller';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
-import {
-  listenForGameChanges,
-  toggleBooleanField,
-  getInnocentBaseColors,
-  addRoomColors,
-  setPlayerAsSaboteur,
-  assignAndUpdatePlayers,
-  updatePlayerColors,
-} from '../../firebase/controller';
+import './CreatorLobby.css';
 
 const CreatorLobby: React.FC = () => {
   const dispatch = useDispatch();
@@ -74,12 +56,8 @@ const CreatorLobby: React.FC = () => {
   }, [dispatch, game?.id]);
 
   if (!game) {
-    return <p>No game available</p>;
+    return <p>Oppps, something went wrong and your game is missing... Lost to the void... Sabotaged...? Not sure.</p>;
   }
-
-  const handleToggleStatus = async (key: any, value: any) => {
-    await toggleBooleanField(game.id, key, !value);
-  };
 
   const shuffleArray = (array: any) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -88,11 +66,7 @@ const CreatorLobby: React.FC = () => {
     }
   };
 
-  const selectRandomColors = (
-    availableColors: any,
-    totalPlayers: any,
-    myPlayers: any
-  ) => {
+  const selectRandomColors = ( availableColors: any, totalPlayers: any, myPlayers: any ) => {
     const usedColors = new Set<string>();
 
     if (availableColors.length < totalPlayers) {
@@ -106,7 +80,7 @@ const CreatorLobby: React.FC = () => {
       usedColors.add(player.color);
     });
 
-    console.log('myPlayers with assigned colors:', myPlayers);
+    // console.log('myPlayers with assigned colors:', myPlayers);
   };
 
   // Randomly assign saboteurs
@@ -115,19 +89,17 @@ const CreatorLobby: React.FC = () => {
       let randomIndex;
       do {
         randomIndex = Math.floor(Math.random() * totalPlayers);
-        console.log(randomIndex)
+        // console.log(randomIndex)
       } while (myPlayers[randomIndex].isSaboteur);
-      console.log(randomIndex)
+      // console.log(randomIndex)
       myPlayers[randomIndex].isSaboteur = true;
       await setPlayerAsSaboteur(game.id, myPlayers[randomIndex].email)
     }
   };
 
+  // This is the big one... evenly spreads out players across rooms in the best way possible... I hope.
   type roomPlayer = { player: number; solved: boolean; sabotaged:boolean, type: number };
-  const assignPlayersEvenly = (
-    numberOfPlayers: number,
-    numberOfRooms: number
-  ) => {
+  const assignPlayersEvenly = ( numberOfPlayers: number, numberOfRooms: number) => {
     const roomPuzzles: roomPlayer[][] = Array.from(
       { length: numberOfRooms },
       () => []
@@ -204,7 +176,7 @@ const CreatorLobby: React.FC = () => {
       await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
       await updatePlayerColors(game.id, myPlayers, availableColors)
-      await handleToggleStatus('isStarted', game.isStarted);
+      await toggleBooleanField(game.id, 'isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');
     }
@@ -254,7 +226,6 @@ const CreatorLobby: React.FC = () => {
             .fill(null)
             .map((_, index) => (
               <IonItem key={index}>
-                {/* This will be screenName instead of player.email soon enough */}
                 {game.players[index]
                   ? game.players[index].screenName
                   : 'Open Slot'}

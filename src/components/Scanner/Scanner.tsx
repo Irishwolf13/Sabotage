@@ -78,12 +78,8 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
 
   const testDeadBody = async () => {
     if (user && user.email) {
-      console.log('I ran Here')
-      console.log(user.email)
       await updateStringField(game.id, 'calledMeeting', user.email)
       await toggleBooleanField(game.id, "foundDead", true);
-      console.log('inside textDeadBody')
-      console.log(game)
     }
   }
 

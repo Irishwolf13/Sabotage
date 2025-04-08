@@ -30,14 +30,9 @@ const TallyLobby: React.FC = () => {
   const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
 
   const [showVoterModal, setShowVoterModal] = useState(false);
-  const [showPlayerVotedOff, setShowPlayerVotedOff] = useState('');
   const [showTextChanged, setShowTextChanged] = useState('Waiting for all votes to be cast...');
-  const [currentKickedPlayer, setCurrentKickedPlayer] = useState('')
 
   const handleVotingComplete = async () => {
-    console.log('Living Players')
-    console.log(livingPlayers)
-    console.log(game)
     if (game) {
       await clearVotes(game.id);
       setShowVoterModal(false);
@@ -69,9 +64,6 @@ const TallyLobby: React.FC = () => {
         if (game.votes.length === livingPlayers.length) {
           evaluateVotes(game.id).then(result => {
             if (result) {
-              console.log('results:')
-              console.log(result)
-              // setCurrentKickedPlayer(result.email);
               updateStringField(game.id, 'kickedPlayer', result.screenName)
             }
             evaluateGameStatus(game.id)

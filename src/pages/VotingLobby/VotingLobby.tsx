@@ -49,9 +49,9 @@ const VotingLobby: React.FC = () => {
       }
     };
 
-    const testButton = () => {
-      console.log(game.votes)
-    }
+    // const testButton = () => {
+    //   console.log(game.votes)
+    // }
 
   return (
     <IonPage>
@@ -62,7 +62,7 @@ const VotingLobby: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-        <IonButton onClick={testButton}>test</IonButton>
+        {/* <IonButton onClick={testButton}>test</IonButton> */}
         <h2>Select a player to vote out:</h2>
         <IonList>
           {livingPlayers.map(player => (
