@@ -29,8 +29,8 @@ const Puzzles: React.FC = () => {
 
   const solvePuzzle = async () => {
     try {
-      const myRoomStatus = await isRoomSabotaged(game.id, game.currentRoom);
-      if (myRoomStatus) {
+      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+      if (roomIsSabotaged) {
         // Navigate to dead player page if room is sabotaged
         history.push(`/game/${game.id}/deadPlayer`);
       } else {

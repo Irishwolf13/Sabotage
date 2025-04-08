@@ -70,10 +70,9 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     return colorString.match(/\d+/g).map(Number);
   };
 
-  const testSolveButton = async () => {
-    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: 2 }));
+  const testGoToPuzzle = (room:number) => {
+    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: 0 }));
     handleSolvePuzzleButton()
-    // await toggleBooleanField(game.id, "foundDead", true);
   };
 
   const testDeadBody = async () => {
@@ -85,7 +84,12 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
 
   return (
     <div  style={{ margin: '10px' }}>
-      <IonButton onClick={testSolveButton}>Test Solve puzzle</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(0)}>Test Go To Puzzle 0</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(1)}>Test Go To Puzzle 1</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(2)}>Test Go To Puzzle 2</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(3)}>Test Go To Puzzle 3</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(4)}>Test Go To Puzzle 4</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(5)}>Test Go To Puzzle 5</IonButton>
       <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
       <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>

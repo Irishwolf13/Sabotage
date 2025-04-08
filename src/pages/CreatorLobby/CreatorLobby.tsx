@@ -163,6 +163,10 @@ const CreatorLobby: React.FC = () => {
     return resultArray;
   };
 
+  const handleToggleStatus = async (key: any, value: any) => {
+    await toggleBooleanField(game.id, key, !value);
+  };
+
   const handleStartGame = async (numSaboteurs: number) => {
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
@@ -176,7 +180,7 @@ const CreatorLobby: React.FC = () => {
       await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
       await updatePlayerColors(game.id, myPlayers, availableColors)
-      await toggleBooleanField(game.id, 'isStarted', game.isStarted);
+      await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');
     }
