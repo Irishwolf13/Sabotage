@@ -63,6 +63,7 @@ const CreatorLobby: React.FC = () => {
               currentRoom: -1,
               calledMeeting: '',
               allVotesCast: false,
+              kickedPlayer: '',
               votes:[]
             },
           ])

@@ -12,6 +12,7 @@ interface Game {
   currentRoom: number;
   calledMeeting: string;
   allVotesCast: boolean;
+  kickedPlayer: '';
   players: Player[];
   votes: Vote[]
 }

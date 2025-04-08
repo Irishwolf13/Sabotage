@@ -28,6 +28,7 @@ export const useGameSubscription = () => {
                 foundDead: data.foundDead,
                 calledMeeting: data.calledMeeting,
                 allVotesCast: data.allVotesCast,
+                kickedPlayer: data.kickedPlayer,
                 votes: data.votes,
               },
             ])

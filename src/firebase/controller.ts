@@ -449,10 +449,11 @@ interface selectedPlayer {
   email: string;
   ghost: boolean;
   isSaboteur: boolean;
+  screenName: string;
 }
 
 // Function to determine which player gets voted out and update their status
-export const evaluateVotes = async (gameId: string): Promise<{ email: string; isSaboteur: boolean } | null> => {
+export const evaluateVotes = async (gameId: string): Promise<{ screenName: string; isSaboteur: boolean } | null> => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   try {
@@ -499,15 +500,16 @@ export const evaluateVotes = async (gameId: string): Promise<{ email: string; is
 
     await updateDoc(gameDocRef, { players: updatedPlayers });
 
-    // Return the chosen player's email and isSaboteur status
+    // Find the chosen player and return their screenName and isSaboteur status
     const chosenPlayer = players.find(player => player.email === chosenEmail);
-    return { email: chosenPlayer!.email, isSaboteur: chosenPlayer!.isSaboteur };
+    return { screenName: chosenPlayer!.screenName, isSaboteur: chosenPlayer!.isSaboteur };
 
   } catch (error) {
     console.error(`Error processing votes: `, error);
     return null;
   }
 };
+
 
 // Function to evaluate game status based on players' ghost and saboteur status
 export const evaluateGameStatus = async (gameId: string) => {
