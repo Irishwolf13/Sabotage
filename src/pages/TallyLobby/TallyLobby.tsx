@@ -17,7 +17,7 @@ import './TallyLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import { clearVotes, evaluateVotes, evaluateGameStatus } from '../../firebase/controller';
+import { clearVotes, evaluateVotes, evaluateGameStatus, toggleBooleanField } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
 
 interface gameResults { gameOver: boolean; innocentsWin: boolean;}
@@ -63,39 +63,53 @@ const TallyLobby: React.FC = () => {
   };
   
   useEffect(() => {
-    if (game.votes && livingPlayers) {
-      if (game.votes.length === livingPlayers.length) {
-        evaluateVotes(game.id).then(result => {
-          if (result) {
-            console.log(result.email);
-            setShowPlayerVotedOff(result.email);
-          }
-          
-          setShowTextChanged('Tallying all the votes...');
-  
-          // Use .then() to handle the promise from evaluateGameStatus
-          evaluateGameStatus(game.id).then(result => {
-            console.log('Game results here');
-            console.log(game); // Log the game status results
-            console.log('End game results');
+    if(user && game.calledMeeting == user.email) {
+      if (game.votes && livingPlayers) {
+        if (game.votes.length === livingPlayers.length) {
+          evaluateVotes(game.id).then(result => {
+            if (result) {
+              console.log(result.email);
+              setShowPlayerVotedOff(result.email);
+            }
+            
+            
+            // Use .then() to handle the promise from evaluateGameStatus
+            evaluateGameStatus(game.id).then(result => {
+              console.log('Game results here');
+              console.log(game); // Log the game status results
+              console.log('End game results');
+            });
           });
-  
-          const modalTimer = setTimeout(() => {
-            setShowVoterModal(true);
-          }, 2000);
-  
-          const textChangeTimer = setTimeout(() => {
-            setShowTextChanged('Waiting for all votes to be cast...');
-          }, 2500);
-  
-          return () => {
-            clearTimeout(modalTimer);
-            clearTimeout(textChangeTimer);
-          };
-        });
+          // change the backend of allVotesCast
+          toggleBooleanField(game.id, 'allVotesCast', true)
+        }
       }
     }
   }, [game.votes, livingPlayers]);
+  
+  // New useEffect for modal operations based on game.allVotesCast changes
+  useEffect(() => {
+    if(game.allVotesCast == true) {
+      console.log('***** All Votes have been cast...')
+      setShowTextChanged('Tallying all the votes...');
+      if (game.allVotesCast) {
+        const modalTimer = setTimeout(() => {
+          setShowVoterModal(true);
+        }, 2000);
+  
+        const textChangeTimer = setTimeout(() => {
+          setShowTextChanged('Waiting for all votes to be cast...');
+          toggleBooleanField(game.id, 'allVotesCast', false)
+        }, 2500);
+  
+        return () => {
+          // change the backend of allVotesCast
+          clearTimeout(modalTimer);
+          clearTimeout(textChangeTimer);
+        };
+      }
+    }
+  }, [game.allVotesCast]);
   
 
   return (

@@ -11,6 +11,7 @@ interface Game {
   foundDead: boolean;
   currentRoom: number;
   calledMeeting: string;
+  allVotesCast: boolean;
   players: Player[];
   votes: Vote[]
 }
