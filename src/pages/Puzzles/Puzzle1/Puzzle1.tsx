@@ -5,6 +5,7 @@ import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
 import { isRoomSabotaged, setPlayerGhostTrue } from '../../../firebase/controller';
+import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 
 const Puzzle1: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -107,7 +108,19 @@ const Puzzle1: React.FC = () => {
     solvePuzzle(false);
     setSelectedColor(null);
   }
-
+  // This is used to make sure all the modals are closed when being sent to dead player page
+  useEffect(() => {
+    if (game.foundDead) {
+      if (user && user.email) { 
+        // Check if the player exists and their ghost status is false
+        const player = game.players.find(p => p.email === user.email);
+        if (player && !player.ghost) {
+          setShowModal(false);
+        }
+      }
+    }
+  }, [game]);
+  
   return (
     <IonPage>
       <IonHeader>
@@ -156,6 +169,7 @@ const Puzzle1: React.FC = () => {
           </div>
         </div>
 
+        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <div className="modal-content">
             <h2>{myTitle}</h2>
