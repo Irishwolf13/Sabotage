@@ -490,7 +490,6 @@ interface selectedPlayer {
   screenName: string;
 }
 
-// Function to determine which player gets voted out and update their status
 export const evaluateVotes = async (gameId: string): Promise<{ screenName: string; isSaboteur: boolean } | null> => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
@@ -513,19 +512,20 @@ export const evaluateVotes = async (gameId: string): Promise<{ screenName: strin
 
     // Determine the player(s) with the most votes
     const maxVotes = Math.max(...Object.values(voteCount));
-    let candidates = Object.keys(voteCount).filter(player => voteCount[player] === maxVotes);
+    let candidates = Object.keys(voteCount).filter(email => voteCount[email] === maxVotes);
 
     if (candidates.length > 1) {
-      // Handle tie situations
+      // Filter out any saboteurs from candidates
       candidates = candidates.filter(email => !players.find(player => player.email === email)?.isSaboteur);
       
       if (candidates.length < 1) {
-        console.log("No valid candidates after checking for saboteurs.");
+        // If all candidates were saboteurs, return no eligible candidate
+        console.log("No valid candidates after filtering for saboteurs.");
         return null;
       }
     }
 
-    // Select randomly among tied candidates if needed
+    // Select one candidate at random among potential candidates
     const chosenEmail = candidates[Math.floor(Math.random() * candidates.length)];
 
     // Update the chosen player's 'ghost' status
@@ -547,6 +547,7 @@ export const evaluateVotes = async (gameId: string): Promise<{ screenName: strin
     return null;
   }
 };
+
 
 
 // Function to evaluate game status based on players' ghost and saboteur status

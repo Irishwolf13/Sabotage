@@ -1,22 +1,12 @@
 import React, { useEffect } from 'react';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonFooter,
-} from '@ionic/react';
-import { useHistory } from 'react-router-dom';
-import './DeadPlayer.css'; // Ensure your CSS file path is correct
-import { useAuth } from '../../firebase/AuthContext';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter } from '@ionic/react';
+import './DeadPlayer.css';
 
 const DeadPlayer: React.FC = () => {
-  const history = useHistory();
-  const { user } = useAuth();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+
+  }, []);
 
   const myButton = () => {
     window.location.href = '/home';
@@ -26,14 +16,10 @@ const DeadPlayer: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>DeadPlayer Page</IonTitle>
+          <IonTitle>Dead Player QR Code</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        {/* Display an HTML image */}
-        <IonButton expand="full" onClick={myButton}>
-          Use this to exit for now
-        </IonButton>
         <h1>You have died!</h1>
         <h5>When another player finds you, they scan this to call a meeting.</h5>
         <img 
@@ -41,6 +27,7 @@ const DeadPlayer: React.FC = () => {
           alt="Dead Player QR Code" 
           style={{ width: '100%', height: 'auto', marginBottom: '20px' }}
         />
+        <IonButton expand="full" onClick={myButton}>Exit Game</IonButton>
       </IonContent>
       <IonFooter>
         <IonToolbar>
