@@ -36,7 +36,10 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
         setRoomColors(colors);
       }
       if (decodedText.includes("Dead")) {
-        await toggleBooleanField(game.id, "foundDead", true);
+        if (user && user.email) {
+          await updateStringField(game.id, 'calledMeeting', user.email)
+          await toggleBooleanField(game.id, "foundDead", true);
+        } 
       }
       setShowScanner(false);
     };
@@ -71,7 +74,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   };
 
   const testGoToPuzzle = (room:number) => {
-    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: 0 }));
+    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: room }));
     handleSolvePuzzleButton()
   };
 

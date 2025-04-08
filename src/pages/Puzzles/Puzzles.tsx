@@ -1,22 +1,13 @@
-import React, { useState } from 'react';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonFooter,
-  IonModal,
-} from '@ionic/react';
+import React, { useEffect, useState } from 'react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal } from '@ionic/react';
+import { isRoomSabotaged, setPlayerGhostTrue } from '../../firebase/controller';
 import { useHistory } from 'react-router-dom';
-import './Puzzles.css';
 import { useAuth } from '../../firebase/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
-import { isRoomSabotaged } from '../../firebase/controller';
+import './Puzzles.css';
 
 const Puzzles: React.FC = () => {
   useGameSubscription();
@@ -26,15 +17,23 @@ const Puzzles: React.FC = () => {
 
   // State to control the Ionic Modal
   const [showModal, setShowModal] = useState(false);
+  const [myTitle, setMyTitle] = useState('');
+  const [myBody, setMyBody] = useState('');
 
-  const solvePuzzle = async () => {
+  const solvePuzzle = async (pass:boolean) => {
     try {
       const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
-      if (roomIsSabotaged) {
-        // Navigate to dead player page if room is sabotaged
+      if (roomIsSabotaged && user && user.email) {
+        await setPlayerGhostTrue(game.id, user.email)
         history.push(`/game/${game.id}/deadPlayer`);
       } else {
-        // Open the modal when the puzzle is solved
+        if (pass) {
+          setMyTitle(`Congradulations!`)
+          setMyBody(`You have passed this simple Task, don't you feel proud...`)
+        } else {
+          setMyTitle(`Better luck next time!`)
+          setMyBody(`With time and effort, you'll finish this simple task.`)
+        }
         setShowModal(true);
       }
     } catch (error) {
@@ -47,13 +46,18 @@ const Puzzles: React.FC = () => {
     setShowModal(false)
   }
 
-  const failPuzzle = () => {
-    console.log('you failed');
-  };
-
-  const testButton = () => {
-    console.log(game.currentRoom);
-  };
+  // This is used to make sure all the modals are closed when being sent to dead player page
+  useEffect(() => {
+    if (game.foundDead) {
+      if (user && user.email) { 
+        // Check if the player exists and their ghost status is false
+        const player = game.players.find(p => p.email === user.email);
+        if (player && !player.ghost) {
+          setShowModal(false);
+        }
+      }
+    }
+  }, [game]);
 
   return (
     <IonPage>
@@ -64,17 +68,15 @@ const Puzzles: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <h1>Puzzles Page</h1>
-        <IonButton onClick={testButton}>Test Button</IonButton>
-        <IonButton onClick={solvePuzzle}>Solve Puzzle</IonButton>
-        <IonButton onClick={failPuzzle}>Fail Puzzle</IonButton>
-        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
+        <IonButton onClick={() => solvePuzzle(true)}>Solve Puzzle</IonButton>
+        <IonButton onClick={() => solvePuzzle(false)}>Fail Puzzle</IonButton>
         {game && game.currentRoom}
-        
-        {/* Ionic Modal */}
+
+        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <div className="modal-content">
-            <h2>Congratulations!</h2>
-            <p>You have successfully solved the puzzle.</p>
+            <h2>{myTitle}</h2>
+            <p>{myBody}</p>
             <IonButton onClick={() => toMainPage()}>Close</IonButton>
           </div>
         </IonModal>

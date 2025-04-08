@@ -170,6 +170,44 @@ export const updateStringField = async (gameId: string, fieldName: string, newVa
   }
 };
 
+// Function to set the 'ghost' boolean field to true for a specific player
+export const setPlayerGhostTrue = async (gameId: string, playerEmail: string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  try {
+    // Fetch the document
+    const docSnap = await getDoc(gameDocRef);
+    if (!docSnap.exists()) {
+      throw new Error(`Game with ID ${gameId} does not exist.`);
+    }
+
+    // Get current game data
+    const gameData = docSnap.data();
+    let players = gameData.players;
+
+    if (!Array.isArray(players)) {
+      throw new Error(`Players field is not an array.`);
+    }
+
+    // Find the player index based on email
+    const playerIndex = players.findIndex(player => player.email === playerEmail);
+
+    if (playerIndex === -1) {
+      throw new Error(`Player with email ${playerEmail} not found.`);
+    }
+
+    // Set the ghost status to true
+    players[playerIndex].ghost = true;
+
+    // Update the document with modified players array
+    await updateDoc(gameDocRef, { players });
+
+  } catch (error) {
+    console.error(`Error setting ghost status to true for player with email ${playerEmail}: `, error);
+  }
+};
+
+
 // Function to set a player's isSaboteur field to true
 export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) => {
   try {

@@ -83,11 +83,20 @@ const MainGamePage: React.FC = () => {
     }
   }, [game?.id]);
 
+  // This is used to make sure all the modals are closed when being sent to dead player page
   useEffect(() => {
     if (game.foundDead) {
-      setShowScannerModal(false);
-      setShowSabotageModal(false);
-      setShowInnocentModal(false);
+      if (user && user.email) { 
+        // Check if the player exists and their ghost status is false
+        const player = game.players.find(p => p.email === user.email);
+        if (player && !player.ghost) {
+          console.log("game info after foundDead");
+          console.log(game);
+          setShowScannerModal(false);
+          setShowSabotageModal(false);
+          setShowInnocentModal(false);
+        }
+      }
     }
   }, [game]);
 

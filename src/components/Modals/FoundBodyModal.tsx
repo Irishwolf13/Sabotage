@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { IonModal } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../firebase/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../stores/store';
 
 interface FoundBodyModalProps {
   foundDead: boolean;
@@ -11,20 +14,28 @@ const FoundBodyModal: React.FC<FoundBodyModalProps> = ({ foundDead, currentGameI
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const history = useHistory();
+  const { user } = useAuth();
+  const game = useSelector((state: RootState) => state.games?.[0]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
     if (foundDead) {
-      setShowModal(true);
-      setCountdown(3);
-
-      interval = setInterval(() => {
-        setCountdown((prevCount) => prevCount - 1);
-      }, 1000);
+      if (user && user.email) { 
+        // Check if the player exists and their ghost status is false
+        const player = game.players.find(p => p.email === user.email);
+        if (player && !player.ghost) {
+          setShowModal(true);
+          setCountdown(3);
+    
+          interval = setInterval(() => {
+            setCountdown((prevCount) => prevCount - 1);
+          }, 1000);
+        }
+    
+        return () => clearInterval(interval);
+      }
     }
-
-    return () => clearInterval(interval);
   }, [foundDead]);
 
   useEffect(() => {
