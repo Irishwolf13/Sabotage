@@ -29,12 +29,13 @@ import Lobby from './pages/CreatorLobby/CreatorLobby';
 import JoinLobby from './pages/JoinLobby/JoinLobby';
 import MainGamePage from './pages/MainGamePage/MainGamePage';
 import VotingLobby from './pages/VotingLobby/VotingLobby';
-import Puzzles from './pages/Puzzles/Puzzles';
 import TallyLobby from './pages/TallyLobby/TallyLobby';
 import EndOfGameLobby from './pages/EndOfGameLobby/EndOfGameLobby';
 import EndOfGameVotedOff from './pages/EndGameVotedOff/EndGameVotedOff';
 import DeadPlayer from './pages/DeadPlayer/DeadPlayer';
 import Puzzle1 from './pages/Puzzles/Puzzle1/Puzzle1';
+import Puzzle2 from './pages/Puzzles/Puzzle2/Puzzle2';
+import Puzzle3 from './pages/Puzzles/Puzzle3/Puzzle3';
 
 setupIonicReact();
 
@@ -72,30 +73,6 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // const FullscreenPrompt = () => {
-  //   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
-  
-  //   useEffect(() => {
-  //     window.addEventListener("beforeinstallprompt", (e) => {
-  //       e.preventDefault();
-  //       setDeferredPrompt(e);
-  //     });
-  //   }, []);
-  
-  //   const installApp = () => {
-  //     if (deferredPrompt) {
-  //       (deferredPrompt as any).prompt();
-  //       setDeferredPrompt(null);
-  //     }
-  //   };
-  
-  //   return (
-  //     <div>
-  //       {deferredPrompt && <button onClick={installApp}>Install App</button>}
-  //     </div>
-  //   );
-  // };
-
   return (
     <IonApp>
       <Provider store={store}>
@@ -107,7 +84,9 @@ const App: React.FC = () => {
               <PrivateRoute exact path="/game/:uuid/player/mainPage" component={MainGamePage} />
               <PrivateRoute exact path="/game/:uuid/player/votinglobby" component={VotingLobby} />
               <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
-              <PrivateRoute exact path="/game/:uuid/puzzles" component={Puzzle1} />
+              <PrivateRoute exact path="/game/:uuid/puzzle1" component={Puzzle1} />
+              <PrivateRoute exact path="/game/:uuid/puzzle2" component={Puzzle2} />
+              <PrivateRoute exact path="/game/:uuid/puzzle3" component={Puzzle3} />
               <PrivateRoute exact path="/game/:uuid/tally" component={TallyLobby} />
               <PrivateRoute exact path="/game/:uuid/endGame" component={EndOfGameLobby} />
               <PrivateRoute exact path="/game/:uuid/votedOff" component={EndOfGameVotedOff} />

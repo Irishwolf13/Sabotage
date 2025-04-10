@@ -111,7 +111,11 @@ const MainGamePage: React.FC = () => {
 
   const handleSolvePuzzleButton = () => {
     setShowScannerModal(false);
-    history.push(`/game/${game.id}/puzzles`);
+    
+    // Generate a random number between 1 and 5
+    const myNumber = Math.floor(Math.random() * 3) + 1;
+    
+    history.push(`/game/${game.id}/puzzle${myNumber}`);
   };
 
   const handleChangeSabotageStatus = (room: number) => {
