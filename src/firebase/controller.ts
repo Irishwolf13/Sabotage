@@ -191,6 +191,42 @@ export const createAvailableRooms = async (gameId: string, numberOfRooms: number
   }
 };
 
+// Function to adjust available rooms in Firestore document
+export const adjustSaboteurAvailableRooms = async (gameId: string, myNumber: number) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  try {
+    // Get the current document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const availableRooms = data.availableRooms || [];
+
+      // Update the rooms based on myNumber
+      const updatedRooms = availableRooms.map((roomObj: { room: number; canUse: boolean }) => {
+        if (myNumber === -1) {
+          return { ...roomObj, canUse: false }; // Set all canUse to false
+        } else if (roomObj.room === myNumber) {
+          return { ...roomObj, canUse: true }; // Set canUse to true for matching room number
+        }
+        return roomObj;
+      });
+
+      // Update the Firestore document with the modified rooms
+      await updateDoc(gameDocRef, {
+        availableRooms: updatedRooms
+      });
+
+      console.log(`Successfully adjusted available rooms based on myNumber: ${myNumber}`);
+    } else {
+      console.error("No such document exists!");
+    }
+  } catch (error) {
+    console.error("Error adjusting available rooms: ", error);
+  }
+};
+
+
 // Function to set the 'ghost' boolean field to true for a specific player
 export const setPlayerGhostTrue = async (gameId: string, playerEmail: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);

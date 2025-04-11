@@ -1,35 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import {
-  IonButton,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonFooter,
-  IonModal,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonToast
-} from '@ionic/react';
-import './MainGamePage.css';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonToast} from '@ionic/react';
+import { listenForGameChanges, updateRoomSabotageStatus, subscribeToRoomPuzzleStatus } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { listenForGameChanges, updateRoomSabotageStatus, subscribeToRoomPuzzleStatus } from '../../firebase/controller';
-import { setGames, updateAttribute } from '../../stores/gameSlice';
+import { setGames } from '../../stores/gameSlice';
+import { useHistory } from 'react-router';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
-import { useHistory } from 'react-router';
+import './MainGamePage.css';
 
 const MainGamePage: React.FC = () => {
-  interface RoomStatus {
-    room: number;
-    sabotaged: boolean;
-  }
+  interface RoomStatus { room: number; sabotaged: boolean; }
 
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
@@ -43,18 +25,14 @@ const MainGamePage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showToast, setShowToast] = useState<boolean>(false);
 
-  const currentUserPlayer = game.players.find(
-    (player: any) => player.email === user?.email
-  );
+  const currentPlayer = game.players.find( (player: any) => player.email === user?.email );
 
   useEffect(() => {
     if (game?.id && user) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        const currentUserPlayer = data.players.find(
-          (player: any) => player.email === user.email
-        );
+        const currentPlayer = data.players.find((player: any) => player.email === user.email); // Not sure I need this line...
 
-        if (currentUserPlayer) {
+        if (currentPlayer) {
           dispatch(
             setGames([
               {
@@ -90,8 +68,6 @@ const MainGamePage: React.FC = () => {
         // Check if the player exists and their ghost status is false
         const player = game.players.find(p => p.email === user.email);
         if (player && !player.ghost) {
-          console.log("game info after foundDead");
-          console.log(game);
           setShowScannerModal(false);
           setShowSabotageModal(false);
           setShowInnocentModal(false);
@@ -106,13 +82,16 @@ const MainGamePage: React.FC = () => {
   const handleSabotageButtonClicked = () => setShowSabotageModal(true);
   const handleCloseSabotageModal = () => setShowSabotageModal(false);
 
-  const handleInnocentButtonClicked = () => setShowInnocentModal(true);
+  const handleInnocentButtonClicked = () => {
+    setShowInnocentModal(true);
+  }
   const handleCloseInnocentModal = () => setShowInnocentModal(false);
 
   const handleSolvePuzzleButton = () => {
     setShowScannerModal(false);
     
-    // Generate a random number between 1 and 5
+    // Going to need to redo this bit, it's random now just for ease
+    // Generate a random number between 1 and 3
     const myNumber = Math.floor(Math.random() * 3) + 1;
     
     history.push(`/game/${game.id}/puzzle${myNumber}`);
@@ -135,23 +114,18 @@ const MainGamePage: React.FC = () => {
     }
   };
 
-  // const testButton = async () => {
-  //   console.log(game.currentRoom);
-  // };
-
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{currentUserPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
+          <IonTitle>{currentPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
         <div style={{ textAlign: 'center', marginTop: '50%' }}>
           <h1>Splash</h1>
-          {/* <IonButton onClick={testButton}>Test Button</IonButton> */}
           <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          {currentUserPlayer?.isSaboteur ? (
+          {currentPlayer?.isSaboteur ? (
             <>
               <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
               <IonButton className='halfWidthButton' onClick={handleSabotageButtonClicked}>Check Stats</IonButton>
@@ -172,7 +146,7 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {currentUserPlayer && <Scanner playerColor={currentUserPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />}
+            {currentPlayer && <Scanner playerColor={currentPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />}
           </IonContent>
         </IonModal>
 
@@ -184,9 +158,10 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
+            {/* This needs work, because we now have availableRooms on the backend */}
             {showRoomStatus.map((status, index) => (
               <div key={index}>
-                Room: {status.room}, Sabotaged: 
+                Test Room: {status.room}, Sabotaged: 
                 <IonButton
                   onClick={() => handleChangeSabotageStatus(status.room)}
                   style={{ marginLeft: '10px' }}
@@ -207,6 +182,16 @@ const MainGamePage: React.FC = () => {
           </IonHeader>
           <IonContent>
             Innocent Page
+            <div
+              style={{
+                backgroundColor: currentPlayer?.color ? `rgb${currentPlayer.color}` : 'white',
+                width: '100px',
+                height: '100px',
+                margin: '20px auto',
+                textAlign: 'center',
+              }}
+            ></div>
+            <p style={{textAlign: 'center'}}>Your Color</p>
           </IonContent>
         </IonModal>
 

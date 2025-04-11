@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
 import { IonButton, IonCardTitle } from '@ionic/react';
-import { getRoomColors, toggleBooleanField, updateStringField } from '../../firebase/controller';
+import { getRoomColors, toggleBooleanField, updateStringField, adjustSaboteurAvailableRooms } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateAttribute } from '../../stores/gameSlice';
@@ -30,6 +30,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
       if (decodedText.includes("Room")) {
         const roomNumberString = decodedText.replace("Room ", "");
         const roomNumber = parseInt(roomNumberString);
+        adjustSaboteurAvailableRooms(game.id, roomNumber)
         dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
         // setTestText(roomNumber);
         const colors = await getRoomColors(game.id, roomNumber);
@@ -75,6 +76,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
 
   const testGoToPuzzle = (room:number) => {
     dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: room }));
+    adjustSaboteurAvailableRooms(game.id, room)
     handleSolvePuzzleButton()
   };
 
