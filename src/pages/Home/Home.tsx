@@ -43,8 +43,7 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-      <p>v.0.1.25</p>
-        <div style={{ textAlign: 'center', marginTop: '20%' }}>
+        <div className='buttonHolder'>
           <NewGameButton />
           <br></br>
           <JoinGameButton />
@@ -53,7 +52,8 @@ const Home: React.FC = () => {
 
       <IonFooter>
         <IonToolbar>
-          <IonTitle size="small">© 2025 Dancing Goat Studios</IonTitle>
+      
+          <IonTitle size="small">v.0.1.26 © 2025 Dancing Goat Studios</IonTitle>
         </IonToolbar>
       </IonFooter>
     </IonPage>

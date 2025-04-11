@@ -22,6 +22,7 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
   const game = useSelector((state: RootState) => state.games[0]);
   const history = useHistory();
   const { user } = useAuth();
+  const [isBusy, setIsBusy] = useState(false);
 
   const [myTitle, setMyTitle] = useState('');
   const [myBody, setMyBody] = useState('');
@@ -43,45 +44,44 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
   };
 
   const handleCardClick = (cardId: number) => {
+    if (isBusy) return; // Prevent interaction while processing
+  
     const newCards = [...cards];
     const clickedCard = newCards[cardId];
   
-    // If the card is already revealed or matched, do nothing
     if (clickedCard.revealed || clickedCard.matched) return;
   
-    // Reveal the clicked card
     clickedCard.revealed = true;
+    setCards(newCards);
   
     if (selectedCardId === null) {
-      // First card selection
       setSelectedCardId(cardId);
     } else {
-      // Second card selection
       const previousCard = newCards[selectedCardId];
+      setIsBusy(true); // Lock interaction
   
       if (previousCard.number === clickedCard.number) {
-        // Cards match
         previousCard.matched = true;
         clickedCard.matched = true;
-        setSelectedCardId(null);
+        setTimeout(() => {
+          setSelectedCardId(null);
+          setIsBusy(false); // Unlock after match check
+          setCards([...newCards]);
   
-        // Check if all cards are matched
-        if (newCards.every((card) => card.matched)) {
-          solvePuzzle(true);
-          initializeGame(); // Reset game after solving
-        }
+          if (newCards.every((card) => card.matched)) {
+            solvePuzzle(true);
+          }
+        }, 300);
       } else {
-        // Cards do not match, wait before hiding them again
         setTimeout(() => {
           previousCard.revealed = false;
           clickedCard.revealed = false;
-          setSelectedCardId(null); // Reset the selectedCardId here
+          setSelectedCardId(null);
+          setIsBusy(false); // Unlock after hiding cards
           setCards([...newCards]);
-        }, 500);
+        }, 700);
       }
     }
-  
-    setCards(newCards);
   };
 
   const solvePuzzle = async (pass: boolean) => {

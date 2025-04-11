@@ -1,0 +1,7 @@
+.buttonHolder {
+    /* background-color: aqua; */
+    text-align: center;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+}

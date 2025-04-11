@@ -51,6 +51,11 @@ const NewGameButton: React.FC = () => {
             isEnded: false,
             isStarted: false,
             foundDead: false,
+            saboteurWins: false, 
+            currentRoom: -1, 
+            calledMeeting: '', 
+            allVotesCast: false, 
+            kickedPlayer: '',
             votes:[],
             players: [{
               screenName: playerName,
