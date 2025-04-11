@@ -170,6 +170,27 @@ export const updateStringField = async (gameId: string, fieldName: string, newVa
   }
 };
 
+// Function to create and add available rooms to a Firestore document
+export const createAvailableRooms = async (gameId: string, numberOfRooms: number) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+
+  // Prepare the array of room objects
+  const availableRooms = Array.from({ length: numberOfRooms }, (_, index) => ({
+    room: index,
+    canUse: false
+  }));
+
+  try {
+    // Update the Firestore document
+    await updateDoc(gameDocRef, {
+      availableRooms: availableRooms
+    });
+    console.log(`Successfully added ${numberOfRooms} rooms to the document.`);
+  } catch (error) {
+    console.error(`Error adding available rooms: `, error);
+  }
+};
+
 // Function to set the 'ghost' boolean field to true for a specific player
 export const setPlayerGhostTrue = async (gameId: string, playerEmail: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
@@ -478,18 +499,8 @@ export const clearVotes = async (gameId: string) => {
 
 
 // Define interfaces for vote and player structures
-interface selectedVote {
-  selected: string;
-  voter: string;
-}
-
-interface selectedPlayer {
-  email: string;
-  ghost: boolean;
-  isSaboteur: boolean;
-  screenName: string;
-}
-
+interface selectedVote { selected: string; voter: string;}
+interface selectedPlayer { email: string; ghost: boolean; isSaboteur: boolean; screenName: string;}
 export const evaluateVotes = async (gameId: string): Promise<{ screenName: string; isSaboteur: boolean } | null> => {
   const gameDocRef = doc(db, "activeGames", gameId);
 

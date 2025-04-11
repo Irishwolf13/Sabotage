@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem } from '@ionic/react';
-import { listenForGameChanges, toggleBooleanField, getInnocentBaseColors, addRoomColors, setPlayerAsSaboteur, assignAndUpdatePlayers, updatePlayerColors } from '../../firebase/controller';
+import { listenForGameChanges, toggleBooleanField, getInnocentBaseColors, addRoomColors, setPlayerAsSaboteur, assignAndUpdatePlayers, updatePlayerColors, createAvailableRooms } from '../../firebase/controller';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
@@ -177,6 +177,8 @@ const CreatorLobby: React.FC = () => {
       selectRandomSaboteur(totalPlayers, myPlayers);
       selectRandomColors(availableColors, totalPlayers, myPlayers);
       const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, numRooms);
+      // Should create an array of maps called availableRooms, {room:index, available:false}
+      await createAvailableRooms(game.id, numRooms)
       await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
       await updatePlayerColors(game.id, myPlayers, availableColors)

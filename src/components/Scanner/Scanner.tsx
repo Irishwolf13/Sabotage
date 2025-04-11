@@ -87,23 +87,22 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
 
   return (
     <div  style={{ margin: '10px' }}>
-      <IonButton onClick={() => testGoToPuzzle(0)}>Test Go To Puzzle 0</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(1)}>Test Go To Puzzle 1</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(2)}>Test Go To Puzzle 2</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(3)}>Test Go To Puzzle 3</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(4)}>Test Go To Puzzle 4</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(5)}>Test Go To Puzzle 5</IonButton>
-      <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(0)}>Test 0</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(1)}>Test 1</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(2)}>Test 2</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(3)}>Test 3</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(4)}>Test 4</IonButton>
+      <IonButton onClick={() => testGoToPuzzle(5)}>Test 5</IonButton>
       <div className='colorHolder' >
         <p style={{ marginRight: '10px' }}>Available Puzzles:</p>
         {roomColors.map((color, index) => (
           <div 
-            key={index} 
-            style={{ 
-              backgroundColor: `rgb(${extractRGB(color).join(',')})`, 
-              flex: 1,
-              height: '20px'
-            }} 
+          key={index} 
+          style={{ 
+            backgroundColor: `rgb(${extractRGB(color).join(',')})`, 
+            flex: 1,
+            height: '20px'
+          }} 
           />
         ))}
       </div>
@@ -117,6 +116,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
           <div id="qr-reader"></div>
         </div>
       )}
+      <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
       <IonCardTitle style={{ textAlign: 'center' }}>
         {/* {testText} */}
         Your Color                   

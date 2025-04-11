@@ -85,25 +85,28 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
   };
 
   const solvePuzzle = async (pass: boolean) => {
-    try {
-      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
-  
-      if (roomIsSabotaged && user && user.email) {
-        await setPlayerGhostTrue(game.id, user.email);
-        history.push(`/game/${game.id}/deadPlayer`);
-      } else {
-        if (pass) {
-          setMyTitle('Congratulations!');
-          setMyBody(`You have passed this simple Task, don't you feel proud...`);
+    if (user) {
+      try {
+        const currentPlayer = game.players.find((player: { email: string; isSaboteur: boolean }) => player.email === user.email);
+        const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+        
+        if (roomIsSabotaged && user && user.email && currentPlayer && !currentPlayer.isSaboteur) {
+          await setPlayerGhostTrue(game.id, user.email);
+          history.push(`/game/${game.id}/deadPlayer`);
         } else {
-          setMyTitle('Better luck next time!');
-          setMyBody(`With time and effort, you'll finish this simple task.`);
+          if (pass) {
+            setMyTitle('Congratulations!');
+            setMyBody(`You have passed this simple Task, don't you feel proud...`);
+          } else {
+            setMyTitle('Better luck next time!');
+            setMyBody(`With time and effort, you'll finish this simple task.`);
+          }
+          setShowModal(true);
+          initializeGame(); // Reset game after solving
         }
-        setShowModal(true);
-        initializeGame(); // Reset game after solving
+      } catch (error) {
+        console.error('Error solving puzzle:', error);
       }
-    } catch (error) {
-      console.error('Error solving puzzle:', error);
     }
   };
 

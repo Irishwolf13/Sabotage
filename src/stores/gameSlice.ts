@@ -12,7 +12,7 @@ interface Game {
   currentRoom: number;
   calledMeeting: string;
   allVotesCast: boolean;
-  kickedPlayer: '';
+  kickedPlayer: string;
   players: Player[];
   votes: Vote[]
 }
@@ -31,6 +31,7 @@ interface Vote {
   voter: string;
   selected: string;
 }
+
 
 // Define GamesState type
 type GamesState = Game[];
