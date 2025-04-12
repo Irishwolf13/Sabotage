@@ -89,6 +89,8 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
   };
 
   const testGoToPuzzle = async (room:number) => {
+    console.log(game.currentRoom)
+    console.log(room)
     try {
       if (user && user.email) {
         // Find the player object whose email matches user.email
@@ -145,7 +147,7 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
       </div>
 
       <div className='buttonHolder'>
-        {isNameInRoomColors && <IonButton onClick={handleSolvePuzzleButton}>Solve Puzzle?</IonButton>}
+        {isNameInRoomColors && <IonButton onClick={() => testGoToPuzzle(game.currentRoom)}>Solve Puzzle?</IonButton>}
       </div>
 
       {showScanner && (
