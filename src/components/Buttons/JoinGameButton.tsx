@@ -7,10 +7,9 @@ import { auth } from '../../firebase/config';
 import { joinGame, getPlayerNameByEmail} from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 
-const NewGameButton: React.FC = () => {
+const JoinGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const history = useHistory();
-  const games = useSelector((state: RootState) => state.games);
   const [email, setEmail] = useState<string | null>(null);
   const [gameCode, setGameCode] = useState<string>('');
 
@@ -52,7 +51,7 @@ const NewGameButton: React.FC = () => {
             isStarted: false,
             foundDead: false,
             saboteurWins: false, 
-            currentRoom: -1, 
+            currentRoom: -3, 
             calledMeeting: '', 
             allVotesCast: false, 
             kickedPlayer: '',
@@ -91,4 +90,4 @@ const NewGameButton: React.FC = () => {
   );
 };
 
-export default NewGameButton;
+export default JoinGameButton;

@@ -30,11 +30,25 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
       if (decodedText.includes("Room")) {
         const roomNumberString = decodedText.replace("Room ", "");
         const roomNumber = parseInt(roomNumberString);
-        adjustSaboteurAvailableRooms(game.id, roomNumber)
-        dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
-        // setTestText(roomNumber);
-        const colors = await getRoomColors(game.id, roomNumber);
-        setRoomColors(colors);
+        if (user && user.email) {
+          // Find the player object whose email matches user.email
+          const currentPlayer = game.players.find(p => p.email === user.email);
+          
+          if (currentPlayer) {
+            // Check that object's isSaboteur property
+            if (currentPlayer.isSaboteur) {
+              // If it is true, run this code:
+              await adjustSaboteurAvailableRooms(game.id, roomNumber);
+            } else {
+              // If it is false, run this code:
+              dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
+              const colors = await getRoomColors(game.id, roomNumber);
+              setRoomColors(colors);
+            }
+          } else {
+            console.error('Player not found');
+          }
+        }
       }
       if (decodedText.includes("Dead")) {
         if (user && user.email) {
@@ -74,10 +88,31 @@ const Scanner: React.FC<ContainerProps> = ({ playerColor, handleSolvePuzzleButto
     return colorString.match(/\d+/g).map(Number);
   };
 
-  const testGoToPuzzle = (room:number) => {
-    dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: room }));
-    adjustSaboteurAvailableRooms(game.id, room)
-    handleSolvePuzzleButton()
+  const testGoToPuzzle = async (room:number) => {
+    try {
+      if (user && user.email) {
+        // Find the player object whose email matches user.email
+        const currentPlayer = game.players.find(p => p.email === user.email);
+        
+        if (currentPlayer) {
+          // Check that object's isSaboteur property
+          if (currentPlayer.isSaboteur) {
+            // If it is true, run this code:
+            await adjustSaboteurAvailableRooms(game.id, room);
+          } else {
+            // If it is false, run this code:
+            dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: room }));
+          }
+        } else {
+          console.error('Player not found');
+        }
+        
+        // Always run this code:
+        handleSolvePuzzleButton();
+      }
+    } catch (err) {
+      console.error('Error entering room:', err);
+    }
   };
 
   const testDeadBody = async () => {

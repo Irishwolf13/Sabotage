@@ -22,7 +22,6 @@ const generateRandomCode = (length: number) => {
 const NewGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const history = useHistory(); 
-  const games = useSelector((state: RootState) => state.games);
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const NewGameButton: React.FC = () => {
         isStarted: false,
         foundDead: false,
         saboteurWins: false, 
-        currentRoom: -1,
+        currentRoom: -2,
         calledMeeting: '',
         allVotesCast: false,
         kickedPlayer: '',

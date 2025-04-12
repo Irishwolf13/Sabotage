@@ -36,29 +36,35 @@ const Puzzle3: React.FC = () => {
   };
 
   const solvePuzzle = async (pass: boolean) => {
-    if (user) {
-      try {
-        const currentPlayer = game.players.find((player: { email: string; isSaboteur: boolean }) => player.email === user.email);
-        const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+    console.log('currentGame Here:')
+    console.log(game)
+    if (!user) return; // Early exit if user is not defined
+  
+    try {
+      const currentPlayer = game.players.find(
+        (player: { email: string; isSaboteur: boolean }) => player.email === user.email
+      );
+  
+      // Check if the room is sabotaged
+      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+  
+      if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
+        // Handle if the room is sabotaged and the current player is not the saboteur
+        await setPlayerGhostTrue(game.id, user.email);
+        history.push(`/game/${game.id}/deadPlayer`);
+      } else {
+        // Handle if the task passes or fails
+        pass ? setMyTitle('Congratulations!') : setMyTitle('Better luck next time!');
+        pass 
+          ? setMyBody("You have passed this simple Task, don't you feel proud...")
+          : setMyBody("With time and effort, you'll finish this simple task.");
         
-        if (roomIsSabotaged && user && user.email && currentPlayer && !currentPlayer.isSaboteur) {
-          await setPlayerGhostTrue(game.id, user.email);
-          history.push(`/game/${game.id}/deadPlayer`);
-        } else {
-          if (pass) {
-            setMyTitle('Congratulations!');
-            setMyBody('You have passed this simple Task, don\'t you feel proud...');
-          } else {
-            setMyTitle('Better luck next time!');
-            setMyBody('With time and effort, you\'ll finish this simple task.');
-          }
-          setShowModal(true);
-          setCollectedCircles([]);
-          setTargetSequence(generateRandomColorSequence(5));
-        }
-      } catch (error) {
-        console.error('Error solving puzzle:', error);
+        setShowModal(true);
+        setCollectedCircles([]);
+        setTargetSequence(generateRandomColorSequence(5));
       }
+    } catch (error) {
+      console.error('Error solving puzzle:', error);
     }
   };
 

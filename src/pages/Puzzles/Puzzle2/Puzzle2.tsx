@@ -85,30 +85,42 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
   };
 
   const solvePuzzle = async (pass: boolean) => {
-    if (user) {
-      try {
-        const currentPlayer = game.players.find((player: { email: string; isSaboteur: boolean }) => player.email === user.email);
-        const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
-        
-        if (roomIsSabotaged && user && user.email && currentPlayer && !currentPlayer.isSaboteur) {
-          await setPlayerGhostTrue(game.id, user.email);
-          history.push(`/game/${game.id}/deadPlayer`);
+    console.log('currentGame Here:')
+    console.log(game)
+    if (!user) return; // Early exit if user is not defined
+  
+    try {
+      const currentPlayer = game.players.find(
+        (player: { email: string; isSaboteur: boolean }) => player.email === user.email
+      );
+    
+      // Await the result of checking if the room is sabotaged
+      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+  
+      if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
+        // Handle scenario where the room is sabotaged and current player is not a saboteur
+        await setPlayerGhostTrue(game.id, user.email);
+        history.push(`/game/${game.id}/deadPlayer`);
+      } else {
+        // Set appropriate title and body based on pass condition
+        if (pass) {
+          setMyTitle('Congratulations!');
+          setMyBody("You have passed this simple Task, don't you feel proud...");
         } else {
-          if (pass) {
-            setMyTitle('Congratulations!');
-            setMyBody(`You have passed this simple Task, don't you feel proud...`);
-          } else {
-            setMyTitle('Better luck next time!');
-            setMyBody(`With time and effort, you'll finish this simple task.`);
-          }
-          setShowModal(true);
-          initializeGame(); // Reset game after solving
+          setMyTitle('Better luck next time!');
+          setMyBody("With time and effort, you'll finish this simple task.");
         }
-      } catch (error) {
-        console.error('Error solving puzzle:', error);
+        
+        setShowModal(true);
+  
+        // Reset or initialize the game state
+        initializeGame();
       }
+    } catch (error) {
+      console.error('Error solving puzzle:', error);
     }
   };
+  
 
   const toMainPage = () => {
     history.push(`/game/${game.id}/player/mainPage`);
