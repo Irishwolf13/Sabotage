@@ -75,12 +75,15 @@ const CreatorLobby: React.FC = () => {
   };
 
   // This is the big one... evenly spreads out players across rooms in the best way possible... I hope.
-  type roomPlayer = { player: number; solved: boolean; sabotaged:boolean, type: number };
-  const assignPlayersEvenly = ( numberOfPlayers: number, numberOfRooms: number) => {
-    const roomPuzzles: roomPlayer[][] = Array.from(
+  type PlayerRoom = { room: number; order: number; solved: boolean };
+  const assignPlayersEvenly = (numberOfPlayers: number, roomNumbers: number[]): PlayerRoom[][] => {
+    const numberOfRooms = roomNumbers.length;
+    
+    const roomPuzzles: { player: number; order: number; solved: boolean }[][] = Array.from(
       { length: numberOfRooms },
       () => []
     );
+
     const playerAssignments = Array.from(
       { length: numberOfPlayers },
       () => new Set<number>()
@@ -103,19 +106,19 @@ const CreatorLobby: React.FC = () => {
             .map((r) => r.index);
 
           if (candidates.length > 0) {
-            const room =
-              candidates[Math.floor(Math.random() * candidates.length)];
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            const roomIdx = candidates[randomIndex];
+            const room = roomNumbers[roomIdx]; // Get the actual room number here
+            
             playerAssignments[player].add(room);
 
-            // Add player to room with a type count
-            roomPuzzles[room].push({
+            roomPuzzles[roomIdx].push({
               player: player,
+              order: playerTypeCounter[player]++,
               solved: false,
-              sabotaged: false,
-              type: playerTypeCounter[player]++,
             });
 
-            roomCounts[room]++;
+            roomCounts[roomIdx]++;
             assigned = true;
             break;
           }
@@ -127,18 +130,30 @@ const CreatorLobby: React.FC = () => {
       }
     }
 
-    // Create the new array with added 'room' key
-    const resultArray = [];
+    // Create final player-specific structure
+    const playerResults: PlayerRoom[][] = Array.from(
+      { length: numberOfPlayers },
+      () => []
+    );
+
     for (let roomIndex = 0; roomIndex < roomPuzzles.length; roomIndex++) {
-      for (const playerObject of roomPuzzles[roomIndex]) {
-        resultArray.push({
-          room: roomIndex,
-          ...playerObject,
+      for (const { player, order, solved } of roomPuzzles[roomIndex]) {
+        playerResults[player].push({
+          room: roomNumbers[roomIndex], // Get the actual room number here
+          order,
+          solved,
         });
       }
     }
-    return resultArray;
+
+    // Sort each player's assignments by type
+    for (const assignments of playerResults) {
+      assignments.sort((a, b) => a.order - b.order);
+    }
+
+    return playerResults;
   };
+
 
   const handleToggleStatus = async (key: any, value: any) => {
     await toggleBooleanField(game.id, key, !value);
@@ -150,9 +165,10 @@ const CreatorLobby: React.FC = () => {
       let myPlayers = [...game.players.map((player) => ({ ...player }))];
 
       selectRandomSaboteur(totalPlayers, myPlayers);
-      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, numRooms);
-      await createAvailableRooms(game.id, numRooms)
-      await assignAndUpdatePlayers(game.id)
+      // Frank, this is gonig to be changed eventually, because we want to be albe to adjust rooms
+      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, [1,2,3,4,5]);
+      await createAvailableRooms(game.id, [1,2,3,4,5])
+      await assignAndUpdatePlayers(game.id, roomPuzzles)
       await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');

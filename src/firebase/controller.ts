@@ -170,22 +170,22 @@ export const updateStringField = async (gameId: string, fieldName: string, newVa
 };
 
 // Function to create and add available rooms to a Firestore document
-export const createAvailableRooms = async (gameId: string, numberOfRooms: number) => {
+export const createAvailableRooms = async (gameId: string, roomNumbers: number[]) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
-  // Prepare the array of room objects
-  const availableRooms = Array.from({ length: numberOfRooms }, (_, index) => ({
-    room: index,
+  // Prepare the array of room objects based on specified room numbers
+  const availableRooms = roomNumbers.map(roomNumber => ({
+    room: roomNumber,
     canUse: false,
     isSabotaged: false,
   }));
 
   try {
-    // Update the Firestore document
+    // Update the Firestore document with the available rooms
     await updateDoc(gameDocRef, {
       availableRooms: availableRooms
     });
-    console.log(`Successfully added ${numberOfRooms} rooms to the document.`);
+    console.log(`Successfully added rooms ${roomNumbers.join(', ')} to the document.`);
   } catch (error) {
     console.error(`Error adding available rooms: `, error);
   }
@@ -299,8 +299,9 @@ export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) =
 };
 
 // Function to assign player numbers and update Firestore
-interface assignedPlayer { email: string; screenName: string; ghost: boolean; isSaboteur: boolean; player?: number;}
-export const assignAndUpdatePlayers = async (gameId: string) => {
+interface AssignedPlayer { email: string; screenName: string; ghost: boolean; isSaboteur: boolean; player?: number; rooms?: RoomOrder[];}
+interface RoomOrder { order: number; room: number; solved: boolean;}
+export const assignAndUpdatePlayers = async ( gameId: string, roomOrders: RoomOrder[][]) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   // Retrieve the existing players array from Firestore
@@ -318,17 +319,21 @@ export const assignAndUpdatePlayers = async (gameId: string) => {
   }
   
   const data = docSnap.data();
-  const players: assignedPlayer[] = data?.players || [];
+  const players: AssignedPlayer[] = data?.players || [];
 
-  // Reassign player numbers locally
+  // Reassign player numbers locally and add room orders
   let playerIndex = 0;
-  const updatedPlayers = players.map((player) => {
+  const updatedPlayers = players.map((player, index) => {
     if (!player.isSaboteur) {
       player.player = playerIndex;
       playerIndex += 1;
     } else {
       player.player = -1;
     }
+
+    // Add the rooms property to the player
+    player.rooms = roomOrders[index] || [];
+    
     return player;
   });
 
