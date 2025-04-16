@@ -14,14 +14,13 @@ interface Game {
   allVotesCast: boolean;
   kickedPlayer: string;
   players: Player[];
-  votes: Vote[]
+  votes: Vote[];
 }
 
 // Define Player interface
 interface Player {
   screenName: string;
   email: string;
-  color: string;
   ghost: boolean;
   isSaboteur: boolean;
 }

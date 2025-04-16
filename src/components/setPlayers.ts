@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { listenForGameChanges } from '../firebase/controller';
 
 export const setPlayers = (currentGameId: string | undefined, email: string | null) => {
-  const [players, setPlayers] = useState<{ 
-    color: string; 
+  const [players, setPlayers] = useState<{
     email: string; 
     ghost: boolean; 
     isSaboteur: boolean; 

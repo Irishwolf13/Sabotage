@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonToast} from '@ionic/react';
-import { listenForGameChanges, updateRoomSabotageStatus, subscribeToRoomPuzzleStatus } from '../../firebase/controller';
+import { listenForGameChanges, updateRoomSabotageStatus } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
@@ -51,15 +51,6 @@ const MainGamePage: React.FC = () => {
       return () => unsubscribe();
     }
   }, [dispatch, game?.id, user]);
-
-  useEffect(() => {
-    if (game?.id) {
-      const unsubscribe = subscribeToRoomPuzzleStatus(game.id, (status) => {
-        setShowRoomStatus(status);
-      });
-      return () => unsubscribe();
-    }
-  }, [game?.id]);
 
   // This is used to make sure all the modals are closed when being sent to dead player page
   useEffect(() => {
@@ -146,7 +137,7 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {currentPlayer && <Scanner playerColor={currentPlayer.color} handleSolvePuzzleButton={handleSolvePuzzleButton} />}
+            {currentPlayer && <Scanner handleSolvePuzzleButton={handleSolvePuzzleButton} />}
           </IonContent>
         </IonModal>
 
@@ -182,16 +173,6 @@ const MainGamePage: React.FC = () => {
           </IonHeader>
           <IonContent>
             Innocent Page
-            <div
-              style={{
-                backgroundColor: currentPlayer?.color ? `rgb${currentPlayer.color}` : 'white',
-                width: '100px',
-                height: '100px',
-                margin: '20px auto',
-                textAlign: 'center',
-              }}
-            ></div>
-            <p style={{textAlign: 'center'}}>Your Color</p>
           </IonContent>
         </IonModal>
 

@@ -95,7 +95,7 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
       );
     
       // Await the result of checking if the room is sabotaged
-      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+      const roomIsSabotaged = await isRoomSabotaged(game.id, );
   
       if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
         // Handle scenario where the room is sabotaged and current player is not a saboteur

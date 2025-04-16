@@ -55,7 +55,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isEnded: false,
       isStarted: false,
       foundDead: false,
-      players: [{screenName: screenName, email:creator, ghost:false, color:'', isSaboteur: false}],
+      players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false}],
     };
 
     await setDoc(gameDocRef, gameData);
@@ -85,7 +85,6 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
           email,          // User's email
           screenName: myEmail, // Default or fetched screen name
           ghost: false,   // Initial value, change as needed
-          color: '',      // Default color, change as needed
           isSaboteur: false // Initial role, adjust as per your logic
         };
 
@@ -177,7 +176,8 @@ export const createAvailableRooms = async (gameId: string, numberOfRooms: number
   // Prepare the array of room objects
   const availableRooms = Array.from({ length: numberOfRooms }, (_, index) => ({
     room: index,
-    canUse: false
+    canUse: false,
+    isSabotaged: false,
   }));
 
   try {
@@ -298,88 +298,8 @@ export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) =
   }
 };
 
-// Function to add room colors (or assignments) to a game document in Firestore
-type colorPlayer = { player: number; solved: boolean; type: number; room: number };
-export const addRoomColors = async (
-  gameId: string,
-  resultArray: colorPlayer[]
-) => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-
-  try {
-    await updateDoc(gameDocRef, {
-      roomPuzzles: resultArray
-    });
-    console.log("Room puzzles added successfully in Firestore");
-  } catch (error) {
-    console.error("Error adding room puzzles:", error);
-  }
-};
-
-// UPDATE PLAYER COLORS
-type PlayerColorsToChange = { email: string; color: string; ghost: boolean; isSaboteur: boolean; screenName: string;};
-export const updatePlayerColors = async (
-  gameId: string,
-  playersToUpdate: PlayerColorsToChange[],
-  availableColors: string[]
-) => {
-  const gameDocRef = doc(db, 'activeGames', gameId);
-
-  try {
-    const docSnap = await getDoc(gameDocRef);
-
-    if (!docSnap.exists()) {
-      console.error('No such document found for the given gameId.');
-      return;
-    }
-
-    const data = docSnap.data();
-    const currentPlayers = data?.players || [];
-
-    // Track assigned colors to prevent duplicates
-    const assignedColors = new Set<string>();
-
-    // Populate assignedColors with existing player colors
-    currentPlayers.forEach((player: any) => {
-      if (player.color) assignedColors.add(player.color);
-    });
-
-    // Assign colors ensuring uniqueness
-    const updatedPlayers = currentPlayers.map((player: any) => {
-      const updateInfo = playersToUpdate.find(p => p.email === player.email);
-      
-      if (updateInfo) {
-        // Select an unused color
-        const availableColor = availableColors.find(color => !assignedColors.has(color));
-
-        if (availableColor) {
-          assignedColors.add(availableColor); // Mark this color as used
-          return { ...player, color: availableColor }; // Update only the color field
-        } else {
-          console.warn('Not enough colors in availableColors to assign unique colors.');
-          return player; // No change if no colors are left
-        }
-      }
-
-      return player; // Return unchanged if no updateInfo
-    });
-
-    await updateDoc(gameDocRef, {
-      //@ts-ignore
-      players: updatedPlayers.map(player => ({
-        ...player,
-        color: player.color
-      })),
-    });
-
-    console.log('Players updated successfully with unique colors.');
-  } catch (error) {
-    console.error('Error updating player colors:', error);
-  }
-};
-
 // Function to assign player numbers and update Firestore
-interface assignedPlayer { email: string; screenName: string; ghost: boolean; color: string; isSaboteur: boolean; player?: number;}
+interface assignedPlayer { email: string; screenName: string; ghost: boolean; isSaboteur: boolean; player?: number;}
 export const assignAndUpdatePlayers = async (gameId: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
@@ -421,68 +341,6 @@ export const assignAndUpdatePlayers = async (gameId: string) => {
   } catch (error) {
     console.error("Error updating players:", error);
   }
-};
-
-
-// Function to get base colors from the 'preferences' collection in Firestore
-export const getInnocentBaseColors = async (): Promise<string[]> => {
-  try {
-    // Reference to the 'innocentColors' document within 'preferences'
-    const innocentColorsDocRef = doc(db, "preferences", "innocentColors");
-    
-    // Retrieve the document snapshot
-    const docSnap = await getDoc(innocentColorsDocRef);
-    
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const baseColors: string[] = data?.baseColors || [];
-      
-      // Return the array of base colors
-      return baseColors;
-    } else {
-      console.error("No such document found for innocentColors.");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error fetching base colors:", error);
-    return [];
-  }
-};
-
-// Function to retrieve player colors for a specific room from Firestore
-export const getRoomColors = async (gameId: string, myNumber: number): Promise<string[]> => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-  try {
-    // Retrieve the document snapshot
-    const docSnap = await getDoc(gameDocRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const roomPuzzles: { room: number; player: number }[] = data?.roomPuzzles || [];
-      const players: { player: number; color: string }[] = data?.players || [];
-
-      // Collect player numbers for the specified room
-      const playerNumbersSet = new Set<number>(
-        roomPuzzles
-          .filter(puzzle => puzzle.room === myNumber)
-          .map(puzzle => puzzle.player)
-      );
-
-      // Extract colors of players whose numbers are in the set
-      const playerColors = players
-        .filter(player => playerNumbersSet.has(player.player))
-        .map(player => player.color);
-
-      return playerColors;
-    } else {
-      console.error("No such document found for the given gameId.");
-    }
-  } catch (error) {
-    console.error("Error fetching room colors:", error);
-  }
-
-  // Return an empty array if no colors were found or an error occurred
-  return [];
 };
 
 // Function to add a vote to a game document in Firestore
@@ -595,8 +453,6 @@ export const evaluateVotes = async (gameId: string): Promise<{ screenName: strin
   }
 };
 
-
-
 // Function to evaluate game status based on players' ghost and saboteur status
 export const evaluateGameStatus = async (gameId: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
@@ -644,92 +500,12 @@ export const evaluateGameStatus = async (gameId: string) => {
   }
 };
 
-// Function to check room puzzles and return their status as an array of objects
-export const subscribeToRoomPuzzleStatus = (gameId: string, callback: (status: Array<{ room: number; sabotaged: boolean }>) => void) => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-
-  const unsubscribe = onSnapshot(gameDocRef, (docSnap) => {
-    if (!docSnap.exists()) {
-      console.error(`Document with id ${gameId} does not exist`);
-      return;
-    }
-
-    const data = docSnap.data();
-
-    if (!data || !Array.isArray(data.roomPuzzles)) {
-      console.error("Invalid or missing 'roomPuzzles' array");
-      return;
-    }
-
-    const roomStatusMap = new Map<number, boolean>();
-
-    data.roomPuzzles.forEach((puzzle: { room: number; sabotaged: boolean }) => {
-      const currentStatus = roomStatusMap.get(puzzle.room) || false;
-      roomStatusMap.set(puzzle.room, currentStatus || puzzle.sabotaged);
-    });
-
-    const roomStatusArray = Array.from(roomStatusMap, ([room, sabotaged]) => ({ room, sabotaged }));
-
-    callback(roomStatusArray);
-  }, (error) => {
-    console.error("Error listening to room puzzles:", error);
-  });
-
-  return unsubscribe; // Call this function to stop listening to updates
-};
-
 // Function to toggle the sabotage status of a specific room
 export const updateRoomSabotageStatus = async (gameId: string, room: number) => {
-  try {
-    const gameRef = doc(db, "activeGames", gameId);
-    const docSnap = await getDoc(gameRef);
 
-    if (!docSnap.exists()) {
-      throw new Error(`Game document with id ${gameId} does not exist`);
-    }
-
-    const data = docSnap.data();
-    if (!data || !Array.isArray(data.roomPuzzles)) {
-      throw new Error("Invalid or missing 'roomPuzzles' array in document");
-    }
-
-    const updatedRoomPuzzles = data.roomPuzzles.map((puzzle: { room: number; sabotaged: boolean }) =>
-      puzzle.room === room ? { ...puzzle, sabotaged: !puzzle.sabotaged } : puzzle
-    );
-
-    await updateDoc(gameRef, { roomPuzzles: updatedRoomPuzzles });
-    // console.log(`Updated sabotage status for room: ${room}`);
-  } catch (error) {
-    console.error("Error updating sabotage status:", error);
-  }
 };
 
-// Function to check if any room with the specified number has been sabotaged
-interface RoomPuzzle { room: number; sabotaged: boolean; solved: boolean;}
-export const isRoomSabotaged = async (gameId: string, roomNumber: number): Promise<boolean> => {
-  try {
-    // Reference to the game document
-    const gameDocRef = doc(db, "activeGames", gameId);
-
-    // Get the document snapshot
-    const gameDocSnap = await getDoc(gameDocRef);
-
-    if (gameDocSnap.exists()) {
-      // Extract data
-      const gameData = gameDocSnap.data();
-
-      // Assuming roomPuzzles is an array in the game document
-      if (Array.isArray(gameData.roomPuzzles)) {
-        // Check for any room with the specified number that is sabotaged
-        return gameData.roomPuzzles.some((puzzle: RoomPuzzle) => 
-          puzzle.room === roomNumber && puzzle.sabotaged === true
-        );
-      }
-    }
-    
-    return false; // Return false if no matching rooms are found or the document does not exist
-  } catch (error) {
-    console.error("Error checking room sabotage status:", error);
-    throw new Error("Failed to check room sabotage status.");
-  }
-};
+export const isRoomSabotaged = async (gameId: string) =>  {
+  // This will need to be refactored.
+  return true
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem } from '@ionic/react';
-import { listenForGameChanges, toggleBooleanField, getInnocentBaseColors, addRoomColors, setPlayerAsSaboteur, assignAndUpdatePlayers, updatePlayerColors, createAvailableRooms } from '../../firebase/controller';
+import { listenForGameChanges, toggleBooleanField, setPlayerAsSaboteur, assignAndUpdatePlayers, createAvailableRooms } from '../../firebase/controller';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
@@ -59,29 +59,6 @@ const CreatorLobby: React.FC = () => {
     return <p>Oppps, something went wrong and your game is missing... Lost to the void... Sabotaged...? Not sure.</p>;
   }
 
-  const shuffleArray = (array: any) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  };
-
-  const selectRandomColors = ( availableColors: any, totalPlayers: any, myPlayers: any ) => {
-    const usedColors = new Set<string>();
-
-    if (availableColors.length < totalPlayers) {
-      console.log('Not enough available colors for all players.');
-      return;
-    }
-
-    // Assign unique colors to each player
-    myPlayers.forEach((player: any, index: any) => {
-      player.color = availableColors[index];
-      usedColors.add(player.color);
-    });
-
-    // console.log('myPlayers with assigned colors:', myPlayers);
-  };
 
   // Randomly assign saboteurs
   const selectRandomSaboteur = async (totalPlayers: any, myPlayers: any) => {
@@ -170,18 +147,12 @@ const CreatorLobby: React.FC = () => {
   const handleStartGame = async (numSaboteurs: number) => {
     if (game.players && game.players.length > 0) {
       const totalPlayers = game.players.length;
-      let availableColors = await getInnocentBaseColors();
       let myPlayers = [...game.players.map((player) => ({ ...player }))];
 
-      shuffleArray(availableColors);
       selectRandomSaboteur(totalPlayers, myPlayers);
-      selectRandomColors(availableColors, totalPlayers, myPlayers);
       const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, numRooms);
-      // Should create an array of maps called availableRooms, {room:index, available:false}
       await createAvailableRooms(game.id, numRooms)
-      await addRoomColors(game.id, roomPuzzles);
       await assignAndUpdatePlayers(game.id)
-      await updatePlayerColors(game.id, myPlayers, availableColors)
       await handleToggleStatus('isStarted', game.isStarted);
     } else {
       console.log('No players available for role assignment.');

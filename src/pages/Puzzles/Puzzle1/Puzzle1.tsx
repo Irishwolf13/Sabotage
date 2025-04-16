@@ -30,7 +30,7 @@ const Puzzle1: React.FC = () => {
         (player: { email: string; isSaboteur: boolean }) => player.email === user.email
       );
       // Await the result of checking if the room is sabotaged
-      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
+      const roomIsSabotaged = await isRoomSabotaged(game.id, );
 
       if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
         // Handle scenario where the room is sabotaged and current player is not a saboteur

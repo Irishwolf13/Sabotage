@@ -59,7 +59,6 @@ const JoinGameButton: React.FC = () => {
             players: [{
               screenName: playerName,
               email: email,
-              color: '',
               ghost: false,
               isSaboteur: false
             }],

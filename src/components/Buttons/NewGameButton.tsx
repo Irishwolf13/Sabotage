@@ -64,7 +64,6 @@ const NewGameButton: React.FC = () => {
         players: [{
           screenName: myPlayerName,
           email: email,
-          color: '',
           ghost: false,
           isSaboteur: false
         }],
