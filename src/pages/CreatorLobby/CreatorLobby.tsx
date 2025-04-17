@@ -164,7 +164,7 @@ const CreatorLobby: React.FC = () => {
       const totalPlayers = game.players.length;
       let myPlayers = [...game.players.map((player) => ({ ...player }))];
 
-      selectRandomSaboteur(totalPlayers, myPlayers);
+      await selectRandomSaboteur(totalPlayers, myPlayers);
       // Frank, this is gonig to be changed eventually, because we want to be albe to adjust rooms
       const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, [1,2,3,4,5]);
       await createAvailableRooms(game.id, [1,2,3,4,5])

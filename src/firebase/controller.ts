@@ -301,7 +301,10 @@ export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) =
 // Function to assign player numbers and update Firestore
 interface AssignedPlayer { email: string; screenName: string; ghost: boolean; isSaboteur: boolean; player?: number; rooms?: RoomOrder[];}
 interface RoomOrder { order: number; room: number; solved: boolean;}
-export const assignAndUpdatePlayers = async ( gameId: string, roomOrders: RoomOrder[][]) => {
+export const assignAndUpdatePlayers = async (
+  gameId: string, 
+  roomOrders: RoomOrder[][]
+) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   // Retrieve the existing players array from Firestore
@@ -323,16 +326,18 @@ export const assignAndUpdatePlayers = async ( gameId: string, roomOrders: RoomOr
 
   // Reassign player numbers locally and add room orders
   let playerIndex = 0;
-  const updatedPlayers = players.map((player, index) => {
+  const nonSaboteurRoomOrders = roomOrders.slice();  // Clone the roomOrders array
+
+  const updatedPlayers = players.map((player) => {
     if (!player.isSaboteur) {
-      player.player = playerIndex;
-      playerIndex += 1;
+      player.player = playerIndex++;
+      
+      // Assign room orders only to non-saboteurs
+      player.rooms = nonSaboteurRoomOrders.shift() || [];
     } else {
       player.player = -1;
+      player.rooms = [];  // Clear rooms for saboteurs
     }
-
-    // Add the rooms property to the player
-    player.rooms = roomOrders[index] || [];
     
     return player;
   });
@@ -510,7 +515,72 @@ export const updateRoomSabotageStatus = async (gameId: string, room: number) => 
 
 };
 
-export const isRoomSabotaged = async (gameId: string) =>  {
-  // This will need to be refactored.
-  return true
-}
+interface SabotagedRoom { room: number; isSabotaged: boolean;}
+export const isRoomSabotaged = async (gameId: string, currentRoom: number): Promise<boolean> => {
+  try {
+    // Reference to the game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+
+    // Fetch the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    // Check if the document exists
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+
+      // Assuming 'availableRooms' is an array of Room objects
+      const availableRooms: SabotagedRoom[] = data.availableRooms || [];
+
+      // Find the room object matching the currentRoom
+      const myRoom = availableRooms.find((room) => room.room === currentRoom);
+
+      // Return true or false based on the 'isSabotaged' field
+      return myRoom ? myRoom.isSabotaged : false;
+    } else {
+      console.log("No such document!");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error checking room sabotage status:", error);
+    return false;
+  }
+};
+
+
+
+
+
+// Function to find if the user's room matches the given number
+export const checkRoomMatch = async ( gameId: string, myEmail: string, myNumber: number,): Promise<boolean> => {
+  try {
+    // Reference to the specific game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+    
+    // Fetch the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+
+      if (!data.players) {return false;} // If no player
+
+      const player = data.players.find((p: any) => p.email === myEmail);
+      
+      if (!player || !player.rooms) { return false; } // If no player or rooms are found, return false
+
+      for (const roomObj of player.rooms) {
+        if (!roomObj.solved && roomObj.room === myNumber) {
+          return true; // Return true if there's an unsolved room that matches myNumber
+        }
+        if (!roomObj.solved) {
+          break; // Stop searching after finding the first unsolved room
+        }
+      }
+    }
+
+    return false; // Return false if conditions aren't met
+  } catch (error) {
+    console.error("Error checking room match:", error);
+    return false; // Return false in case of error
+  }
+};

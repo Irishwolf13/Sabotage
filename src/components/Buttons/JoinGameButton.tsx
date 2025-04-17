@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonInput } from '@ionic/react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../stores/store';
+import { AppDispatch } from '../../stores/store';
 import { auth } from '../../firebase/config';
-import { joinGame, getPlayerNameByEmail} from '../../firebase/controller';
+import { joinGame, getPlayerNameByEmail } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
 
 const JoinGameButton: React.FC = () => {
@@ -55,7 +55,7 @@ const JoinGameButton: React.FC = () => {
             calledMeeting: '', 
             allVotesCast: false, 
             kickedPlayer: '',
-            votes:[],
+            votes: [],
             players: [{
               screenName: playerName,
               email: email,
@@ -81,7 +81,7 @@ const JoinGameButton: React.FC = () => {
       <IonInput
         value={gameCode}
         placeholder="Enter 5-letter code"
-        onIonInput={(e) => setGameCode(e.detail.value!)}
+        onIonInput={(e) => setGameCode(e.detail.value!.toUpperCase())} // Convert input to uppercase
         maxlength={5}
       />
       <IonButton onClick={handleJoinGame}>Join Game</IonButton>

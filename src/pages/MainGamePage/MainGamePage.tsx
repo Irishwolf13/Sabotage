@@ -78,14 +78,11 @@ const MainGamePage: React.FC = () => {
   }
   const handleCloseInnocentModal = () => setShowInnocentModal(false);
 
-  const handleSolvePuzzleButton = () => {
+  const handleSolvePuzzleButton = (puzzleNumber:number) => {
     setShowScannerModal(false);
-    
-    // Going to need to redo this bit, it's random now just for ease
-    // Generate a random number between 1 and 3
-    const myNumber = Math.floor(Math.random() * 3) + 1;
-    
-    history.push(`/game/${game.id}/puzzle${myNumber}`);
+  
+    // Redirecting to the specific puzzle using the passed roomNumber
+    history.push(`/game/${game.id}/puzzle${puzzleNumber}`);
   };
 
   const handleChangeSabotageStatus = (room: number) => {

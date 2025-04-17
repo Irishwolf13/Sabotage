@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import './Scanner.css'; // Import your CSS file
 import { IonButton, IonCardTitle } from '@ionic/react';
-import { toggleBooleanField, updateStringField, adjustSaboteurAvailableRooms } from '../../firebase/controller';
+import { toggleBooleanField, updateStringField, adjustSaboteurAvailableRooms, checkRoomMatch } from '../../firebase/controller';
 import { RootState } from '../../stores/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateAttribute } from '../../stores/gameSlice';
 import { useAuth } from '../../firebase/AuthContext';
 
 interface ContainerProps {
-  handleSolvePuzzleButton: () => void;
+  handleSolvePuzzleButton: (puzzleNumber:number) => void;
 }
 
 const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
@@ -28,17 +28,13 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
         const roomNumberString = decodedText.replace("Room ", "");
         const roomNumber = parseInt(roomNumberString);
         if (user && user.email) {
-          // Find the player object whose email matches user.email
           const currentPlayer = game.players.find(p => p.email === user.email);
           
           if (currentPlayer) {
-            // Check that object's isSaboteur property
             if (currentPlayer.isSaboteur) {
-              // If it is true, run this code:
               await adjustSaboteurAvailableRooms(game.id, roomNumber);
             } else {
-              // If it is false, run this code:
-              dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber }));
+              selectPuzzleAndRoom(roomNumber)
             }
           } else {
             console.error('Player not found');
@@ -72,29 +68,30 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
     };
   }, [game.id, showScanner]);
 
-  const testGoToPuzzle = async (room:number) => {
-    console.log(game.currentRoom)
-    console.log(room)
+  const selectPuzzleAndRoom = async (roomNumber: number) => {
     try {
       if (user && user.email) {
-        // Find the player object whose email matches user.email
         const currentPlayer = game.players.find(p => p.email === user.email);
         
         if (currentPlayer) {
-          // Check that object's isSaboteur property
           if (currentPlayer.isSaboteur) {
-            // If it is true, run this code:
-            await adjustSaboteurAvailableRooms(game.id, room);
+            await adjustSaboteurAvailableRooms(game.id, roomNumber);
+            const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+            handleSolvePuzzleButton(getRandomNumber);
           } else {
-            // If it is false, run this code:
-            dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: room }));
+            const isCorrectRoom = await checkRoomMatch(game.id, user.email, roomNumber)
+            if (isCorrectRoom) {
+              // Frank, eventually, this will want to be something other than random...
+              dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber })); 
+              const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+              handleSolvePuzzleButton(getRandomNumber);
+            } else {
+              console.log('not my room fool.')
+            }
           }
         } else {
           console.error('Player not found');
         }
-        
-        // Always run this code:
-        handleSolvePuzzleButton();
       }
     } catch (err) {
       console.error('Error entering room:', err);
@@ -110,12 +107,12 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
 
   return (
     <div  style={{ margin: '10px' }}>
-      <IonButton onClick={() => testGoToPuzzle(0)}>Test 0</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(1)}>Test 1</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(2)}>Test 2</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(3)}>Test 3</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(4)}>Test 4</IonButton>
-      <IonButton onClick={() => testGoToPuzzle(5)}>Test 5</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(0)}>Test 0</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(1)}>Test 1</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(2)}>Test 2</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(3)}>Test 3</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(4)}>Test 4</IonButton>
+      <IonButton onClick={() => selectPuzzleAndRoom(5)}>Test 5</IonButton>
 
       {showScanner && (
         <div id="container">
