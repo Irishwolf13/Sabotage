@@ -8,11 +8,10 @@ import { setGames } from '../../stores/gameSlice';
 import { useHistory } from 'react-router';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
+import ControlPanel from '../../components/Modals/ControlPanel';
 import './MainGamePage.css';
 
 const MainGamePage: React.FC = () => {
-  interface RoomStatus { room: number; sabotaged: boolean; }
-
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
   const dispatch = useDispatch();
@@ -21,7 +20,6 @@ const MainGamePage: React.FC = () => {
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [showSabotageModal, setShowSabotageModal] = useState(false);
   const [showInnocentModal, setShowInnocentModal] = useState(false);
-  const [showRoomStatus, setShowRoomStatus] = useState<RoomStatus[]>([]);
   const [toastMessage, setToastMessage] = useState<string>('');
   const [showToast, setShowToast] = useState<boolean>(false);
 
@@ -30,7 +28,8 @@ const MainGamePage: React.FC = () => {
   useEffect(() => {
     if (game?.id && user) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        const currentPlayer = data.players.find((player: any) => player.email === user.email); // Not sure I need this line...
+        console.log(data)
+        const currentPlayer = data.players.find((player: any) => player.email === user.email);
 
         if (currentPlayer) {
           dispatch(
@@ -73,33 +72,12 @@ const MainGamePage: React.FC = () => {
   const handleSabotageButtonClicked = () => setShowSabotageModal(true);
   const handleCloseSabotageModal = () => setShowSabotageModal(false);
 
-  const handleInnocentButtonClicked = () => {
-    setShowInnocentModal(true);
-  }
+  const handleInnocentButtonClicked = () => setShowInnocentModal(true);
   const handleCloseInnocentModal = () => setShowInnocentModal(false);
 
   const handleSolvePuzzleButton = (puzzleNumber:number) => {
     setShowScannerModal(false);
-  
-    // Redirecting to the specific puzzle using the passed roomNumber
     history.push(`/game/${game.id}/puzzle${puzzleNumber}`);
-  };
-
-  const handleChangeSabotageStatus = (room: number) => {
-    const currentRoomStatus = showRoomStatus.find(status => status.room === room);
-  
-    if (currentRoomStatus?.sabotaged) {
-      updateRoomSabotageStatus(game.id, room);
-    } else {
-      const anotherRoomSabotaged = showRoomStatus.some(status => status.sabotaged);
-  
-      if (!anotherRoomSabotaged) {
-        updateRoomSabotageStatus(game.id, room);
-      } else {
-        setToastMessage('Only one room can be sabotaged at a time.');
-        setShowToast(true);
-      }
-    }
   };
 
   return (
@@ -147,17 +125,7 @@ const MainGamePage: React.FC = () => {
           </IonHeader>
           <IonContent>
             {/* This needs work, because we now have availableRooms on the backend */}
-            {showRoomStatus.map((status, index) => (
-              <div key={index}>
-                Test Room: {status.room}, Sabotaged: 
-                <IonButton
-                  onClick={() => handleChangeSabotageStatus(status.room)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  {status.sabotaged ? 'Yes' : 'No'}
-                </IonButton>
-              </div>
-            ))}
+            <ControlPanel gameId={game?.id} />
           </IonContent>
         </IonModal>
 

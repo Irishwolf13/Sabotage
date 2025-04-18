@@ -141,7 +141,17 @@ export const getPlayerNameByEmail = async (email:string) => {
   }
 }
 
-export default getPlayerNameByEmail;
+// Function to check what rooms are available to the saboteur
+export const getAvailableRooms = async (gameId:string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  const docSnap = await getDoc(gameDocRef);
+
+  if (docSnap.exists()) {
+    return docSnap.data().availableRooms;
+  }
+  
+  throw new Error("No such document!");
+};
 
 //////////////////////////////// EDITING DATABASE ////////////////////////////////
 // Function to toggle a boolean field in a Firestore document
@@ -173,11 +183,15 @@ export const updateStringField = async (gameId: string, fieldName: string, newVa
 export const createAvailableRooms = async (gameId: string, roomNumbers: number[]) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
+  // Utility function to generate a random 4-digit number
+  const generateRandomCode = () => Math.floor(1000 + Math.random() * 9000);
+
   // Prepare the array of room objects based on specified room numbers
   const availableRooms = roomNumbers.map(roomNumber => ({
     room: roomNumber,
     canUse: false,
     isSabotaged: false,
+    code: generateRandomCode(),
   }));
 
   try {
@@ -546,10 +560,6 @@ export const isRoomSabotaged = async (gameId: string, currentRoom: number): Prom
   }
 };
 
-
-
-
-
 // Function to find if the user's room matches the given number
 export const checkRoomMatch = async ( gameId: string, myEmail: string, myNumber: number,): Promise<boolean> => {
   try {
@@ -584,3 +594,5 @@ export const checkRoomMatch = async ( gameId: string, myEmail: string, myNumber:
     return false; // Return false in case of error
   }
 };
+
+// export default getPlayerNameByEmail;
