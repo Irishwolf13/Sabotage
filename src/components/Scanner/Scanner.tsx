@@ -102,6 +102,7 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
     if (user && user.email) {
       await updateStringField(game.id, 'calledMeeting', user.email)
       await toggleBooleanField(game.id, "foundDead", true);
+      await toggleBooleanField(game.id, "isPlayerDead", false);
     }
   }
 

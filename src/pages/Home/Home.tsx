@@ -53,7 +53,7 @@ const Home: React.FC = () => {
       <IonFooter>
         <IonToolbar>
       
-          <IonTitle size="small">v.0.1.27 © 2025 Dancing Goat Studios</IonTitle>
+          <IonTitle size="small">v.0.1.3 © 2025 Dancing Goat Studios</IonTitle>
         </IonToolbar>
       </IonFooter>
     </IonPage>
