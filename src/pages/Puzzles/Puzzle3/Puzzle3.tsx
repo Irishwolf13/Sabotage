@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonModal, IonButtons } from '@ionic/react';
-import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse } from '../../../firebase/controller';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
@@ -54,12 +54,14 @@ const Puzzle3: React.FC = () => {
         await setRoomSabotageFalse(game.id, game.currentRoom)
         history.push(`/game/${game.id}/deadPlayer`);
       } else {
-        // Handle if the task passes or fails
-        pass ? setMyTitle('Congratulations!') : setMyTitle('Better luck next time!');
-        pass 
-          ? setMyBody("You have passed this simple Task, don't you feel proud...")
-          : setMyBody("With time and effort, you'll finish this simple task.");
-        
+        if (user && user.email) {
+          updateRoomStatus(game.id, user.email, game.currentRoom)
+          setMyTitle('Congratulations!');
+          setMyBody("You have passed this simple Task, don't you feel proud...");
+        } else {
+          setMyTitle('Better luck next time!');
+          setMyBody("With time and effort, you'll finish this simple task.");
+        }
         setShowModal(true);
         setCollectedCircles([]);
         setTargetSequence(generateRandomColorSequence(5));

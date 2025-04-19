@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
-import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse } from '../../../firebase/controller';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 import './Puzzle2.css';
 
@@ -105,6 +105,9 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
       } else {
         // Set appropriate title and body based on pass condition
         if (pass) {
+          if (user && user.email) {
+            updateRoomStatus(game.id, user.email, game.currentRoom)
+          }
           setMyTitle('Congratulations!');
           setMyBody("You have passed this simple Task, don't you feel proud...");
         } else {

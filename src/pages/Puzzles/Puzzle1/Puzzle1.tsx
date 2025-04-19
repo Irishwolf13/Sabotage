@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
-import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse } from '../../../firebase/controller';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 
 const Puzzle1: React.FC = () => {
@@ -32,7 +32,7 @@ const Puzzle1: React.FC = () => {
       // Await the result of checking if the room is sabotaged
       const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
 
-      if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
+      if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user && user.email) {
         // Handle scenario where the room is sabotaged and current player is not a saboteur
         await setPlayerGhostTrue(game.id, user.email);
         await setRoomSabotageFalse(game.id, game.currentRoom)
@@ -40,6 +40,9 @@ const Puzzle1: React.FC = () => {
       } else {
         // Set appropriate title and body based on pass condition
         if (pass) {
+          if (user && user.email) {
+            updateRoomStatus(game.id, user.email, game.currentRoom)
+          }
           setMyTitle('Congratulations!');
           setMyBody("You have passed this simple Task, don't you feel proud...");
         } else {

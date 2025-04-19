@@ -671,4 +671,54 @@ export const checkRoomMatch = async ( gameId: string, myEmail: string, myNumber:
   }
 };
 
-// export default getPlayerNameByEmail;
+// Function to update room status for a specific player
+export const updateRoomStatus = async (gameId: string, email: string, roomNumber: number) => {
+  try {
+    // Reference to the specific game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+
+    // Fetch the game document
+    const gameSnapshot = await getDoc(gameDocRef);
+    
+    if (!gameSnapshot.exists()) {
+      throw new Error("Game document does not exist.");
+    }
+    
+    const data = gameSnapshot.data();
+
+    // Ensure players is an array
+    const players = Array.isArray(data?.players) ? data.players : [];
+    
+    if (players.length === 0) {
+      throw new Error("No players found in the game document.");
+    }
+
+    // Find the player by email
+    const playerIndex = players.findIndex((player: any) => player.email === email);
+
+    if (playerIndex === -1) {
+      throw new Error("Player with the given email not found.");
+    }
+
+    // Access and verify player's rooms
+    const playerRooms = Array.isArray(players[playerIndex].rooms) ? players[playerIndex].rooms : [];
+    const roomIndex = playerRooms.findIndex((room: any) => room.room === roomNumber);
+
+    if (roomIndex === -1) {
+      throw new Error("Room with the given room number not found for the player.");
+    }
+
+    // Update the 'solved' status of the specific room
+    playerRooms[roomIndex].solved = true;
+
+    // Update the entire players array in Firestore
+    await updateDoc(gameDocRef, {
+      players: players
+    });
+
+    console.log(`Room number ${roomNumber} for player ${email} has been marked as solved.`);
+  
+  } catch (error) {
+    console.error("Error updating room status:", error);
+  }
+};
