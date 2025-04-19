@@ -55,6 +55,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isEnded: false,
       isStarted: false,
       foundDead: false,
+      isPlayerDead: false,
       players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false}],
     };
 
@@ -242,6 +243,7 @@ export const adjustSaboteurAvailableRooms = async (gameId: string, myNumber: num
 
 
 // Function to set the 'ghost' boolean field to true for a specific player
+// Also sets isPlayerDead to true
 export const setPlayerGhostTrue = async (gameId: string, playerEmail: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
@@ -267,14 +269,17 @@ export const setPlayerGhostTrue = async (gameId: string, playerEmail: string) =>
       throw new Error(`Player with email ${playerEmail} not found.`);
     }
 
-    // Set the ghost status to true
+    // Set ghost status to true for the player
     players[playerIndex].ghost = true;
 
-    // Update the document with modified players array
-    await updateDoc(gameDocRef, { players });
+    // Update the document with modified players array and isPlayerDead field
+    await updateDoc(gameDocRef, { 
+      players, 
+      isPlayerDead: true 
+    });
 
   } catch (error) {
-    console.error(`Error setting ghost status to true for player with email ${playerEmail}: `, error);
+    console.error(`Error setting ghost status and isPlayerDead to true for player with email ${playerEmail}: `, error);
   }
 };
 
@@ -526,7 +531,38 @@ export const evaluateGameStatus = async (gameId: string) => {
 
 // Function to toggle the sabotage status of a specific room
 export const updateRoomSabotageStatus = async (gameId: string, room: number) => {
+  try {
+    // Reference to the game document
+    const gameDocRef = doc(db, "activeGames", gameId);
 
+    // Fetch the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    // Check if the document exists
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+
+      // Assuming 'availableRooms' is an array of Room objects
+      const availableRooms: SabotagedRoom[] = data.availableRooms || [];
+
+      // Update the isSabotaged status for each room
+      const updatedAvailableRooms = availableRooms.map(currentRoom => ({
+        ...currentRoom,
+        isSabotaged: currentRoom.room === room, // Set true only for the specified room, false for others
+      }));
+
+      // Update Firestore document with the modified availableRooms
+      await updateDoc(gameDocRef, {
+        availableRooms: updatedAvailableRooms
+      });
+
+      console.log(`Updated sabotage status for room ${room}.`);
+    } else {
+      console.log("No such document!");
+    }
+  } catch (error) {
+    console.error("Error updating room sabotage status:", error);
+  }
 };
 
 interface SabotagedRoom { room: number; isSabotaged: boolean;}
@@ -559,6 +595,46 @@ export const isRoomSabotaged = async (gameId: string, currentRoom: number): Prom
     return false;
   }
 };
+
+
+export const setRoomSabotageFalse = async (gameId: string, currentRoom: number) => {
+  try {
+    // Reference to the game document
+    const gameDocRef = doc(db, "activeGames", gameId);
+
+    // Fetch the document snapshot
+    const docSnap = await getDoc(gameDocRef);
+
+    // Check if the document exists
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+
+      // Assuming 'availableRooms' is an array of Room objects
+      const availableRooms: SabotagedRoom[] = data.availableRooms || [];
+
+      // Find the index of the room object matching the currentRoom
+      const roomIndex = availableRooms.findIndex((room) => room.room === currentRoom);
+
+      if (roomIndex !== -1) {
+        // Set the isSabotaged field to false for the found room
+        availableRooms[roomIndex].isSabotaged = false;
+
+        // Update the document with the modified rooms array
+        await updateDoc(gameDocRef, { availableRooms });
+
+        console.log(`Room ${currentRoom} sabotage status set to false.`);
+      } else {
+        console.log(`Room ${currentRoom} not found.`);
+      }
+
+    } else {
+      console.log("No such document!");
+    }
+  } catch (error) {
+    console.error("Error setting room sabotage status to false:", error);
+  }
+};
+
 
 // Function to find if the user's room matches the given number
 export const checkRoomMatch = async ( gameId: string, myEmail: string, myNumber: number,): Promise<boolean> => {

@@ -9,6 +9,7 @@ interface Game {
   saboteurWins: boolean;
   isStarted: boolean;
   foundDead: boolean;
+  isPlayerDead: boolean;
   currentRoom: number;
   calledMeeting: string;
   allVotesCast: boolean;

@@ -50,6 +50,7 @@ const JoinGameButton: React.FC = () => {
             isEnded: false,
             isStarted: false,
             foundDead: false,
+            isPlayerDead: false,
             saboteurWins: false, 
             currentRoom: -3, 
             calledMeeting: '', 

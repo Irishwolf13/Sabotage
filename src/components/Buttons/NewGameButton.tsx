@@ -56,6 +56,7 @@ const NewGameButton: React.FC = () => {
         isEnded: false,
         isStarted: false,
         foundDead: false,
+        isPlayerDead: false,
         saboteurWins: false, 
         currentRoom: -2,
         calledMeeting: '',

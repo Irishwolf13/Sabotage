@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getAvailableRooms } from '../../firebase/controller';
+import { getAvailableRooms, updateRoomSabotageStatus } from '../../firebase/controller';
 import { IonList, IonItem, IonLabel, IonButton } from '@ionic/react';
-import './ControlPanel.css'; // Import CSS file
+import './ControlPanel.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../stores/store';
+import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 
 interface RoomStatus {
   room: number;
@@ -11,8 +14,11 @@ interface RoomStatus {
 }
 
 const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
+  useGameSubscription();
   const [roomsStatus, setRoomsStatus] = useState<RoomStatus[]>([]);
   const [code, setCode] = useState<string>('');
+  const game = useSelector((state: RootState) => state.games?.[0]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchRoomsStatus = async () => {
@@ -27,6 +33,18 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     fetchRoomsStatus();
   }, [gameId]);
 
+  // Effect to handle isPlayerDead condition
+  useEffect(() => {
+    if (game?.isPlayerDead) {
+      setRoomsStatus((prevStatus) =>
+        prevStatus.map((room) => ({
+          ...room,
+          isSabotaged: false,
+        }))
+      );
+    }
+  }, [game?.isPlayerDead]);
+
   const handleKeypadClick = (value: string) => {
     if (code.length < 4) {
       setCode(prevCode => prevCode + value);
@@ -37,8 +55,34 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     setCode('');
   };
   
-  const activateCode = () => {
-    console.log(code);
+  const activateCode = async () => {
+    if (game?.isPlayerDead) {
+      console.log("Cannot activate sabotage while a player is dead.");
+      return;
+    }
+
+    const enteredCode = parseInt(code, 10);
+    const matchedRoom = roomsStatus.find((room) => room.code === enteredCode);
+  
+    if (matchedRoom) {
+      setRoomsStatus((prevStatus) =>
+        prevStatus.map((room) => ({
+          ...room,
+          isSabotaged: room.room === matchedRoom.room,
+        }))
+      );
+  
+      try {
+        await updateRoomSabotageStatus(gameId, matchedRoom.room);
+        console.log(`Activated sabotage mode for room ${matchedRoom.room}.`);
+      } catch (error) {
+        console.error("Error updating room sabotage status:", error);
+      }
+    } else {
+      console.log("Invalid code entered.");
+    }
+  
+    clearCode();
   };
 
   const deleteLastCharacter = () => {
@@ -47,19 +91,34 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     }
   };
 
-  const displayRoomStatus = () => (
-    <IonList>
-      {roomsStatus
-        .filter((room) => room.canUse)
-        .map((room) => (
+  const displayRoomStatus = () => {
+    const usableRooms = roomsStatus.filter((room) => room.canUse);
+  
+    if (usableRooms.length === 0) {
+      return (
+        <IonItem>
+          <IonLabel style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}>
+            Scan Room QRs to get activation Codes
+          </IonLabel>
+        </IonItem>
+      );
+    }
+  
+    return (
+      <IonList>
+        {usableRooms.map((room) => (
           <IonItem key={room.room}>
-            <IonLabel>
-              Room {room.room} Code : <span style={{ fontWeight: 'bold' }}>{room?.code}</span>
+            <IonLabel style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>
+                Room {room.room} Code: <span style={{ fontWeight: 'bold' }}>{room?.code}</span>
+              </span>
+              {room.isSabotaged && <span style={{ color: 'red', fontWeight: 'bold' }}>Sabotaged</span>}
             </IonLabel>
           </IonItem>
         ))}
-    </IonList>
-  );
+      </IonList>
+    );
+  };
 
   const displayKeyPad = () => (
     <>
@@ -77,7 +136,7 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
       </div>
       <div className="button-group">
         <IonButton color="danger" onClick={clearCode}>Clear</IonButton>
-        <IonButton color="primary" onClick={activateCode}>Activate</IonButton>
+        <IonButton color="primary" disabled={game?.isPlayerDead} onClick={activateCode}>Activate</IonButton>
       </div>
     </>
   );
@@ -85,9 +144,10 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   return (
     <div className="control-panel">
       {displayKeyPad()}
-      <IonList inset={true} >
+      { !game?.isPlayerDead && <IonList inset={true} >
         {displayRoomStatus()}
-      </IonList>
+      </IonList>}
+      {game?.isPlayerDead && <div className='warningDiv'>You have already Sabotaged a player this round.</div>}
     </div>
   );
 };

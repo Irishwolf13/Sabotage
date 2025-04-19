@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonModal, IonButtons } from '@ionic/react';
-import { isRoomSabotaged, setPlayerGhostTrue } from '../../../firebase/controller';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse } from '../../../firebase/controller';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
@@ -51,6 +51,7 @@ const Puzzle3: React.FC = () => {
       if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
         // Handle if the room is sabotaged and the current player is not the saboteur
         await setPlayerGhostTrue(game.id, user.email);
+        await setRoomSabotageFalse(game.id, game.currentRoom)
         history.push(`/game/${game.id}/deadPlayer`);
       } else {
         // Handle if the task passes or fails

@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
-import { isRoomSabotaged, setPlayerGhostTrue } from '../../../firebase/controller';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse } from '../../../firebase/controller';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 import './Puzzle2.css';
 
@@ -100,6 +100,7 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
       if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
         // Handle scenario where the room is sabotaged and current player is not a saboteur
         await setPlayerGhostTrue(game.id, user.email);
+        await setRoomSabotageFalse(game.id, game.currentRoom)
         history.push(`/game/${game.id}/deadPlayer`);
       } else {
         // Set appropriate title and body based on pass condition
