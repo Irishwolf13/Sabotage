@@ -9,6 +9,7 @@ import { useHistory } from 'react-router';
 import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
 import ControlPanel from '../../components/Modals/ControlPanel';
+import InnocentPanel from '../../components/Modals/InnocentPanel';
 import './MainGamePage.css';
 
 const MainGamePage: React.FC = () => {
@@ -137,7 +138,7 @@ const MainGamePage: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            Innocent Page
+            <InnocentPanel gameId={game?.id} />
           </IonContent>
         </IonModal>
 
