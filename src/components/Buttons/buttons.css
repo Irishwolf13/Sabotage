@@ -1,0 +1,49 @@
+.yellowButton {
+  --background: #cc7a0d;
+  --background-hover: #eba727;
+  --background-activated: #eba727;
+  --background-focused: #eba727;
+  --color: black;
+  --border-radius: 10px;
+  --border-color: #000;
+  --border-style: solid;
+  --border-width: 1px;
+  --box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 0.25);
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  width: 150px;
+}
+
+.blueButton {
+  --background: #30706a;
+  --background-hover: #419c93;
+  --background-activated: #419c93;
+  --background-focused: #419c93;
+
+  --color: black;
+
+  --border-radius: 10px;
+  --border-color: #000;
+  --border-style: solid;
+  --border-width: 1px;
+
+  --box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 0.25);
+
+  --ripple-color: deeppink;
+
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  width: 150px;
+}
+
+.inputSpace {
+  --background: #301000;
+  width: 150px;
+}
+
+.inputContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;    
+  flex-direction: column;
+}

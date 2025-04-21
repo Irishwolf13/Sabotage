@@ -567,6 +567,7 @@ export const updateRoomSabotageStatus = async (gameId: string, room: number) => 
 
 interface SabotagedRoom { room: number; isSabotaged: boolean;}
 export const isRoomSabotaged = async (gameId: string, currentRoom: number): Promise<boolean> => {
+  console.log('I am running here...')
   try {
     // Reference to the game document
     const gameDocRef = doc(db, "activeGames", gameId);
@@ -585,6 +586,8 @@ export const isRoomSabotaged = async (gameId: string, currentRoom: number): Prom
       const myRoom = availableRooms.find((room) => room.room === currentRoom);
 
       // Return true or false based on the 'isSabotaged' field
+      console.log('I am going to return...')
+      console.log(myRoom?.isSabotaged)
       return myRoom ? myRoom.isSabotaged : false;
     } else {
       console.log("No such document!");

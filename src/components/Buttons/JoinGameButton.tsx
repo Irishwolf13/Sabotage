@@ -6,6 +6,7 @@ import { AppDispatch } from '../../stores/store';
 import { auth } from '../../firebase/config';
 import { joinGame, getPlayerNameByEmail } from '../../firebase/controller';
 import { setGames } from '../../stores/gameSlice';
+import './buttons.css'
 
 const JoinGameButton: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -78,14 +79,15 @@ const JoinGameButton: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className='inputContainer'>
       <IonInput
+        className='inputSpace'
         value={gameCode}
         placeholder="Enter 5-letter code"
         onIonInput={(e) => setGameCode(e.detail.value!.toUpperCase())} // Convert input to uppercase
         maxlength={5}
       />
-      <IonButton onClick={handleJoinGame}>Join Game</IonButton>
+      <IonButton className='blueButton' onClick={handleJoinGame}>Join Game</IonButton>
     </div>
   );
 };

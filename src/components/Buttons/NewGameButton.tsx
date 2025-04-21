@@ -7,6 +7,7 @@ import { addGame } from '../../stores/gameSlice';
 import { AppDispatch, RootState } from '../../stores/store';
 import { createGameDocument, getPlayerNameByEmail} from '../../firebase/controller';
 import { auth } from '../../firebase/config';
+import './buttons.css'
 
 // Function to generate a random 5-letter code
 const generateRandomCode = (length: number) => {
@@ -88,7 +89,7 @@ const NewGameButton: React.FC = () => {
   
   return (
     <div>
-      <IonButton onClick={handleNewGame}>Create Game</IonButton>
+      <IonButton className='yellowButton' onClick={handleNewGame}>Create Game</IonButton>
     </div>
   );
 };

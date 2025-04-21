@@ -83,28 +83,30 @@ const MainGamePage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>{currentPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
         </IonToolbar>
-      </IonHeader>
+      </IonHeader> */}
       <IonContent fullscreen className="ion-padding">
-        <div style={{ textAlign: 'center', marginTop: '50%' }}>
-          <h1>Splash</h1>
-          <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-          {currentPlayer?.isSaboteur ? (
-            <>
-              <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
-              <IonButton className='halfWidthButton' onClick={handleSabotageButtonClicked}>Check Stats</IonButton>
-            </>
-          ) : (
-            <>
-              <IonButton className='halfWidthButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
-              <IonButton className='halfWidthButton' onClick={handleInnocentButtonClicked}>Check Stats</IonButton>
-            </>
-          )}
+        <div className='mainPageButtonHolder'>
+          <img src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FsabotageSign1Small.png?alt=media&token=9767345f-152f-4bb3-9071-3342708a254e" alt="Description of Image" className="responsive-image" />
+          <div>
+            {currentPlayer?.isSaboteur ? (
+              <>
+                <IonButton className='mainPageYellowButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
+                <IonButton className='mainPageBlueButton' onClick={handleSabotageButtonClicked}>Check Stats</IonButton>
+              </>
+            ) : (
+              <>
+                <IonButton className='mainPageYellowButton' onClick={handleScannerButtonClicked}>Scanner</IonButton>
+                <IonButton className='mainPageBlueButton' onClick={handleInnocentButtonClicked}>Check Stats</IonButton>
+              </>
+            )}
+          </div>
         </div>
 
+        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
           <IonHeader>
             <IonToolbar>

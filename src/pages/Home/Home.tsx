@@ -30,30 +30,23 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonTitle>{email || "User"}</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleLogout}>Logout</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent fullscreen className="ion-padding">
-        <div className='buttonHolder'>
+        <div className='homePagebuttonHolder'>
+          <img 
+            src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FmainSplashWithTitleSmall.jpg?alt=media&token=90d974bb-5c74-4a1d-bf9e-a9a5c2069f9c" 
+            alt="Description of Image" 
+            className="homePage-image" 
+          />
           <NewGameButton />
           <br></br>
           <JoinGameButton />
         </div>
+          
       </IonContent>
 
       <IonFooter>
         <IonToolbar>
-      
-          <IonTitle size="small">v.0.1.3 © 2025 Dancing Goat Studios</IonTitle>
+          <IonTitle size="small">v.0.1.4 © 2025 Dancing Goat Studios</IonTitle>
         </IonToolbar>
       </IonFooter>
     </IonPage>
