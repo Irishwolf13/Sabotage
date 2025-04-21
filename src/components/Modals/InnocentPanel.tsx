@@ -30,7 +30,7 @@ const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   if (!user) {
     return (
       <div className="control-panel">
-        <h2>Innocents</h2>
+        <h2>Detectives</h2>
         <p>Loading user information...</p>
       </div>
     );
@@ -39,7 +39,7 @@ const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   if (!myPlayer || !myPlayer.rooms || myPlayer.rooms.length === 0) {
     return (
       <div className="control-panel">
-        <h2>Innocents</h2>
+        <h2>Detectives</h2>
         <p>No rooms assigned yet.</p>
       </div>
     );
@@ -47,7 +47,7 @@ const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
 
   return (
     <div className="control-panel">
-      <h2>Innocents</h2>
+      <h2>Detectives</h2>
       <IonList>
         {myPlayer.rooms.map((room, index) => (
           <IonItem key={index}>

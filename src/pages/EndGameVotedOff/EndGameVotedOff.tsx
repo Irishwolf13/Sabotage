@@ -28,7 +28,7 @@ const EndOfGameVotedOff: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="ion-padding">
-        <h1>The Tribe has Spoken!</h1>
+        <h1>The Detectives have Spoken!</h1>
         <h1>You have been eliminated!</h1>
         {/* <IonButton onClick={testButton}>Test</IonButton> */}
         <IonButton expand="full" onClick={navigateToHome}>

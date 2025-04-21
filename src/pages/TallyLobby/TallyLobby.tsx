@@ -42,7 +42,7 @@ const TallyLobby: React.FC = () => {
         return;
       }
       if (game.isEnded && !game.saboteurWins) {
-        // Innocents wins
+        // Detectives wins
         history.push(`/game/${game.id}/endGame`);
       } else if (game.isEnded && game.saboteurWins){
         // Saboteur wins

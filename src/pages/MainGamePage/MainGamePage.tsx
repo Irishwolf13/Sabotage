@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonToast} from '@ionic/react';
-import { listenForGameChanges, updateRoomSabotageStatus } from '../../firebase/controller';
+import { listenForGameChanges } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';

@@ -55,3 +55,14 @@
     margin-bottom: 5vh;
     /* box-shadow: 0px 14px 8px rgba(0, 0, 0, 0.2); */
   }
+
+  .responsive-image2 {
+    position: relative;
+    max-width: 300px; 
+    max-height: 300px;
+    width: auto;      
+    height: auto;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    /* box-shadow: 0px 14px 8px rgba(0, 0, 0, 0.2); */
+  }

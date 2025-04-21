@@ -30,7 +30,7 @@ const EndOfGameLobby: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <h1>Great Game!</h1>
         {game.saboteurWins && <h1>Saboteur Wins!</h1>}
-        {!game.saboteurWins && <h1>The Tribe Wins!</h1>}
+        {!game.saboteurWins && <h1>The Detectives Wins!</h1>}
         {/* <IonButton onClick={testButton}>Test</IonButton> */}
         <IonButton expand="full" onClick={navigateToHome}>
           Exit Game
