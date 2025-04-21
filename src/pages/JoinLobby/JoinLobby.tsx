@@ -43,20 +43,20 @@ const JoinLobby: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>{email || "User"}</IonTitle>
         </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <div style={{ textAlign: 'center', marginTop: '50%' }}>
+      </IonHeader> */}
+      <IonContent fullscreen>
+        <div className='mainPageButtonHolder'>
           <h3>{isStarted ? 'Get READY!' : 'Waiting for Host to Start Game...'}</h3>
           <p>Players in Lobby</p>
           <IonList>
             {players.map((player, index) => (
-              <IonItem key={index}>
+              <div className='lobbyItem' key={index}>
                 {player.screenName}
-              </IonItem>
+              </div>
             ))}
           </IonList>
         </div>

@@ -88,7 +88,7 @@ const MainGamePage: React.FC = () => {
           <IonTitle>{currentPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
         </IonToolbar>
       </IonHeader> */}
-      <IonContent fullscreen className="ion-padding">
+      <IonContent fullscreen>
         <div className='mainPageButtonHolder'>
           <img src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FsabotageSign1Small.png?alt=media&token=9767345f-152f-4bb3-9071-3342708a254e" alt="Description of Image" className="responsive-image" />
           <div>

@@ -199,46 +199,48 @@ const CreatorLobby: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>{email || 'User'}</IonTitle>
         </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <h1>
-          Join Code: <strong>{game.code}</strong>
-        </h1>
+      </IonHeader> */}
+      <IonContent fullscreen>
+      <div className='mainPageButtonHolder'>
         <h3>{game.isStarted ? 'Get Ready!' : 'In Lobby'}</h3>
-        <IonButton onClick={decreaseNumSlots}>Slot -</IonButton>
+        {/* <IonButton onClick={decreaseNumSlots}>Slot -</IonButton>
         <IonButton onClick={increaseNumSlots}>Slot +</IonButton>
         {numSlots}
         <IonButton onClick={decreaseNumRooms}>Room -</IonButton>
         <IonButton onClick={increaseNumRooms}>Room +</IonButton>
-        {numRooms}
+        {numRooms} */}
         <IonList>
           {Array(numSlots)
             .fill(null)
             .map((_, index) => (
-              <IonItem key={index}>
+              <div key={index} className='lobbyItem'>
                 {game.players[index]
                   ? game.players[index].screenName
                   : 'Open Slot'}
-              </IonItem>
+              </div>
             ))}
         </IonList>
-        <div>
+        {/* <div>
           <label htmlFor="saboteurs">Number of Saboteurs:</label>
           <input
-            id="saboteurs"
-            type="number" 
-            min="1"
-            max="3" // Adjust max based on your game constraints
-            value={numSaboteurs}
-            onChange={handleChange}
+          id="saboteurs"
+          type="number" 
+          min="1"
+          max="3" // Adjust max based on your game constraints
+          value={numSaboteurs}
+          onChange={handleChange}
           />
-        </div>
-        <IonButton onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
-        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id}/>
+          </div> */}
+          <h1>
+            Join Code: <strong>{game.code}</strong>
+          </h1>
+        <IonButton className='yellowButton' onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
+        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id} />
+      </div>
       </IonContent>
       <IonFooter>
         <IonToolbar>

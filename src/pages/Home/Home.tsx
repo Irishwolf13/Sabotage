@@ -30,7 +30,7 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonContent fullscreen className="ion-padding">
+      <IonContent fullscreen>
         <div className='homePagebuttonHolder'>
           <img 
             src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FmainSplashWithTitleSmall.jpg?alt=media&token=90d974bb-5c74-4a1d-bf9e-a9a5c2069f9c" 

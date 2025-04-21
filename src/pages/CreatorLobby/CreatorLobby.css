@@ -1,0 +1,9 @@
+.lobbyItem {
+    background: #30706a;
+    height: 30px;
+    width: 200px;
+    margin: 2px;
+    color: rgb(255, 255, 255);
+    line-height: 32px; 
+    text-align: center;
+}
