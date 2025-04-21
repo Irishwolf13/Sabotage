@@ -27,7 +27,7 @@ const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameI
     if (isStarted) {
       findPlayerType()
       setShowModal(true);
-      setCountdown(150);
+      setCountdown(5);
 
       interval = setInterval(() => {
         setCountdown((prevCount) => prevCount - 1);

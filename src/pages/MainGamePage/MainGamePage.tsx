@@ -122,7 +122,7 @@ const MainGamePage: React.FC = () => {
         <IonModal isOpen={showSabotageModal} onDidDismiss={handleCloseSabotageModal}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Sabotage Modal</IonTitle>
+              <IonTitle>Sabotage</IonTitle>
               <IonButton slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
@@ -135,7 +135,7 @@ const MainGamePage: React.FC = () => {
         <IonModal isOpen={showInnocentModal} onDidDismiss={handleCloseInnocentModal}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Innocent Modal</IonTitle>
+              <IonTitle>Detective</IonTitle>
               <IonButton slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
             </IonToolbar>
           </IonHeader>
