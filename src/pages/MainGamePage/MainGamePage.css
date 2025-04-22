@@ -1,8 +1,8 @@
 .mainPageYellowButton {
-    --background: #cc7a0d;
-    --background-hover: #eba727;
-    --background-activated: #eba727;
-    --background-focused: #eba727;
+    --background: #ff970f;
+    --background-hover: #ffce72;
+    --background-activated: #ffce72;
+    --background-focused: #ffce72;
     --color: black;
     --border-radius: 10px;
     --border-color: #000;
@@ -33,7 +33,7 @@
   }
 
   .mainPageButtonHolder {
-    background-color: #76290e;
+    background-color: #c24112;
     text-align: center;
     height: 100%;
     display: flex;

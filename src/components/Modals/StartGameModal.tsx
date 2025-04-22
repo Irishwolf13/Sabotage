@@ -70,7 +70,7 @@ const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameI
         }
         {!showSaboteurStatus && 
           <div>
-            <h1>You are an Detective.</h1>
+            <h1>You are a Detective.</h1>
             <img 
               src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FmainSplashWithTitleSmall.jpg?alt=media&token=90d974bb-5c74-4a1d-bf9e-a9a5c2069f9c" 
               alt="Description of Image"

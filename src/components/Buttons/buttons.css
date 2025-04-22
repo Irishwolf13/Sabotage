@@ -1,8 +1,8 @@
 .yellowButton {
-  --background: #cc7a0d;
-  --background-hover: #eba727;
-  --background-activated: #eba727;
-  --background-focused: #eba727;
+  --background: #ff970f;
+  --background-hover: #ffce72;
+  --background-activated: #ffce72;
+  --background-focused: #ffce72;
   --color: black;
   --border-radius: 10px;
   --border-color: #000;
@@ -20,7 +20,7 @@
   --background-activated: #419c93;
   --background-focused: #419c93;
 
-  --color: black;
+  --color: rgb(255, 255, 255);
 
   --border-radius: 10px;
   --border-color: #000;
@@ -39,6 +39,7 @@
 .inputSpace {
   --background: #301000;
   width: 150px;
+  color: white;
 }
 
 .inputContainer {
