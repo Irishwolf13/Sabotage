@@ -105,18 +105,15 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     }
   
     return (
-      <IonList>
+      <div>
         {usableRooms.map((room) => (
-          <IonItem key={room.room}>
-            <IonLabel style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>
-                Room {room.room} Code: <span style={{ fontWeight: 'bold' }}>{room?.code}</span>
-              </span>
-              {room.isSabotaged && <span style={{ color: 'red', fontWeight: 'bold' }}>Sabotaged</span>}
-            </IonLabel>
-          </IonItem>
+          <div className='frank' key={room.room}>
+            <span>Room {room.room}</span>
+            <span style={{ fontWeight: 'bold' }}> Code: {room?.code}</span>
+            <span className='spanText'>{room.isSabotaged ? 'Sabotaged' : ''}</span>
+          </div>
         ))}
-      </IonList>
+      </div>
     );
   };
 
@@ -125,18 +122,20 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
       <div className="code-display">
         {code || 'Enter Code'}
       </div>
-      <div className="keypad">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-          <IonButton key={num} onClick={() => handleKeypadClick(num.toString())}>
-            {num}
-          </IonButton>
-        ))}
-        <IonButton style={{ gridColumn: "2" }} onClick={() => handleKeypadClick('0')}>0</IonButton>
-        <IonButton color="warning" style={{ gridColumn: "3" }} onClick={deleteLastCharacter}>X</IonButton>
-      </div>
-      <div className="button-group">
-        <IonButton color="danger" onClick={clearCode}>Clear</IonButton>
-        <IonButton color="primary" disabled={game?.isPlayerDead} onClick={activateCode}>Activate</IonButton>
+      <div className='keypadContainer'>
+        <div className="keypad">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+            <IonButton className='numbPadYellow' key={num} onClick={() => handleKeypadClick(num.toString())}>
+              {num}
+            </IonButton>
+          ))}
+          <IonButton className='numbPadYellow' style={{ gridColumn: "2" }} onClick={() => handleKeypadClick('0')}>0</IonButton>
+          <IonButton className='numbPadBlue' style={{ gridColumn: "3" }} onClick={deleteLastCharacter}>X</IonButton>
+        </div>
+        <div className="button-group">
+          <IonButton className='numbPadBlue' onClick={clearCode}>Clear</IonButton>
+          <IonButton className='numbPadRed' disabled={game?.isPlayerDead} onClick={activateCode}>Sabotage</IonButton>
+        </div>
       </div>
     </>
   );
@@ -144,9 +143,9 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   return (
     <div className="control-panel">
       {displayKeyPad()}
-      { !game?.isPlayerDead && <IonList inset={true} >
+      { !game?.isPlayerDead && <div className='listContainer'>
         {displayRoomStatus()}
-      </IonList>}
+      </div>}
       {game?.isPlayerDead && <div className='warningDiv'>You have already Sabotaged a player this round.</div>}
     </div>
   );

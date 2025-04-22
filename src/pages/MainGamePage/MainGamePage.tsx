@@ -90,7 +90,11 @@ const MainGamePage: React.FC = () => {
       </IonHeader> */}
       <IonContent fullscreen>
         <div className='mainPageButtonHolder'>
-          <img src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FsabotageSign1Small.png?alt=media&token=9767345f-152f-4bb3-9071-3342708a254e" alt="Description of Image" className="responsive-image" />
+          <img 
+            src="https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FsabotageSign1Small.png?alt=media&token=9767345f-152f-4bb3-9071-3342708a254e"
+            alt="Sabotage Main Image"
+            className="responsive-image"
+          />
           <div>
             {currentPlayer?.isSaboteur ? (
               <>
@@ -108,37 +112,42 @@ const MainGamePage: React.FC = () => {
 
         <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
-          <IonHeader>
+          {/* <IonHeader>
             <IonToolbar>
-              <IonTitle>Scanner Modal</IonTitle>
-              <IonButton slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
+              <IonTitle>Scanner</IonTitle>
             </IonToolbar>
-          </IonHeader>
+          </IonHeader> */}
+          <div className='modalButtonContainer'>
+            <IonButton className='yellowButton' slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
+          </div>
           <IonContent>
             {currentPlayer && <Scanner handleSolvePuzzleButton={handleSolvePuzzleButton} />}
           </IonContent>
         </IonModal>
 
         <IonModal isOpen={showSabotageModal} onDidDismiss={handleCloseSabotageModal}>
-          <IonHeader>
+          {/* <IonHeader>
             <IonToolbar>
               <IonTitle>Sabotage</IonTitle>
-              <IonButton slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
             </IonToolbar>
-          </IonHeader>
+          </IonHeader> */}
+          <div className='modalButtonContainer'>
+              <IonButton className='yellowButton' slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
+          </div>
           <IonContent>
-            {/* This needs work, because we now have availableRooms on the backend */}
             <ControlPanel gameId={game?.id} />
           </IonContent>
         </IonModal>
 
         <IonModal isOpen={showInnocentModal} onDidDismiss={handleCloseInnocentModal}>
-          <IonHeader>
+          {/* <IonHeader>
             <IonToolbar>
               <IonTitle>Detective</IonTitle>
-              <IonButton slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
             </IonToolbar>
-          </IonHeader>
+          </IonHeader> */}
+          <div className='modalButtonContainer'>
+              <IonButton className='yellowButton' slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
+          </div>
           <IonContent>
             <InnocentPanel gameId={game?.id} />
           </IonContent>

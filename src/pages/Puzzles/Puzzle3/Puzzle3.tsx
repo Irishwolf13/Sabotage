@@ -6,7 +6,7 @@ import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
-import './Puzzle3.css';
+import '../Puzzles.css';
 
 const Puzzle3: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -165,22 +165,26 @@ const Puzzle3: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>Puzzle 3</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={() => solvePuzzle(false)}>Cancel</IonButton>
           </IonButtons>
         </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding" fullscreen>
-        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-
-        <h4 className='centeredText'>Collection Order</h4>
-        <div className="target-sequence">
-          {targetSequence.map((color, index) => (
-            <div key={index} className="target-circle" style={{ backgroundColor: color }} />
-          ))}
+      </IonHeader> */}
+      <div className='puzzlePageButtonHolder'>
+        <IonButton className='yellowButton' onClick={() => solvePuzzle(false)}>Cancel</IonButton>
+      </div>
+      <IonContent>
+      <div className='puzzle3Main'>
+        <div>
+          <h4 className='centeredText'>Collection Order</h4>
+          <div className="target-sequence">
+            {targetSequence.map((color, index) => (
+              <div key={index} className="target-circle" style={{ backgroundColor: color }} />
+            ))}
+          </div>
         </div>
 
         <div className="circle-container" />
@@ -191,6 +195,13 @@ const Puzzle3: React.FC = () => {
           ))}
         </div>
 
+        <div className='hintText'>
+            <span>Touch a circle to collect color</span>
+            <br></br>
+            <span>Collect colors in collection order</span>
+          </div>
+
+        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <div className="modal-content">
             <h2>{myTitle}</h2>
@@ -198,6 +209,7 @@ const Puzzle3: React.FC = () => {
             <IonButton onClick={() => toMainPage()}>Close</IonButton>
           </div>
         </IonModal>
+      </div>
       </IonContent>
     </IonPage>
   );

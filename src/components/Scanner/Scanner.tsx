@@ -107,20 +107,22 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
   }
 
   return (
-    <div  style={{ margin: '10px' }}>
-      <IonButton onClick={() => selectPuzzleAndRoom(0)}>Test 0</IonButton>
-      <IonButton onClick={() => selectPuzzleAndRoom(1)}>Test 1</IonButton>
-      <IonButton onClick={() => selectPuzzleAndRoom(2)}>Test 2</IonButton>
-      <IonButton onClick={() => selectPuzzleAndRoom(3)}>Test 3</IonButton>
-      <IonButton onClick={() => selectPuzzleAndRoom(4)}>Test 4</IonButton>
-      <IonButton onClick={() => selectPuzzleAndRoom(5)}>Test 5</IonButton>
+    <div className='scannerMain'>
 
       {showScanner && (
         <div id="container">
           <div id="qr-reader"></div>
         </div>
       )}
-      <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
+      <div>
+        <IonButton onClick={() => selectPuzzleAndRoom(0)}>Test 0</IonButton>
+        <IonButton onClick={() => selectPuzzleAndRoom(1)}>Test 1</IonButton>
+        <IonButton onClick={() => selectPuzzleAndRoom(2)}>Test 2</IonButton>
+        <IonButton onClick={() => selectPuzzleAndRoom(3)}>Test 3</IonButton>
+        <IonButton onClick={() => selectPuzzleAndRoom(4)}>Test 4</IonButton>
+        <IonButton onClick={() => selectPuzzleAndRoom(5)}>Test 5</IonButton>
+        <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
+      </div>
       <IonCardTitle style={{ textAlign: 'center' }}>
 
       </IonCardTitle>

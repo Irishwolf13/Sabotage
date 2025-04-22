@@ -1,0 +1,138 @@
+.hintText {
+    margin: 20px;
+    color: #ff970f;
+    text-align: center;
+}
+/* Puzzle 1 */
+.puzzle1Main {
+    height: 100%;
+    background-color: #c24112;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 5px #301000;
+    padding: 20px;
+}
+.puzzle1 {
+    display: flex;
+    justify-content: space-between;
+    box-shadow: inset 0 0 0 5px #301000;
+}
+.puzzle1Circles { 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+  
+.puzzlePageButtonHolder {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+  /* Puzzle2 */
+.puzzle2Main {
+    height: 100%;
+    background-color: #c24112;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 5px #301000;
+}
+.card-grid {
+    padding-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 10px;
+    justify-content: center;
+}
+  
+.card {
+    width: 100px;
+    height: 100px;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    border: 4px #301000 solid;
+    background-image: url('https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/gameArt%2FsabotageSign1Small.png?alt=media&token=9767345f-152f-4bb3-9071-3342708a254e');
+    background-color: #301000;
+}
+  
+.card.revealed {
+    background-image: none; /* Or set to your desired revealed state background */
+}
+  
+.card.matched {
+    border: 4px solid #301000;
+    background-color: #ff970f;
+    pointer-events: none;
+    color: black;
+}
+  
+.card.selected {
+    border: 4px solid #301000;
+    background-color: #30706a;
+}
+
+
+/* Puzzle 3 */
+
+.puzzle3Main {
+    height: 100%;
+    background-color: #c24112;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 5px #301000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.circle-container {
+    width: 95%;
+    height: 40vh;
+    position: relative;
+    overflow: hidden;
+    border: 4px solid #301000;
+    margin-bottom: 20px;
+}
+  
+.circle {
+    position: absolute;
+    right: 0;
+    border-radius: 50%;
+    transition: transform 5s linear;
+    cursor: pointer;
+}
+  
+.target-sequence {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+  
+.target-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+  
+.collected-circles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+  
+.collected-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 5px;
+}
+
+.centeredText {
+    text-align: center;
+}

@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
 import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
-import './Puzzle2.css';
+import '../Puzzles.css';
 
 interface Card {
   id: number;
@@ -157,31 +157,40 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
 
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>Puzzle 2</IonTitle>
           <IonButtons slot='end'>
-            <IonButton onClick={cancleTry}>Cancel</IonButton>
           </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding" fullscreen>
+          </IonToolbar>
+          </IonHeader> */}
+        <div className='puzzlePageButtonHolder'>
+          <IonButton className='yellowButton' onClick={cancleTry}>Cancel</IonButton>
+        </div>
+      <IonContent>
+
+      <div className='puzzle2Main'>
         <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <div className="card-grid">
           {cards.map((card) => (
             <div
-              key={card.id}
-              onClick={() => handleCardClick(card.id)}
-              className={`card ${card.revealed ? 'revealed' : ''} ${
-                card.matched ? 'matched' : ''
-              } ${
-                card.id === selectedCardId || card.revealed && !card.matched ? 'selected' : ''
-              }`}
+            key={card.id}
+            onClick={() => handleCardClick(card.id)}
+            className={`card ${card.revealed ? 'revealed' : ''} ${
+              card.matched ? 'matched' : ''
+            } ${
+              card.id === selectedCardId || card.revealed && !card.matched ? 'selected' : ''
+            }`}
             >
               {card.revealed && card.number}
             </div>
           ))}
         </div>
+          <div className='hintText'>
+            <span>Touch cards to reveal number</span>
+            <br></br>
+            <span>Match all numbers to complete the puzzle</span>
+          </div>
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <div className="modal-content">
             <h2>{myTitle}</h2>
@@ -189,6 +198,8 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
             <IonButton onClick={() => toMainPage()}>Close</IonButton>
           </div>
         </IonModal>
+
+      </div>
       </IonContent>
     </IonPage>
   );

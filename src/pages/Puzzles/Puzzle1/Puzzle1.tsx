@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
 import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
+import '../Puzzles.css'
 
 const Puzzle1: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -139,52 +140,63 @@ const Puzzle1: React.FC = () => {
   
   return (
     <IonPage>
-      <IonHeader>
+      {/* <IonHeader>
         <IonToolbar>
           <IonTitle>Puzzle 1</IonTitle>
           <IonButtons slot='end'>
-          <IonButton onClick={cancleTry}>Cancel</IonButton>
           </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding" fullscreen>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div>
-            {shuffledCircles.map((color) => (
-              <div
-                key={color}
-                onClick={() => handleCircleClick(color)}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: selectedColor === color || placedColors.includes(color) ? 'transparent' : color,
-                  border: `2px solid ${color}`,
-                  borderRadius: '50%',
-                  margin: 10,
-                  cursor: 'pointer',
-                  opacity: placedColors.includes(color) ? 0.5 : 1,
-                }}
-              />
-            ))}
+          </IonToolbar>
+          </IonHeader> */}
+          <div className='puzzlePageButtonHolder'>
+            <IonButton className='yellowButton' onClick={cancleTry}>Cancel</IonButton>
           </div>
-          <div>
-            {shuffledBoxes.map((color) => (
-              <div
-                key={color}
-                onClick={() => handleBoxClick(color)}
-                style={{
-                  width: 60,
-                  height: 60,
-                  backgroundColor: placedColors.includes(color) ? color : 'transparent',
-                  border: `2px solid ${color}`,
-                  margin: 10,
-                  cursor: 'pointer',
-                }}
-              />
-            ))}
+      <IonContent>
+        <div className='puzzle1Main'>
+          <div className='puzzle1'>
+
+            <div className='puzzle1Circles'>
+              {shuffledCircles.map((color) => (
+                <div
+                  key={color}
+                  onClick={() => handleCircleClick(color)}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    backgroundColor: selectedColor === color || placedColors.includes(color) ? 'transparent' : color,
+                    border: `2px solid ${color}`,
+                    borderRadius: '50%',
+                    margin: 10,
+                    cursor: 'pointer',
+                    opacity: placedColors.includes(color) ? 0.5 : 1,
+                  }}
+                />
+              ))}
+            </div>
+            <div>
+              {shuffledBoxes.map((color) => (
+                <div
+                  key={color}
+                  onClick={() => handleBoxClick(color)}
+                  style={{
+                    width: 60,
+                    height: 60,
+                    backgroundColor: placedColors.includes(color) ? color : 'transparent',
+                    border: `2px solid ${color}`,
+                    margin: 10,
+                    cursor: 'pointer',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className='hintText'>
+            <span>Touch a circle to pick up color</span>
+            <br></br>
+            <span>Touch a square to drop the color</span>
+            <br></br>
+            <span>Drop all colors into matching squares</span>
           </div>
         </div>
-
         <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
         <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
           <div className="modal-content">

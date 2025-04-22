@@ -48,15 +48,17 @@ const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   return (
     <div className="control-panel">
       <h2>Puzzle Order</h2>
-      <IonList>
-        {myPlayer.rooms.map((room, index) => (
-          <IonItem key={index}>
-            <IonLabel>
-              {room.order + 1}: Room: {room.room}, Solved: {room.solved ? 'Yes' : 'No'}
-            </IonLabel>
-          </IonItem>
-        ))}
-      </IonList>
+      {myPlayer.rooms.map((room, index) => (
+        <div key={index}>
+          <div className='frank'>
+            <span>Puzzle {room.order + 1}</span>
+            <span>Room: {room.room}</span>
+            <span style={{ color: room.solved ? 'green' : 'red', fontWeight: 'bold' }} >
+              {room.solved ? 'Solved' : 'Unsolved'}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
