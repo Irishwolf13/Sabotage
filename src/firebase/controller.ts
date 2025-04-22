@@ -318,10 +318,23 @@ export const setPlayerAsSaboteur = async (gameId: string, playerEmail: string) =
 };
 
 // Function to assign player numbers and update Firestore
-interface AssignedPlayer { email: string; screenName: string; ghost: boolean; isSaboteur: boolean; player?: number; rooms?: RoomOrder[];}
-interface RoomOrder { order: number; room: number; solved: boolean;}
+interface AssignedPlayer {
+  email: string;
+  screenName: string;
+  ghost: boolean;
+  isSaboteur: boolean;
+  player?: number;
+  rooms?: RoomOrder[];
+}
+
+interface RoomOrder {
+  order: number;
+  room: number;
+  solved: boolean;
+}
+
 export const assignAndUpdatePlayers = async (
-  gameId: string, 
+  gameId: string,
   roomOrders: RoomOrder[][]
 ) => {
   const gameDocRef = doc(db, "activeGames", gameId);
@@ -339,25 +352,40 @@ export const assignAndUpdatePlayers = async (
     console.error("No such document found for the given gameId.");
     return;
   }
-  
+
   const data = docSnap.data();
   const players: AssignedPlayer[] = data?.players || [];
 
   // Reassign player numbers locally and add room orders
   let playerIndex = 0;
-  const nonSaboteurRoomOrders = roomOrders.slice();  // Clone the roomOrders array
 
   const updatedPlayers = players.map((player) => {
     if (!player.isSaboteur) {
       player.player = playerIndex++;
-      
-      // Assign room orders only to non-saboteurs
-      player.rooms = nonSaboteurRoomOrders.shift() || [];
+
+      // Assign up to 3 room orders only to non-saboteurs
+      player.rooms = [];
+      while (player.rooms.length < 3 && roomOrders.length > 0) {
+        const nextRoomOrder = roomOrders.shift();
+
+        if (nextRoomOrder) {
+          nextRoomOrder.forEach((order) => {
+            if(player.rooms) {
+              if (
+                player.rooms.length < 3 &&
+                !player.rooms.some((existingOrder) => existingOrder.room === order.room)
+              ) {
+                player.rooms.push(order);
+              }
+            }
+          });
+        }
+      }
     } else {
       player.player = -1;
-      player.rooms = [];  // Clear rooms for saboteurs
+      player.rooms = []; // Clear rooms for saboteurs
     }
-    
+
     return player;
   });
 
@@ -371,6 +399,9 @@ export const assignAndUpdatePlayers = async (
     console.error("Error updating players:", error);
   }
 };
+
+
+
 
 // Function to add a vote to a game document in Firestore
 interface Vote { voter: string; selected: string;}
