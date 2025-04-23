@@ -43,27 +43,17 @@ const JoinLobby: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>{email || "User"}</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
       <IonContent fullscreen>
         <div className='mainPageButtonHolder'>
-          <h3>{isStarted ? 'Get READY!' : 'Waiting for Host to Start Game...'}</h3>
-          <p>Players in Lobby</p>
-          <IonList>
+          <h3 className='coloredText'>{isStarted ? 'Get READY!' : 'Waiting for Host to Start Game...'}</h3>
+          <p className='coloredText'>Players in Lobby</p>
+          <div className='flex2Col'>
             {players.map((player, index) => (
-              <div className='lobbyItem' key={index}>
-                {player.screenName}
-              </div>
+              <div className='lobbyItem' key={index}>{player.screenName}</div>
             ))}
-          </IonList>
+          </div>
         </div>
-
-        {/* Use the StartGameModal component */}
         <StartGameModal isStarted={!!isStarted} currentGameId={currentGame?.id}/>
-      
       </IonContent>
       <IonFooter>
         <IonToolbar>

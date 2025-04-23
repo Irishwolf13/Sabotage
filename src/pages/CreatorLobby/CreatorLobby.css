@@ -6,4 +6,22 @@
     color: rgb(255, 255, 255);
     line-height: 32px; 
     text-align: center;
+    border: 1px black solid;
+}
+
+.joinCode {
+    margin-top: 50px;
+    color: #301000;
+}
+
+.flex2Col {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+  
+.flex2Col > div {
+    width: 40%; 
+    box-sizing: border-box;
 }

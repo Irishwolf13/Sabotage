@@ -60,6 +60,7 @@ const Home: React.FC = () => {
           <NewGameButton />
           <br />
           <JoinGameButton />
+        <p className='betaNote'>Alpha Note: Please make sure your phone remains ON and ACTIVE for the ENTIRE game.  Do not let it go to SLEEP or switch out of the app</p>
         </div>
       </IonContent>
       

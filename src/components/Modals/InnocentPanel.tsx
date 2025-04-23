@@ -50,7 +50,7 @@ const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
       <h2>Puzzle Order</h2>
       {myPlayer.rooms.map((room, index) => (
         <div key={index}>
-          <div className='frank'>
+          <div className='roomStatusBar'>
             <span>Puzzle {room.order + 1}</span>
             <span>Room: {room.room}</span>
             <span style={{ color: room.solved ? 'green' : 'red', fontWeight: 'bold' }} >

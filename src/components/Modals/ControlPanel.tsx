@@ -17,6 +17,8 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   useGameSubscription();
   const [roomsStatus, setRoomsStatus] = useState<RoomStatus[]>([]);
   const [code, setCode] = useState<string>('');
+  const [showKeypad, setShowKeypad] = useState<boolean>(true); // Default to true to show keypad first
+  const [showPlayerPaths, setShowPlayerPaths] = useState<boolean>(false);
   const game = useSelector((state: RootState) => state.games?.[0]);
   const dispatch = useDispatch();
 
@@ -33,7 +35,6 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     fetchRoomsStatus();
   }, [gameId]);
 
-  // Effect to handle isPlayerDead condition
   useEffect(() => {
     if (game?.isPlayerDead) {
       setRoomsStatus((prevStatus) =>
@@ -107,7 +108,7 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     return (
       <div>
         {usableRooms.map((room) => (
-          <div className='frank' key={room.room}>
+          <div className='roomStatusBar' key={room.room}>
             <span>Room {room.room}</span>
             <span style={{ fontWeight: 'bold' }}> Code: {room?.code}</span>
             <span className='spanText'>{room.isSabotaged ? 'Sabotaged' : ''}</span>
@@ -119,6 +120,7 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
 
   const displayKeyPad = () => (
     <>
+      <IonButton className='numbPadYellow' onClick={() => { setShowPlayerPaths(true); setShowKeypad(false); }}>Show Player Paths</IonButton>
       <div className="code-display">
         {code || 'Enter Code'}
       </div>
@@ -140,13 +142,25 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     </>
   );
 
+  const displayPlayerPaths = () => (
+    <div className='player-paths'>
+      <IonButton className='controlPanelButton' onClick={() => { setShowPlayerPaths(false); setShowKeypad(true); }}>Close Player Paths</IonButton>
+    </div>
+  );
+
   return (
     <div className="control-panel">
-      {displayKeyPad()}
-      { !game?.isPlayerDead && <div className='listContainer'>
-        {displayRoomStatus()}
-      </div>}
-      {game?.isPlayerDead && <div className='warningDiv'>You have already Sabotaged a player this round.</div>}
+      {showKeypad && displayKeyPad()}
+      {showPlayerPaths && displayPlayerPaths()}
+
+      {!game?.isPlayerDead && showKeypad && (
+        <div className='listContainer'>
+          {displayRoomStatus()}
+        </div>
+      )}
+      {game?.isPlayerDead && showKeypad && (
+        <div className='warningDiv'>You have already successfully Sabotaged a player this round.</div>
+      )}
     </div>
   );
 };

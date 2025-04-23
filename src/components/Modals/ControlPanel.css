@@ -89,7 +89,7 @@
 	--padding-bottom: 10px;
 }
 
-.frank {
+.roomStatusBar {
 	background-color: #ff970f;
 	margin-right: 40px;
 	margin-left: 40px;
@@ -102,7 +102,24 @@
 	box-shadow: 0 2px 6px 0 #301000;
 	color: black;
 }
-/* #301000 #ff970f*/
+
+.controlPanelButton {
+	--background: #ff970f;
+	--background-hover: #ffce72;
+	--background-activated: #ffce72;
+	--background-focused: #ffce72;
+	--color: rgb(0, 0, 0);
+	--border-radius: 10px;
+	--border-color: #000;
+	--border-style: solid;
+	--border-width: 1px;
+	--box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 1);
+	--padding-top: 10px;
+	--padding-bottom: 10px;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
 
 .listContainer {
 	margin-top: 10px;

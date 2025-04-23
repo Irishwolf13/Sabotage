@@ -83,11 +83,6 @@ const MainGamePage: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>{currentPlayer?.isSaboteur ? 'Saboteur' : 'Innocent'}</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
       <IonContent fullscreen>
         <div className='mainPageButtonHolder'>
           <img 
@@ -110,13 +105,10 @@ const MainGamePage: React.FC = () => {
           </div>
         </div>
 
+        {/* MODALS BELOW */}
         <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
+
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
-          {/* <IonHeader>
-            <IonToolbar>
-              <IonTitle>Scanner</IonTitle>
-            </IonToolbar>
-          </IonHeader> */}
           <div className='modalButtonContainer'>
             <IonButton className='yellowButton' slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
           </div>
@@ -126,11 +118,6 @@ const MainGamePage: React.FC = () => {
         </IonModal>
 
         <IonModal isOpen={showSabotageModal} onDidDismiss={handleCloseSabotageModal}>
-          {/* <IonHeader>
-            <IonToolbar>
-              <IonTitle>Sabotage</IonTitle>
-            </IonToolbar>
-          </IonHeader> */}
           <div className='modalButtonContainer'>
               <IonButton className='yellowButton' slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
           </div>
@@ -140,11 +127,6 @@ const MainGamePage: React.FC = () => {
         </IonModal>
 
         <IonModal isOpen={showInnocentModal} onDidDismiss={handleCloseInnocentModal}>
-          {/* <IonHeader>
-            <IonToolbar>
-              <IonTitle>Detective</IonTitle>
-            </IonToolbar>
-          </IonHeader> */}
           <div className='modalButtonContainer'>
               <IonButton className='yellowButton' slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
           </div>
@@ -154,15 +136,9 @@ const MainGamePage: React.FC = () => {
         </IonModal>
 
         {/* IonToast Component */}
-        <IonToast
-          isOpen={showToast}
-          onDidDismiss={() => setShowToast(false)}
-          message={toastMessage}
-          duration={2000}
-          color="warning"
-        />
-
+        <IonToast isOpen={showToast} onDidDismiss={() => setShowToast(false)} message={toastMessage} duration={2000} color="warning"/>
       </IonContent>
+
       <IonFooter>
         <IonToolbar>
           <IonTitle size="small">© 2025 Dancing Goat Studios</IonTitle>

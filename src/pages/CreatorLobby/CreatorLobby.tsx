@@ -199,21 +199,19 @@ const CreatorLobby: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>{email || 'User'}</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
       <IonContent fullscreen>
       <div className='mainPageButtonHolder'>
-        <h3>{game.isStarted ? 'Get Ready!' : 'In Lobby'}</h3>
+        <h1 className='joinCode'>Join Code: <strong>{game.code}</strong></h1>
+        <IonButton className='yellowButton' onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
+        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id} />
+        <h3 className='coloredText'>{game.isStarted ? 'Get Ready!' : 'In Lobby'}</h3>
         {/* <IonButton onClick={decreaseNumSlots}>Slot -</IonButton>
         <IonButton onClick={increaseNumSlots}>Slot +</IonButton>
         {numSlots}
         <IonButton onClick={decreaseNumRooms}>Room -</IonButton>
         <IonButton onClick={increaseNumRooms}>Room +</IonButton>
         {numRooms} */}
-        <IonList>
+        <div className='flex2Col'>
           {Array(numSlots)
             .fill(null)
             .map((_, index) => (
@@ -222,8 +220,9 @@ const CreatorLobby: React.FC = () => {
                   ? game.players[index].screenName
                   : 'Open Slot'}
               </div>
-            ))}
-        </IonList>
+            ))
+          }
+        </div>
         {/* <div>
           <label htmlFor="saboteurs">Number of Saboteurs:</label>
           <input
@@ -235,11 +234,7 @@ const CreatorLobby: React.FC = () => {
           onChange={handleChange}
           />
           </div> */}
-          <h1>
-            Join Code: <strong>{game.code}</strong>
-          </h1>
-        <IonButton className='yellowButton' onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
-        <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id} />
+
       </div>
       </IonContent>
       <IonFooter>
