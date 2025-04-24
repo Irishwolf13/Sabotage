@@ -1,0 +1,17 @@
+.statusBarFilled {
+    border-radius: 10px;
+    min-width: 40px;
+}
+
+.statusBar {
+    width: 100%;
+    background: #301000;
+    border-radius: 10px;
+    overflow: 'hidden';
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    height: 20px;
+}

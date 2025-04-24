@@ -115,7 +115,6 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
         </div>
       )}
       <div>
-        <IonButton onClick={() => selectPuzzleAndRoom(0)}>Test 0</IonButton>
         <IonButton onClick={() => selectPuzzleAndRoom(1)}>Test 1</IonButton>
         <IonButton onClick={() => selectPuzzleAndRoom(2)}>Test 2</IonButton>
         <IonButton onClick={() => selectPuzzleAndRoom(3)}>Test 3</IonButton>

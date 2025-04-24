@@ -174,7 +174,7 @@ const Puzzle3: React.FC = () => {
         </IonToolbar>
       </IonHeader> */}
       <div className='puzzlePageButtonHolder'>
-        <IonButton className='yellowButton' onClick={() => solvePuzzle(false)}>Cancel</IonButton>
+        <IonButton className='blueButton' onClick={() => solvePuzzle(false)}>Cancel</IonButton>
       </div>
       <IonContent>
       <div className='puzzle3Main'>

@@ -15,10 +15,10 @@
 }
 
 .blueButton {
-  --background: #30706a;
-  --background-hover: #419c93;
-  --background-activated: #419c93;
-  --background-focused: #419c93;
+  --background: #47aca2;
+  --background-hover: #47aca2;
+  --background-activated: #49c2b6;
+  --background-focused: #49c2b6;
   --color: rgb(255, 255, 255);
   --border-radius: 10px;
   --border-color: #000;

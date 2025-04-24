@@ -110,7 +110,7 @@ const MainGamePage: React.FC = () => {
 
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
           <div className='modalButtonContainer'>
-            <IonButton className='yellowButton' slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
+            <IonButton className='blueButton' slot="end" onClick={handleCloseScannerModal}>Close</IonButton>
           </div>
           <IonContent>
             {currentPlayer && <Scanner handleSolvePuzzleButton={handleSolvePuzzleButton} />}
@@ -119,7 +119,7 @@ const MainGamePage: React.FC = () => {
 
         <IonModal isOpen={showSabotageModal} onDidDismiss={handleCloseSabotageModal}>
           <div className='modalButtonContainer'>
-              <IonButton className='yellowButton' slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
+              <IonButton className='blueButton' slot="end" onClick={handleCloseSabotageModal}>Close</IonButton>
           </div>
           <IonContent>
             <ControlPanel gameId={game?.id} />
@@ -128,7 +128,7 @@ const MainGamePage: React.FC = () => {
 
         <IonModal isOpen={showInnocentModal} onDidDismiss={handleCloseInnocentModal}>
           <div className='modalButtonContainer'>
-              <IonButton className='yellowButton' slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
+              <IonButton className='blueButton' slot="end" onClick={handleCloseInnocentModal}>Close</IonButton>
           </div>
           <IonContent>
             <InnocentPanel gameId={game?.id} />

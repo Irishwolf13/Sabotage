@@ -19,6 +19,8 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   const [code, setCode] = useState<string>('');
   const [showKeypad, setShowKeypad] = useState<boolean>(true); // Default to true to show keypad first
   const [showPlayerPaths, setShowPlayerPaths] = useState<boolean>(false);
+  const [playerRoutes, setPlayerRoutes] = useState();
+  
   const game = useSelector((state: RootState) => state.games?.[0]);
   const dispatch = useDispatch();
 
@@ -120,7 +122,7 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
 
   const displayKeyPad = () => (
     <>
-      <IonButton className='numbPadYellow' onClick={() => { setShowPlayerPaths(true); setShowKeypad(false); }}>Show Player Paths</IonButton>
+      <IonButton className='showDetectivePathsButtonYellow' onClick={showPlayerPathsButton}>Show Detective Paths</IonButton>
       <div className="code-display">
         {code || 'Enter Code'}
       </div>
@@ -142,11 +144,58 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
     </>
   );
 
-  const displayPlayerPaths = () => (
+// Render player paths
+const renderPlayerPaths = (players:any) => {
+  return players
+    // @ts-ignore
+    .filter(player => !player.isSaboteur)
+    // @ts-ignore
+    .map((player) => {
+      const sortedRooms = [...player.rooms].sort((a, b) => a.order - b.order);
+
+      return (
+        <div key={player.screenName}>
+          <div className='pathHolder'>
+            <strong className='pathDisplayName'>{player.screenName} </strong>
+            {sortedRooms.map((roomObj, index, array) => (
+              <div className='frank1'>
+                <div
+                  key={roomObj.order}
+                  style={{ background: roomObj.solved ? '#ff970f' : '#4acec1',color: '#301000' }}
+                  className='pathHolderNumberDisplay'
+                  >
+                  {roomObj.room}
+                </div>
+                <p style={{color: '#301000'}}>{index < array.length - 1 && ' --> '}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    });
+};
+// ff970f 47aca2 301000
+// Extract players' routes and display them if they are not saboteurs
+const displayPlayerPaths = () => {
+  if (!game?.players) return null;
+
+  return (
     <div className='player-paths'>
-      <IonButton className='controlPanelButton' onClick={() => { setShowPlayerPaths(false); setShowKeypad(true); }}>Close Player Paths</IonButton>
+      <IonButton className='controlPanelButton' onClick={() => { setShowPlayerPaths(false); setShowKeypad(true); }}>Close Detective Paths</IonButton>
+      <h1 style={{color:'#301000'}}>Detective Room Paths</h1>
+      {renderPlayerPaths(game.players)}
     </div>
   );
+};
+
+
+  const showPlayerPathsButton = () => {
+    setShowPlayerPaths(true); 
+    setShowKeypad(false);
+  }
+
+  const testButton = () => {
+  }
 
   return (
     <div className="control-panel">
@@ -161,6 +210,7 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
       {game?.isPlayerDead && showKeypad && (
         <div className='warningDiv'>You have already successfully Sabotaged a player this round.</div>
       )}
+      {/* <IonButton onClick={testButton}>Test</IonButton> */}
     </div>
   );
 };
