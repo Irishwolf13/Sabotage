@@ -55,35 +55,30 @@ const VotingLobby: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Voting Lobby</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <IonContent>
+        <div className='votingPageButtonHolder'> 
 
-      <IonContent fullscreen className="ion-padding">
-        {/* <IonButton onClick={testButton}>test</IonButton> */}
-        <h2>Select a player to vote out:</h2>
-        <IonList>
-          {livingPlayers.map(player => (
-            <IonItem
+          {/* <IonButton onClick={testButton}>test</IonButton> */}
+          <h2 style={{color:'#301000'}}>Select a player to vote out:</h2>
+          <div className='votingButtonHolder'>
+
+            {livingPlayers.map(player => (
+              <IonButton
+              className={`blueButton ${selectedPlayer === player.email ? 'customColor' : ''}`}
+              
               key={player.email}
-              button
               onClick={() => setSelectedPlayer(player.email)}
-              color={selectedPlayer === player.email ? 'danger' : undefined}
-            >
-              <IonLabel>{player.screenName}</IonLabel>
-            </IonItem>
-          ))}
-        </IonList>
+              // color={selectedPlayer === player.email ? 'danger' : undefined}
+              >
+                <IonLabel>{player.screenName}</IonLabel>
+              </IonButton>
+            ))}
 
-        <IonButton
-          expand="block"
-          onClick={handleVote}
-          disabled={!selectedPlayer}
-        >
-          Cast Vote
-        </IonButton>
+          </div>
+          <IonButton className='castVoteButton' expand="block" onClick={handleVote} disabled={!selectedPlayer} >
+            Cast Vote
+          </IonButton>
+        </div>
       </IonContent>
 
       <IonFooter>

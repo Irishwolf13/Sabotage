@@ -7,10 +7,7 @@ import {
   IonTitle, 
   IonToolbar, 
   IonFooter, 
-  IonList, 
-  IonItem, 
-  IonModal, 
-  IonLabel
+  IonModal 
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import './TallyLobby.css';
@@ -97,40 +94,47 @@ const TallyLobby: React.FC = () => {
       }
     }
   }, [game.allVotesCast]);
-  
+
+  const testButton = () => {
+    console.log(livingPlayers)
+  }
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>TallyLobby Page</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen className="ion-padding">
-        <IonButton onClick={handleCheckVotesButton}>Test Button</IonButton>
-        <h1>{showTextChanged}</h1>
-        <br></br>
-        <h1>Players Who have voted:</h1>
-        <IonList>
-          {game.votes && game.votes.map((vote, index) => (
-            <IonItem key={index}>
-              <IonLabel>{vote.voter}</IonLabel>
-            </IonItem>
-          ))}
-        </IonList>
+      <IonContent>
+        <div className='votingPageButtonHolder'> 
+        {/* <IonButton onClick={testButton}>Test</IonButton> */}
+          {/* <IonButton onClick={handleCheckVotesButton}>Test Button</IonButton> */}
+          <h2 style={{color:'#301000'}}>{showTextChanged}</h2>
+          <br></br>
+          <h4 style={{color:'#301000'}}>Players Who have voted:</h4>
 
-        {/* Scanner Modal implementation */}
-        <IonModal isOpen={showVoterModal}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Voted Off...</IonTitle>
-              <IonButton slot='end' onClick={handleVotingComplete}>Close</IonButton>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {game.kickedPlayer} was kicked!
-          </IonContent>
-        </IonModal>
+          {livingPlayers.map((player, index) => {
+            const hasVoted = game.votes && Array.isArray(game.votes) && game.votes.some(vote => vote.voter === player.email);
+            return (
+              <div className='tallyWhoVoted' key={index}>
+                {player.screenName} {hasVoted && 
+                  <img src="path/to/your/checkmark.png" 
+                    alt="Voted" 
+                    style={{ width: '16px', height: '16px' }} 
+                  />}
+              </div>
+            );
+          })}
+
+          {/* Scanner Modal implementation */}
+          <IonModal isOpen={showVoterModal}>
+            <IonHeader>
+              <IonToolbar>
+                <IonTitle>Voted Off...</IonTitle>
+                <IonButton slot='end' onClick={handleVotingComplete}>Close</IonButton>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              {game.kickedPlayer} was kicked!
+            </IonContent>
+          </IonModal>
+        </div>
       </IonContent>
       <IonFooter>
         <IonToolbar>
