@@ -22,9 +22,7 @@ const Puzzle1: React.FC = () => {
   const [myBody, setMyBody] = useState('');
 
   const solvePuzzle = async (pass: boolean) => {
-    console.log('currentGame Here:')
-    console.log(game)
-    if (!user) return; // Early exit if user is not defined
+    if (!user) return;
   
     try {
       const currentPlayer = game.players.find(
@@ -43,9 +41,9 @@ const Puzzle1: React.FC = () => {
         if (pass) {
           if (user && user.email) {
             updateRoomStatus(game.id, user.email, game.currentRoom)
+            setMyTitle('Congratulations!');
+            setMyBody("You have passed this simple Task, don't you feel proud...");
           }
-          setMyTitle('Congratulations!');
-          setMyBody("You have passed this simple Task, don't you feel proud...");
         } else {
           setMyTitle('Better luck next time!');
           setMyBody("With time and effort, you'll finish this simple task.");

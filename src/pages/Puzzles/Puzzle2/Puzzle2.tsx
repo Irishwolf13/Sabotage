@@ -107,17 +107,15 @@ const Puzzle2: React.FC<{ numberOfPairs?: number }> = ({ numberOfPairs = 6 }) =>
         if (pass) {
           if (user && user.email) {
             updateRoomStatus(game.id, user.email, game.currentRoom)
+            setMyTitle('Congratulations!');
+            setMyBody("You have passed this simple Task, don't you feel proud...");
           }
-          setMyTitle('Congratulations!');
-          setMyBody("You have passed this simple Task, don't you feel proud...");
         } else {
           setMyTitle('Better luck next time!');
           setMyBody("With time and effort, you'll finish this simple task.");
         }
         
         setShowModal(true);
-  
-        // Reset or initialize the game state
         initializeGame();
       }
     } catch (error) {
