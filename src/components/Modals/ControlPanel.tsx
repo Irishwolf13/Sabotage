@@ -145,10 +145,11 @@ const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
   );
 
 // Render player paths
-const renderPlayerPaths = (players:any) => {
+const renderPlayerPaths = (players: any) => {
+  console.log(game)
   return players
     // @ts-ignore
-    .filter(player => !player.isSaboteur)
+    .filter(player => !player.isSaboteur && !player.ghost)
     // @ts-ignore
     .map((player) => {
       const sortedRooms = [...player.rooms].sort((a, b) => a.order - b.order);
@@ -158,12 +159,11 @@ const renderPlayerPaths = (players:any) => {
           <div className='pathHolder'>
             <strong className='pathDisplayName'>{player.screenName} </strong>
             {sortedRooms.map((roomObj, index, array) => (
-              <div className='frank1'>
+              <div className='frank1' key={roomObj.order}>
                 <div
-                  key={roomObj.order}
-                  style={{ background: roomObj.solved ? '#ff970f' : '#4acec1',color: '#301000' }}
+                  style={{ background: roomObj.solved ? '#ff970f' : '#4acec1', color: '#301000' }}
                   className='pathHolderNumberDisplay'
-                  >
+                >
                   {roomObj.room}
                 </div>
                 <p style={{color: '#301000'}}>{index < array.length - 1 && ' --> '}</p>

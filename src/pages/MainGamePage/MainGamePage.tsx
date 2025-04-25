@@ -29,7 +29,8 @@ const MainGamePage: React.FC = () => {
   useEffect(() => {
     if (game?.id && user) {
       const unsubscribe = listenForGameChanges(game.id, (data) => {
-        console.log(data)
+        // console.log('main Page Data')
+        // console.log(data)
         const currentPlayer = data.players.find((player: any) => player.email === user.email);
 
         if (currentPlayer) {

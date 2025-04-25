@@ -14,7 +14,7 @@ import './TallyLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import { clearVotes, evaluateVotes, evaluateGameStatus, toggleBooleanField, updateStringField } from '../../firebase/controller';
+import { clearVotes, evaluateVotes, evaluateGameStatus, toggleBooleanField, updateStringField, assignAndUpdatePlayers, createAvailableRooms  } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
 
 interface gameResults { gameOver: boolean; innocentsWin: boolean;}
@@ -25,13 +25,114 @@ const TallyLobby: React.FC = () => {
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
   const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
+  const [numSaboteurs, setNumSaboteurs] = useState(1);
 
   const [showVoterModal, setShowVoterModal] = useState(false);
   const [showTextChanged, setShowTextChanged] = useState('Waiting for all votes to be cast...');
+  
+  const handleResetRooms = async () => {
+    if (game.players && game.players.length > 0) {
+      const totalPlayers = game.players.length;
+
+      // Frank, this is gonig to be changed eventually, because we want to be albe to adjust rooms
+      const roomPuzzles = assignPlayersEvenly(totalPlayers - numSaboteurs, [1,2,3,4,5]);
+      await createAvailableRooms(game.id, [1,2,3,4,5])
+      await assignAndUpdatePlayers(game.id, roomPuzzles)
+    } else {
+      console.log('No players available for role assignment.');
+    }
+  };
+
+  ///////////////////////////////////////////////////////// CODE THAT SHOULD bE LOOKED AT FOR DUPLICATION
+  type PlayerRoom = { room: number; order: number; solved: boolean };
+  const assignPlayersEvenly = (numberOfPlayers: number, roomNumbers: number[]): PlayerRoom[][] => {
+    const numberOfRooms = roomNumbers.length;
+    
+    const roomPuzzles: { player: number; order: number; solved: boolean }[][] = Array.from(
+      { length: numberOfRooms },
+      () => []
+    );
+
+    const playerAssignments = Array.from(
+      { length: numberOfPlayers },
+      () => new Set<number>()
+    );
+    const roomCounts = Array(numberOfRooms).fill(0);
+    const playerTypeCounter: number[] = Array(numberOfPlayers).fill(0);
+
+    for (let player = 0; player < numberOfPlayers; player++) {
+      while (playerAssignments[player].size < 3) {
+        const thresholds = [...new Set(roomCounts)].sort((a, b) => a - b);
+        let assigned = false;
+
+        for (const threshold of thresholds) {
+          const candidates = roomCounts
+            .map((count, index) => ({ count, index }))
+            .filter(
+              (r) =>
+                r.count === threshold && !playerAssignments[player].has(r.index)
+            )
+            .map((r) => r.index);
+
+          if (candidates.length > 0) {
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            const roomIdx = candidates[randomIndex];
+            const room = roomNumbers[roomIdx]; // Get the actual room number here
+            
+            playerAssignments[player].add(room);
+
+            roomPuzzles[roomIdx].push({
+              player: player,
+              order: playerTypeCounter[player]++,
+              solved: false,
+            });
+
+            roomCounts[roomIdx]++;
+            assigned = true;
+            break;
+          }
+        }
+
+        if (!assigned) {
+          throw new Error(`Unable to assign player ${player + 1} a third room`);
+        }
+      }
+    }
+
+    // Create final player-specific structure
+    const playerResults: PlayerRoom[][] = Array.from(
+      { length: numberOfPlayers },
+      () => []
+    );
+
+    for (let roomIndex = 0; roomIndex < roomPuzzles.length; roomIndex++) {
+      for (const { player, order, solved } of roomPuzzles[roomIndex]) {
+        playerResults[player].push({
+          room: roomNumbers[roomIndex], // Get the actual room number here
+          order,
+          solved,
+        });
+      }
+    }
+
+    // Sort each player's assignments by type
+    for (const assignments of playerResults) {
+      assignments.sort((a, b) => a.order - b.order);
+    }
+
+    return playerResults;
+  };
+  ///////////////////////////////////////////////////////// END OF CODE THAT SHOULD bE LOOKED AT FOR DUPLICATION
 
   const handleVotingComplete = async () => {
     if (game) {
       await clearVotes(game.id);
+      if (game.calledMeeting != '') {
+        await updateStringField(game.id, 'calledMeeting', '')
+        console.log('rooms changing')
+        handleResetRooms()
+        // Change rooms here
+      }
       setShowVoterModal(false);
       const playerIsAlive = livingPlayers.some((player: { email: string }) => player.email === user?.email);
       if (!playerIsAlive) {
@@ -65,6 +166,7 @@ const TallyLobby: React.FC = () => {
             }
             evaluateGameStatus(game.id)
           });
+
           // change the backend of allVotesCast
           toggleBooleanField(game.id, 'allVotesCast', true)
         }
@@ -95,9 +197,12 @@ const TallyLobby: React.FC = () => {
     }
   }, [game.allVotesCast]);
 
-  const testButton = () => {
-    console.log(livingPlayers)
-  }
+  // const testButton = async () => {
+  //   console.log('info here...')
+  //   console.log(game)
+  //   console.log(livingPlayers)
+  //   console.log('END info here...')
+  // }
 
   return (
     <IonPage>
