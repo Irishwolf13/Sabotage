@@ -200,7 +200,7 @@ const Puzzle1: React.FC = () => {
           <div className="modal-content">
             <h2>{myTitle}</h2>
             <p>{myBody}</p>
-            <IonButton onClick={() => toMainPage()}>Close</IonButton>
+            <IonButton className='blueButton' onClick={() => toMainPage()}>Close</IonButton>
           </div>
         </IonModal>
       </IonContent>

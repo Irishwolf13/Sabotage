@@ -5,14 +5,16 @@ import './VotingLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import { addVote, toggleBooleanField } from '../../firebase/controller';
+import { addVote, toggleBooleanField, updateStringField } from '../../firebase/controller';
 import { auth } from '../../firebase/config';
+import { useAuth } from '../../firebase/AuthContext';
 
 const VotingLobby: React.FC = () => {
   useGameSubscription();
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
   const [email, setEmail] = useState<string | null>(null);
+  const { user } = useAuth(); 
   
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
   const livingPlayers = game?.players?.filter(player => !player.ghost) || [];
@@ -53,6 +55,15 @@ const VotingLobby: React.FC = () => {
     //   console.log(game.votes)
     // }
 
+    const testDeadBody = async () => {
+      if (user && user.email) {
+        await updateStringField(game.id, 'calledMeeting', user.email)
+        await toggleBooleanField(game.id, "foundDead", false);
+        await toggleBooleanField(game.id, "foundDead", true);
+        await toggleBooleanField(game.id, "isPlayerDead", false);
+      }
+    }
+
   return (
     <IonPage>
       <IonContent>
@@ -78,7 +89,9 @@ const VotingLobby: React.FC = () => {
           <IonButton className='castVoteButton' expand="block" onClick={handleVote} disabled={!selectedPlayer} >
             Cast Vote
           </IonButton>
+        <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
         </div>
+
       </IonContent>
 
       <IonFooter>

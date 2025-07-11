@@ -139,3 +139,12 @@
 .centeredText {
     text-align: center;
 }
+
+.modal-content {
+    background-color:#c24112;
+    height: 100%;
+    color: #301000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
