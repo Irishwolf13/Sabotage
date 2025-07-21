@@ -36,6 +36,7 @@ import DeadPlayer from './pages/DeadPlayer/DeadPlayer';
 import Puzzle1 from './pages/Puzzles/Puzzle1/Puzzle1';
 import Puzzle2 from './pages/Puzzles/Puzzle2/Puzzle2';
 import Puzzle3 from './pages/Puzzles/Puzzle3/Puzzle3';
+import Puzzle4 from './pages/Puzzles/Puzzle4/Puzzle4';
 
 setupIonicReact();
 
@@ -43,42 +44,42 @@ const App: React.FC = () => {
   useEffect(() => {
     // Prevent Pull-to-Refresh
     const preventPullToRefresh = (event: TouchEvent) => {
-      if (window.scrollY === 0) {
-        event.preventDefault();
-      }
-    };
-    document.addEventListener("touchmove", preventPullToRefresh, { passive: false });
-  
-    // Prevent Page Refresh (F5, Cmd+R, Browser Reload)
-    const preventRefresh = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = ""; // Required for Chrome
-    };
-    window.addEventListener("beforeunload", preventRefresh);
-  
-    // Completely Disable Back Button Navigation
-    const preventBackNavigation = () => {
-      window.history.pushState(null, "", window.location.href);
-    };
-  
-    // Set initial history state & force user to stay
-    window.history.pushState(null, "", window.location.href);
-    window.history.pushState(null, "", window.location.href); // Push twice to block back action
-    window.addEventListener("popstate", preventBackNavigation);
-  
-    return () => {
-      document.removeEventListener("touchmove", preventPullToRefresh);
-      window.removeEventListener("beforeunload", preventRefresh);
-      window.removeEventListener("popstate", preventBackNavigation);
-    };
-  }, []);
+    if (window.scrollY === 0) {
+    event.preventDefault();
+    }
+  };
+  document.addEventListener("touchmove", preventPullToRefresh, { passive: false });
 
-  return (
+  // Prevent Page Refresh (F5, Cmd+R, Browser Reload)
+  const preventRefresh = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    event.returnValue = ""; // Required for Chrome
+  };
+  window.addEventListener("beforeunload", preventRefresh);
+
+  // Completely Disable Back Button Navigation
+  const preventBackNavigation = () => {
+    window.history.pushState(null, "", window.location.href);
+  };
+
+  // Set initial history state & force user to stay
+  window.history.pushState(null, "", window.location.href);
+  window.history.pushState(null, "", window.location.href); // Push twice to block back action
+  window.addEventListener("popstate", preventBackNavigation);
+
+  return () => {
+    document.removeEventListener("touchmove", preventPullToRefresh);
+    window.removeEventListener("beforeunload", preventRefresh);
+    window.removeEventListener("popstate", preventBackNavigation);
+  };
+}, []);
+
+return (
     <IonApp>
       <Provider store={store}>
         <AuthProvider>
           <IonReactRouter>
-            <IonRouterOutlet>
+            <IonRouterOutlet >
               <PrivateRoute exact path="/home" component={Home} />
               <PrivateRoute exact path="/game/:uuid" component={Lobby} />
               <PrivateRoute exact path="/game/:uuid/player/mainPage" component={MainGamePage} />
@@ -87,6 +88,7 @@ const App: React.FC = () => {
               <PrivateRoute exact path="/game/:uuid/puzzle1" component={Puzzle1} />
               <PrivateRoute exact path="/game/:uuid/puzzle2" component={Puzzle2} />
               <PrivateRoute exact path="/game/:uuid/puzzle3" component={Puzzle3} />
+              <PrivateRoute exact path="/game/:uuid/puzzle4" component={Puzzle4} />
               <PrivateRoute exact path="/game/:uuid/tally" component={TallyLobby} />
               <PrivateRoute exact path="/game/:uuid/endGame" component={EndOfGameLobby} />
               <PrivateRoute exact path="/game/:uuid/votedOff" component={EndOfGameVotedOff} />

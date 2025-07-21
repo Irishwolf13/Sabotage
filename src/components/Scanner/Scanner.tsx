@@ -76,14 +76,17 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
         if (currentPlayer) {
           if (currentPlayer.isSaboteur) {
             await adjustSaboteurAvailableRooms(game.id, roomNumber);
-            const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+            // const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+            const getRandomNumber = 4
             handleSolvePuzzleButton(getRandomNumber);
           } else {
             const isCorrectRoom = await checkRoomMatch(game.id, user.email, roomNumber)
             if (isCorrectRoom) {
               // Frank, eventually, this will want to be something other than random...
               dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber })); 
-              const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+              
+              // const getRandomNumber = Math.floor(Math.random() * 3) + 1;
+              const getRandomNumber = 4
               handleSolvePuzzleButton(getRandomNumber);
             } else {
               console.log('not my room fool.')

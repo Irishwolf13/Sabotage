@@ -1,0 +1,62 @@
+.puzzle4Main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.dragDropContainer {
+  margin-top: 10px;
+}
+
+.draggableItem {
+  width: 12vh;
+  height: 12vh;
+  margin: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+}
+
+.draggableItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* Let parent div handle the drag */
+}
+
+.draggableItem.dragging {
+  transition: transform 0.3s ease;
+  opacity: 0.5;
+}
+
+.dropBox {
+  margin: 2px;
+  width: 12vh;
+  height: 12vh;
+  border: 1px #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #bd6006;
+}
+
+.highlight {
+  /* background-color: green;
+  border: 1px solid green; */
+}
+
+.invalidHighlight {
+  /* background-color: red;
+  border: 1px solid red; */
+}
+
+.boxContainerTop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 20px;
+}
+.boxContainerBottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
