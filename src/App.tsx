@@ -33,10 +33,7 @@ import TallyLobby from './pages/TallyLobby/TallyLobby';
 import EndOfGameLobby from './pages/EndOfGameLobby/EndOfGameLobby';
 import EndOfGameVotedOff from './pages/EndGameVotedOff/EndGameVotedOff';
 import DeadPlayer from './pages/DeadPlayer/DeadPlayer';
-import Puzzle1 from './pages/Puzzles/Puzzle1/Puzzle1';
-import Puzzle2 from './pages/Puzzles/Puzzle2/Puzzle2';
-import Puzzle3 from './pages/Puzzles/Puzzle3/Puzzle3';
-import Puzzle4 from './pages/Puzzles/Puzzle4/Puzzle4';
+import PuzzlePage from './pages/Puzzles/PuzzlePage/PuzzlePage';
 
 setupIonicReact();
 
@@ -85,10 +82,7 @@ return (
               <PrivateRoute exact path="/game/:uuid/player/mainPage" component={MainGamePage} />
               <PrivateRoute exact path="/game/:uuid/player/votinglobby" component={VotingLobby} />
               <PrivateRoute exact path="/game/:uuid/join" component={JoinLobby} />
-              <PrivateRoute exact path="/game/:uuid/puzzle1" component={Puzzle1} />
-              <PrivateRoute exact path="/game/:uuid/puzzle2" component={Puzzle2} />
-              <PrivateRoute exact path="/game/:uuid/puzzle3" component={Puzzle3} />
-              <PrivateRoute exact path="/game/:uuid/puzzle4" component={Puzzle4} />
+              <PrivateRoute exact path="/game/:uuid/puzzlePage" component={PuzzlePage} />
               <PrivateRoute exact path="/game/:uuid/tally" component={TallyLobby} />
               <PrivateRoute exact path="/game/:uuid/endGame" component={EndOfGameLobby} />
               <PrivateRoute exact path="/game/:uuid/votedOff" component={EndOfGameVotedOff} />

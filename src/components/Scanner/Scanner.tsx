@@ -9,7 +9,7 @@ import { updateAttribute } from '../../stores/gameSlice';
 import { useAuth } from '../../firebase/AuthContext';
 
 interface ContainerProps {
-  handleSolvePuzzleButton: (puzzleNumber:number) => void;
+  handleSolvePuzzleButton: () => void;
 }
 
 const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
@@ -76,18 +76,12 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
         if (currentPlayer) {
           if (currentPlayer.isSaboteur) {
             await adjustSaboteurAvailableRooms(game.id, roomNumber);
-            // const getRandomNumber = Math.floor(Math.random() * 3) + 1;
-            const getRandomNumber = 4
-            handleSolvePuzzleButton(getRandomNumber);
+            handleSolvePuzzleButton();
           } else {
             const isCorrectRoom = await checkRoomMatch(game.id, user.email, roomNumber)
             if (isCorrectRoom) {
-              // Frank, eventually, this will want to be something other than random...
               dispatch(updateAttribute({ id: game.id, key: 'currentRoom', value: roomNumber })); 
-              
-              // const getRandomNumber = Math.floor(Math.random() * 3) + 1;
-              const getRandomNumber = 4
-              handleSolvePuzzleButton(getRandomNumber);
+              handleSolvePuzzleButton();
             } else {
               console.log('not my room fool.')
             }

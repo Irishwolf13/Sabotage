@@ -77,9 +77,9 @@ const MainGamePage: React.FC = () => {
   const handleInnocentButtonClicked = () => setShowInnocentModal(true);
   const handleCloseInnocentModal = () => setShowInnocentModal(false);
 
-  const handleSolvePuzzleButton = (puzzleNumber:number) => {
+  const handleSolvePuzzleButton = () => {
     setShowScannerModal(false);
-    history.push(`/game/${game.id}/puzzle${puzzleNumber}`);
+    history.push(`/game/${game.id}/puzzlePage`);
   };
 
   return (

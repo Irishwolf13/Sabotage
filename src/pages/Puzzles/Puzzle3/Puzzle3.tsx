@@ -1,26 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonModal, IonButtons } from '@ionic/react';
-import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
-import { useHistory } from 'react-router-dom';
-import { useAuth } from '../../../firebase/AuthContext';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../stores/store';
-import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 import '../Puzzles.css';
 
-const Puzzle3: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
-  const game = useSelector((state: RootState) => state.games[0]);
-  const history = useHistory();
-  const { user } = useAuth();
+interface ContainerProps {
+  solvePuzzle: (pass:boolean) => void;
+}
 
-  const colors = [
-    'red', 'blue', 'green', 'yellow', 'orange',
-    'purple', 'pink'
-  ];
-
-  const [myTitle, setMyTitle] = useState('');
-  const [myBody, setMyBody] = useState('');
+const Puzzle3: React.FC<ContainerProps> = ({ solvePuzzle }) => {
+  const colors = [ 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink' ];
   const [targetSequence, setTargetSequence] = useState<string[]>([]);
   const [collectedCircles, setCollectedCircles] = useState<string[]>([]);
 
@@ -33,48 +20,6 @@ const Puzzle3: React.FC = () => {
       acc[color] = (acc[color] || 0) + 1;
       return acc;
     }, {});
-  };
-
-  const solvePuzzle = async (pass: boolean) => {
-    if (!user) return; // Early exit if user is not defined
-  
-    try {
-      const currentPlayer = game.players.find(
-        (player: { email: string; isSaboteur: boolean }) => player.email === user.email
-      );
-  
-      // Check if the room is sabotaged
-      const roomIsSabotaged = await isRoomSabotaged(game.id, game.currentRoom);
-  
-      if (roomIsSabotaged && currentPlayer && !currentPlayer.isSaboteur && user.email) {
-        // Handle if the room is sabotaged and the current player is not the saboteur
-        await setPlayerGhostTrue(game.id, user.email);
-        await setRoomSabotageFalse(game.id, game.currentRoom)
-        history.push(`/game/${game.id}/deadPlayer`);
-      } else {
-        // Set appropriate title and body based on pass condition
-        if (pass) {
-          if (user && user.email) {
-            updateRoomStatus(game.id, user.email, game.currentRoom)
-            setMyTitle('Congratulations!');
-            setMyBody("You have passed this simple Task, don't you feel proud...");
-          } 
-        } else {
-          setMyTitle('Better luck next time!');
-          setMyBody("With time and effort, you'll finish this simple task.");
-        }
-        setShowModal(true);
-        setCollectedCircles([]);
-        setTargetSequence(generateRandomColorSequence(5));
-      }
-    } catch (error) {
-      console.error('Error solving puzzle:', error);
-    }
-  };
-
-  const toMainPage = () => {
-    history.push(`/game/${game.id}/player/mainPage`);
-    setShowModal(false);
   };
 
   useEffect(() => {
@@ -165,54 +110,30 @@ const Puzzle3: React.FC = () => {
   }, []);
 
   return (
-    <IonPage>
-      {/* <IonHeader>
-        <IonToolbar>
-          <IonTitle>Puzzle 3</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => solvePuzzle(false)}>Cancel</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader> */}
-      <div className='puzzlePageButtonHolder'>
-        <IonButton className='blueButton' onClick={() => solvePuzzle(false)}>Cancel</IonButton>
-      </div>
-      <IonContent>
-      <div className='puzzle3Main'>
-        <div>
-          <h4 className='centeredText'>Collection Order</h4>
-          <div className="target-sequence">
-            {targetSequence.map((color, index) => (
-              <div key={index} className="target-circle" style={{ backgroundColor: color }} />
-            ))}
-          </div>
-        </div>
-
-        <div className="circle-container" />
-
-        <div className="collected-circles">
-          {collectedCircles.map((color, index) => (
-            <div key={index} className="collected-circle" style={{ backgroundColor: color }} />
+    <div className='puzzle3Main'>
+      <div>
+        <h4 className='centeredText'>Collection Order</h4>
+        <div className="target-sequence">
+          {targetSequence.map((color, index) => (
+            <div key={index} className="target-circle" style={{ backgroundColor: color }} />
           ))}
         </div>
-
-        <div className='hintText'>
-            <span>Touch a circle to collect color</span>
-            <br></br>
-            <span>Collect colors in collection order</span>
-          </div>
-
-        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <div className="modal-content">
-            <h2>{myTitle}</h2>
-            <p>{myBody}</p>
-            <IonButton className='blueButton' onClick={() => toMainPage()}>Close</IonButton>
-          </div>
-        </IonModal>
       </div>
-      </IonContent>
-    </IonPage>
+
+      <div className="circle-container" />
+
+      <div className="collected-circles">
+        {collectedCircles.map((color, index) => (
+          <div key={index} className="collected-circle" style={{ backgroundColor: color }} />
+        ))}
+      </div>
+
+      <div className='hintText'>
+        <span>Touch a circle to collect color</span>
+        <br></br>
+        <span>Collect colors in collection order</span>
+      </div>
+    </div>
   );
 };
 
