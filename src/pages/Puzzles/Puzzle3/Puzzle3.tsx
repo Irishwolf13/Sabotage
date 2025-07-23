@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton, IonModal, IonButtons } from '@ionic/react';
+import { useIonViewWillEnter } from '@ionic/react';
 import '../Puzzles.css';
 
 interface ContainerProps {
@@ -22,7 +22,7 @@ const Puzzle3: React.FC<ContainerProps> = ({ solvePuzzle }) => {
     }, {});
   };
 
-  useEffect(() => {
+  useIonViewWillEnter(() => {
     setTargetSequence(generateRandomColorSequence(5));
   }, []);
   
