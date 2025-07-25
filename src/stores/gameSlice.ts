@@ -24,6 +24,7 @@ interface Player {
   email: string;
   ghost: boolean;
   isSaboteur: boolean;
+  rooms?: { solved: boolean; puzzleNumber: number }[];
 }
 
 // Define Vote interface

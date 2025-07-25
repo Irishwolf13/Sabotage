@@ -331,6 +331,7 @@ interface RoomOrder {
   order: number;
   room: number;
   solved: boolean;
+  puzzleNumber?: number; // Add puzzleNumber to RoomOrder
 }
 
 export const assignAndUpdatePlayers = async (
@@ -363,18 +364,28 @@ export const assignAndUpdatePlayers = async (
     if (!player.isSaboteur) {
       player.player = playerIndex++;
 
-      // Assign up to 3 room orders only to non-saboteurs
       player.rooms = [];
+      const usedPuzzleNumbers: Set<number> = new Set();
+
       while (player.rooms.length < 3 && roomOrders.length > 0) {
         const nextRoomOrder = roomOrders.shift();
 
         if (nextRoomOrder) {
           nextRoomOrder.forEach((order) => {
-            if(player.rooms) {
+            if (player.rooms) {
               if (
                 player.rooms.length < 3 &&
                 !player.rooms.some((existingOrder) => existingOrder.room === order.room)
               ) {
+                // Assign a unique puzzleNumber
+                let puzzleNumber: number;
+                do {
+                  puzzleNumber = Math.floor(Math.random() * 4) + 1;
+                } while (usedPuzzleNumbers.has(puzzleNumber));
+
+                usedPuzzleNumbers.add(puzzleNumber);
+                order.puzzleNumber = puzzleNumber;
+
                 player.rooms.push(order);
               }
             }
@@ -399,9 +410,6 @@ export const assignAndUpdatePlayers = async (
     console.error("Error updating players:", error);
   }
 };
-
-
-
 
 // Function to add a vote to a game document in Firestore
 interface Vote { voter: string; selected: string;}
