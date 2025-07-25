@@ -10,6 +10,7 @@ import Puzzle1 from '../Puzzle1/Puzzle1';
 import Puzzle2 from '../Puzzle2/Puzzle2';
 import Puzzle3 from '../Puzzle3/Puzzle3';
 import Puzzle4 from '../Puzzle4/Puzzle4';
+import Puzzle5 from '../Puzzle5/Puzzle5';
 import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 
 const PuzzlePage: React.FC = () => {
@@ -38,7 +39,8 @@ const PuzzlePage: React.FC = () => {
       if (!currentPlayer || !Array.isArray(currentPlayer.rooms)) return null;
 
       if (currentPlayer.isSaboteur) {
-        return Math.floor(Math.random() * 4) + 1;
+        // return Math.floor(Math.random() * 4) + 1;
+        return 5;
       } else {
         const unsolvedRoom = currentPlayer.rooms.find(room => !room.solved);
         return unsolvedRoom ? unsolvedRoom.puzzleNumber : null;
@@ -94,6 +96,7 @@ const PuzzlePage: React.FC = () => {
           {currentPuzzleNumber === 2 && <Puzzle2 solvePuzzle={solvePuzzle} />}
           {currentPuzzleNumber === 3 && <Puzzle3 solvePuzzle={solvePuzzle} />}
           {currentPuzzleNumber === 4 && <Puzzle4 solvePuzzle={solvePuzzle} />}
+          {currentPuzzleNumber === 5 && <Puzzle5 solvePuzzle={solvePuzzle} />}
           {!currentPuzzleNumber && <p>No puzzles available!</p>}
 
           {/* MODALS */}
