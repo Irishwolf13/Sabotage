@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonPage, IonContent, IonButton, IonModal, useIonViewWillEnter } from '@ionic/react';
+import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
@@ -11,7 +12,7 @@ import Puzzle2 from '../Puzzle2/Puzzle2';
 import Puzzle3 from '../Puzzle3/Puzzle3';
 import Puzzle4 from '../Puzzle4/Puzzle4';
 import Puzzle5 from '../Puzzle5/Puzzle5';
-import { isRoomSabotaged, setPlayerGhostTrue, setRoomSabotageFalse, updateRoomStatus } from '../../../firebase/controller';
+import Puzzle6 from '../Puzzle6/Puzzle6';
 
 const PuzzlePage: React.FC = () => {
   const game = useSelector((state: RootState) => state.games[0]);
@@ -22,6 +23,7 @@ const PuzzlePage: React.FC = () => {
   const [myBody, setMyBody] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showLoading, setShowLoading] = useState(true);
+  const numberOfPuzzles = 6
 
   // New state to handle the current puzzle
   const [currentPuzzleNumber, setCurrentPuzzleNumber] = useState<number | null>(null);
@@ -39,8 +41,8 @@ const PuzzlePage: React.FC = () => {
       if (!currentPlayer || !Array.isArray(currentPlayer.rooms)) return null;
 
       if (currentPlayer.isSaboteur) {
-        // return Math.floor(Math.random() * 4) + 1;
-        return 5;
+        // return Math.floor(Math.random() * numberOfPuzzles) + 1;
+        return 6
       } else {
         const unsolvedRoom = currentPlayer.rooms.find(room => !room.solved);
         return unsolvedRoom ? unsolvedRoom.puzzleNumber : null;
@@ -97,6 +99,7 @@ const PuzzlePage: React.FC = () => {
           {currentPuzzleNumber === 3 && <Puzzle3 solvePuzzle={solvePuzzle} />}
           {currentPuzzleNumber === 4 && <Puzzle4 solvePuzzle={solvePuzzle} />}
           {currentPuzzleNumber === 5 && <Puzzle5 solvePuzzle={solvePuzzle} />}
+          {currentPuzzleNumber === 6 && <Puzzle6 solvePuzzle={solvePuzzle} />}
           {!currentPuzzleNumber && <p>No puzzles available!</p>}
 
           {/* MODALS */}

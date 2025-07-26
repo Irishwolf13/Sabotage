@@ -1,29 +1,3 @@
-.hintText {
-    margin: 20px;
-    color: #ff970f;
-    text-align: center;
-}
-/* Puzzle 1 */
-.puzzle1Main {
-    height: 100%;
-    background-color: #c24112;
-    border-radius: 20px;
-    /* overflow: hidden; */
-    box-shadow: inset 0 0 0 5px #301000;
-    padding: 20px;
-    min-height: 600px;
-}
-.puzzle1 {
-    display: flex;
-    justify-content: space-between;
-    box-shadow: inset 0 0 0 5px #301000;
-}
-.puzzle1Circles { 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-  
 .puzzlePageButtonHolder {
     text-align: center;
     display: flex;

@@ -1,99 +1,154 @@
 import React, { useState } from 'react';
 import { useIonViewWillEnter } from '@ionic/react';
-import '../Puzzles.css'
+import './Puzzle1.css'
 
 interface ContainerProps {
-  solvePuzzle: (pass:boolean) => void;
+  solvePuzzle: (pass: boolean) => void;
 }
 
+const COLORS = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+const MAX_ATTEMPTS = 6;
+
 const Puzzle1: React.FC<ContainerProps> = ({ solvePuzzle }) => {
-  const [placedColors, setPlacedColors] = useState<string[]>([]);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [shuffledCircles, setShuffledCircles] = useState<string[]>([]);
-  const [shuffledBoxes, setShuffledBoxes] = useState<string[]>([]);
-  const colors = ['red', 'blue', 'green', 'yellow'];
-  
-  // Reset the game state
-  useIonViewWillEnter(() => { resetGameState(); });
-  
-  // Reset game state
+  const [secretCode, setSecretCode] = useState<string[]>([]);
+  const [currentGuess, setCurrentGuess] = useState<string[]>(['', '', '', '']);
+  const [guesses, setGuesses] = useState<{ guess: string[]; feedback: { correct: number; wrongPosition: number } }[]>([]);
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(MAX_ATTEMPTS);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [knownPositions, setKnownPositions] = useState<(string | null)[]>([null, null, null, null]);
+
+  useIonViewWillEnter(() => {
+    resetGameState();
+  });
+
   const resetGameState = () => {
-    setPlacedColors([]);
-    setSelectedColor(null);
-    setShuffledCircles(shuffleArray([...colors]));
-    setShuffledBoxes(shuffleArray([...colors]));
-  };
-  
-  // Shuffle
-  const shuffleArray = (array: string[]) => {
-    return array.sort(() => Math.random() - 0.5);
+    const code = Array.from({ length: 4 }, () => COLORS[Math.floor(Math.random() * COLORS.length)]);
+    setSecretCode(code);
+    setCurrentGuess(['', '', '', '']);
+    setGuesses([]);
+    setAttemptsLeft(MAX_ATTEMPTS);
+    setGameOver(false);
+    setKnownPositions([null, null, null, null]);
   };
 
-  const handleCircleClick = (color: string) => {
-    if (!placedColors.includes(color)) {
-      setSelectedColor(selectedColor === color ? null : color);
-    }
+  const handleColorChange = (index: number) => {
+    if (gameOver) return;
+
+    const currentColor = currentGuess[index];
+    const currentIndex = COLORS.indexOf(currentColor);
+    const nextColor = COLORS[(currentIndex + 1) % COLORS.length] || COLORS[0];
+
+    const newGuess = [...currentGuess];
+    newGuess[index] = nextColor;
+    setCurrentGuess(newGuess);
   };
 
-  const handleBoxClick = (boxColor: string) => {
-    if (selectedColor) {
-      if (selectedColor === boxColor && !placedColors.includes(selectedColor)) {
-        // Correct placement
-        setPlacedColors([...placedColors, selectedColor]);
-        if (placedColors.length + 1 === colors.length) {
-          solvePuzzle(true);
-        }
+  const checkGuess = () => {
+    let correct = 0;
+    let wrongPosition = 0;
+    const codeCopy = [...secretCode];
+    const guessCopy = [...currentGuess];
+
+    const newKnown = [...knownPositions];
+
+    // Step 1: Find correct positions
+    for (let i = 0; i < 4; i++) {
+      if (guessCopy[i] === codeCopy[i]) {
+        correct++;
+        newKnown[i] = guessCopy[i]; // Save known position
+        codeCopy[i] = '';
+        guessCopy[i] = '_';
       }
-      // Reset the selected color
-      setSelectedColor(null);
+    }
+
+    // Step 2: Find correct colors in wrong positions
+    for (let i = 0; i < 4; i++) {
+      const idx = codeCopy.indexOf(guessCopy[i]);
+      if (idx > -1 && guessCopy[i] !== '_') {
+        wrongPosition++;
+        codeCopy[idx] = '';
+      }
+    }
+
+    const newGuesses = [...guesses, {
+      guess: [...currentGuess],
+      feedback: { correct, wrongPosition }
+    }];
+    setGuesses(newGuesses);
+    setKnownPositions(newKnown);
+
+    const autoFilledGuess = newKnown.map((val, i) => val ?? '');
+    setCurrentGuess(autoFilledGuess);
+
+    const remaining = attemptsLeft - 1;
+    setAttemptsLeft(remaining);
+
+    if (correct === 4) {
+      resetGameState()
+      solvePuzzle(true);
+      setGameOver(true);
+    } else if (remaining === 0) {
+      setGameOver(true);
     }
   };
-  
+
+
   return (
     <div className='puzzle1Main'>
       <div className='puzzle1'>
-
-        <div className='puzzle1Circles'>
-          {shuffledCircles.map((color) => (
-            <div
-              key={color}
-              onClick={() => handleCircleClick(color)}
-              style={{
-                width: 50,
-                height: 50,
-                backgroundColor: selectedColor === color || placedColors.includes(color) ? 'transparent' : color,
-                border: `2px solid ${color}`,
-                borderRadius: '50%',
-                margin: 10,
-                cursor: 'pointer',
-                opacity: placedColors.includes(color) ? 0.5 : 1,
-              }}
-            />
+        <div className='solutionText'>Solution</div>
+        <div className="solutionReveal">
+          {(gameOver ? secretCode : knownPositions).map((color, idx) => (
+            <div key={idx} className={`solutionDot ${color ?? 'unknown'}`}>
+              {color ? '' : '?'}
+            </div>
           ))}
         </div>
-        <div>
-          {shuffledBoxes.map((color) => (
-            <div
-              key={color}
-              onClick={() => handleBoxClick(color)}
-              style={{
-                width: 60,
-                height: 60,
-                backgroundColor: placedColors.includes(color) ? color : 'transparent',
-                border: `2px solid ${color}`,
-                margin: 10,
-                cursor: 'pointer',
-              }}
-            />
+        {!gameOver && (
+          <div className="guessRow">
+            {currentGuess.map((color, idx) => {
+              const isLocked = knownPositions[idx] !== null;
+
+              return (
+                <button
+                  key={idx}
+                  className={`colorBtn ${color} ${isLocked ? 'locked' : ''}`}
+                  onClick={() => !isLocked && handleColorChange(idx)}
+                  disabled={isLocked}
+                  title={isLocked ? 'Correct color locked in!' : 'Click to change'}
+                >
+                  {color || 'Pick'}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {!gameOver ? (
+          <button className="submitBtn" onClick={checkGuess} disabled={currentGuess.includes('')}>
+            Submit
+          </button>
+        ) : (
+          <button className="retryBtn" onClick={resetGameState}>
+            Try Again
+          </button>
+        )}
+
+        <div className="guessHistory">
+          {guesses.map((entry, index) => (
+            <div key={index} className="guessRow">
+              {entry.guess.map((color, idx) => (
+                <div key={idx} className={`colorDot ${color}`} />
+              ))}
+              <div className="feedbackText">
+                ✅ {entry.feedback.correct} | 🔄 {entry.feedback.wrongPosition}
+              </div>
+            </div>
           ))}
         </div>
       </div>
+
       <div className='hintText'>
-        <span>Touch a circle to pick up color</span>
-        <br></br>
-        <span>Touch a square to drop the color</span>
-        <br></br>
-        <span>Drop all colors into matching squares</span>
+        {!gameOver && <span>{attemptsLeft} tries remaining</span>}
       </div>
     </div>
   );

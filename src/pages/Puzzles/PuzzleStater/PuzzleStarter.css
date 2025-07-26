@@ -1,0 +1,19 @@
+.puzzleStarterMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: #c24112;
+}
+
+.puzzleStarter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hintText {
+  color: #ff970f;
+  font-weight: 600;
+}

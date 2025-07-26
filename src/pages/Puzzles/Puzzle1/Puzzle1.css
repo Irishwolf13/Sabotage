@@ -1,0 +1,132 @@
+.puzzle1Main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: #c24112;
+}
+
+.puzzle1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.colorBtn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 5px;
+  font-size: 12px;
+  border: 1px solid #ffce72;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.colorDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin: 2px;
+  display: inline-block;
+  border: 1px solid #000;
+}
+
+.red { background: red; }
+.blue { background: blue; }
+.green { background: green; }
+.yellow { background: yellow; }
+.purple { background: purple; }
+.orange { background: orange; }
+
+.guessRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.submitBtn, .retryBtn {
+  margin-top: 20px;
+  margin-left: 10px;
+  margin-bottom: 20px;
+  padding: 12px 40px;
+  background-color: #ff970f;
+  border: 1px solid #301000;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  color: rgb(255, 255, 255);
+}
+
+.submitBtn:disabled, .retryBtn:disabled {
+  color: rgba(255, 255, 255, 0.521); /* Muted text color for disabled state */
+  cursor: not-allowed; /* Optional: changes cursor to indicate the button is disabled */
+}
+.hintText {
+  color: #ff970f;
+  font-weight: 600;
+}
+
+.feedback.correct {
+  color: green;
+  margin-left: 5px;
+}
+.feedback.wrong-position {
+  color: orange;
+  margin-left: 5px;
+}
+.feedback.wrong {
+  color: red;
+  margin-left: 5px;
+}
+
+.feedbackText {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #ffce72;
+}
+
+.solutionText {
+  margin-top: 20px;
+  color: #ffce72;
+}
+
+.solutionReveal {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  padding: 10px;
+  border: 1px #ffce72 solid;
+  border-radius: 10px;
+}
+
+.solutionDot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ffce72;
+  margin: 0 8px;
+  text-align: center;
+  line-height: 40px;
+  font-size: 24px;
+  color: white;
+  background-color: #444;
+}
+
+.solutionDot.unknown {
+  background-color: #444;
+}
+
+.solutionDot.red { background-color: red; }
+.solutionDot.blue { background-color: blue; }
+.solutionDot.green { background-color: green; }
+.solutionDot.yellow { background-color: yellow; }
+.solutionDot.purple { background-color: purple; }
+.solutionDot.orange { background-color: orange; }
+
+.colorBtn.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border: 2px solid limegreen;
+}
