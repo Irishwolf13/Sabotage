@@ -7,20 +7,37 @@ import { RootState } from '../../stores/store';
 const AlarmScanner: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const hasSeenAlarm = useRef(false);
+  const alarmAudio = useRef<HTMLAudioElement | null>(null);
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
 
   useEffect(() => {
+    // Create audio element once
+    if (!alarmAudio.current) {
+      alarmAudio.current = new Audio('https://firebasestorage.googleapis.com/v0/b/sabotage-e6488.firebasestorage.app/o/soundEffects%2Fsci-fi-alarm-905.mp3?alt=media&token=1f01807e-0cbe-477c-b2c0-f27902da56e9');
+      alarmAudio.current.loop = true;
+    }
+
     const alarmActive = game?.isAlarmActive;
     const player = game?.players.find(p => p.email === user?.email);
 
     if (alarmActive && player && !player.ghost && !hasSeenAlarm.current) {
       setShowToast(true);
       hasSeenAlarm.current = true;
+
+      // Play sound
+      alarmAudio.current?.play().catch(err => {
+        console.warn('Alarm sound play failed:', err);
+      });
     }
 
     if (!alarmActive) {
       hasSeenAlarm.current = false;
+      // Stop sound
+      if (alarmAudio.current) {
+        alarmAudio.current.pause();
+        alarmAudio.current.currentTime = 0;
+      }
     }
   }, [game?.isAlarmActive, user]);
 
@@ -60,7 +77,6 @@ const AlarmScanner: React.FC = () => {
         ]}
       />
 
-      {/* 🔁 CSS Animation */}
       <style>
         {`
           @keyframes blink {
