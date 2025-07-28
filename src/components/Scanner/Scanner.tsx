@@ -104,8 +104,6 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
   }
 
   const testAlarm1 = async () => {
-      console.log(game)
-      console.log(game.isAlarmActive)
     if (user && user.email) {
       if (game.isAlarmActive === false) {
         await toggleBooleanField(game.id, "isAlarmActive", true);
