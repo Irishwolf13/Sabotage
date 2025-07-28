@@ -2,15 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { IonModal } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../firebase/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 
-interface FoundBodyModalProps {
-  foundDead: boolean;
-  currentGameId?: string;
-}
-
-const FoundBodyModal: React.FC<FoundBodyModalProps> = ({ foundDead, currentGameId }) => {
+const FoundBodyModal: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const history = useHistory();
@@ -18,34 +13,30 @@ const FoundBodyModal: React.FC<FoundBodyModalProps> = ({ foundDead, currentGameI
   const game = useSelector((state: RootState) => state.games?.[0]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+  if (!game || !game.foundDead) return;
 
-    if (foundDead) {
-      if (user && user.email) { 
-        // Check if the player exists and their ghost status is false
-        const player = game.players.find(p => p.email === user.email);
-        if (player && !player.ghost) {
-          setShowModal(true);
-          setCountdown(3);
-    
-          interval = setInterval(() => {
-            setCountdown((prevCount) => prevCount - 1);
-          }, 1000);
-        }
-    
-        return () => clearInterval(interval);
-      }
+  if (user && user.email) {
+    const player = game.players.find(p => p.email === user.email);
+    if (player && !player.ghost) {
+      setShowModal(true);
+      setCountdown(3);
+
+      const interval = setInterval(() => {
+        setCountdown((prevCount) => prevCount - 1);
+      }, 1000);
+
+      return () => clearInterval(interval);
     }
-  }, [foundDead]);
+  }
+}, [game, user]);
 
   useEffect(() => {
-      if (countdown === 0 && currentGameId) {
+      if (countdown === 0 && game?.id) {
       setShowModal(false);
-      const redirectPath = `/game/${currentGameId}/player/votinglobby`;
-      // console.log(`Redirecting to: ${redirectPath}`);
+      const redirectPath = `/game/${game?.id}/player/votinglobby`;
       history.push(redirectPath);
     }
-  }, [countdown, currentGameId, history]);
+  }, [countdown, game?.id, history]);
 
   return (
     <IonModal isOpen={showModal} backdropDismiss={false}>

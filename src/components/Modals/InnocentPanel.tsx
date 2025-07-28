@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import './InnocentPanel.css';
 import { RootState } from '../../stores/store';
-import { useGameSubscription } from '../../components/hooks/useGameSubscription';
+// import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 import { useAuth } from '../../firebase/AuthContext';
 
 interface Room {
@@ -22,7 +22,7 @@ interface Game {
 }
 
 const InnocentPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
-  useGameSubscription();
+  // useGameSubscription();
   const game = useSelector((state: RootState) => state.games?.[0]) as Game | undefined;
   const { user } = useAuth();
 

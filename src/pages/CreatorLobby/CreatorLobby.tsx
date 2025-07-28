@@ -42,6 +42,7 @@ const CreatorLobby: React.FC = () => {
               saboteurWins: false,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
+              isAlarmActive: data.isAlarmActive,
               isPlayerDead: data.isPlayerDead,
               currentRoom: -1,
               calledMeeting: '',

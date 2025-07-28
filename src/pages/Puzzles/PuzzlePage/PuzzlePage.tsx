@@ -5,7 +5,6 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../stores/store';
-import FoundBodyModal from '../../../components/Modals/FoundBodyModal';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import Puzzle1 from '../Puzzle1/Puzzle1';
 import Puzzle2 from '../Puzzle2/Puzzle2';
@@ -103,7 +102,6 @@ const PuzzlePage: React.FC = () => {
           {!currentPuzzleNumber && <p>No puzzles available!</p>}
 
           {/* MODALS */}
-          <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
           <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
             <div className="modal-content">
               <h2>{myTitle}</h2>

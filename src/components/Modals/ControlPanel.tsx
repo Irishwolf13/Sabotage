@@ -4,7 +4,7 @@ import { IonList, IonItem, IonLabel, IonButton } from '@ionic/react';
 import './ControlPanel.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { useGameSubscription } from '../../components/hooks/useGameSubscription';
+// import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 
 interface RoomStatus {
   room: number;
@@ -14,7 +14,7 @@ interface RoomStatus {
 }
 
 const ControlPanel: React.FC<{ gameId: string }> = ({ gameId }) => {
-  useGameSubscription();
+  // useGameSubscription();
   const [roomsStatus, setRoomsStatus] = useState<RoomStatus[]>([]);
   const [code, setCode] = useState<string>('');
   const [showKeypad, setShowKeypad] = useState<boolean>(true); // Default to true to show keypad first

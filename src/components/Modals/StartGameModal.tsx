@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../firebase/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { useGameSubscription } from '../../components/hooks/useGameSubscription';
+// import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 import './StartGameModal.css'
 
 interface StartGameModalProps {
@@ -13,7 +13,7 @@ interface StartGameModalProps {
 }
 
 const StartGameModal: React.FC<StartGameModalProps> = ({ isStarted, currentGameId }) => {
-  useGameSubscription();
+  // useGameSubscription();
   const [showModal, setShowModal] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const [showSaboteurStatus, setShowSaboteurStatus] = useState<boolean>(false);

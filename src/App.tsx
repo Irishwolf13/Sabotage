@@ -4,8 +4,8 @@ import { IonReactRouter } from '@ionic/react-router';
 import { Route } from 'react-router-dom';
 import { AuthProvider } from './firebase/AuthContext';
 import PrivateRoute from './firebase/PrivateRoute';
-import { Provider } from 'react-redux';
-import store from './stores/store';
+import { Provider, useSelector } from 'react-redux';
+import store, { RootState } from './stores/store';
 
 /* Core & Theme CSS */
 import '@ionic/react/css/core.css';
@@ -34,7 +34,10 @@ import EndOfGameLobby from './pages/EndOfGameLobby/EndOfGameLobby';
 import EndOfGameVotedOff from './pages/EndGameVotedOff/EndGameVotedOff';
 import DeadPlayer from './pages/DeadPlayer/DeadPlayer';
 import PuzzlePage from './pages/Puzzles/PuzzlePage/PuzzlePage';
+import FoundBodyModal from './components/Modals/FoundBodyModal';
+import AlarmScanner from './components/Modals/alarmScanner';
 
+import GameSubscriptionManager from './components/hooks/GlobalListener';
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -71,11 +74,16 @@ const App: React.FC = () => {
   };
 }, []);
 
+
+
 return (
     <IonApp>
       <Provider store={store}>
         <AuthProvider>
           <IonReactRouter>
+            <FoundBodyModal />
+            <AlarmScanner />
+            <GameSubscriptionManager />
             <IonRouterOutlet >
               <PrivateRoute exact path="/home" component={Home} />
               <PrivateRoute exact path="/game/:uuid" component={Lobby} />

@@ -27,6 +27,7 @@ export const useGameSubscription = () => {
                 saboteurWins: data.saboteurWins,
                 foundDead: data.foundDead,
                 isPlayerDead: data.isPlayerDead,
+                isAlarmActive: data.isAlarmActive,
                 calledMeeting: data.calledMeeting,
                 allVotesCast: data.allVotesCast,
                 kickedPlayer: data.kickedPlayer,

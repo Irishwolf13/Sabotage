@@ -103,6 +103,12 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
     }
   }
 
+    const testAlarm1 = async () => {
+    if (user && user.email) {
+      await toggleBooleanField(game.id, "isAlarmActive", true);
+    }
+  }
+
   return (
     <div className='scannerMain'>
 
@@ -118,6 +124,7 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
         <IonButton onClick={() => selectPuzzleAndRoom(4)}>Test 4</IonButton>
         <IonButton onClick={() => selectPuzzleAndRoom(5)}>Test 5</IonButton>
         <IonButton onClick={testDeadBody}>Test Dead Body</IonButton>
+        <IonButton onClick={testAlarm1}>Test Alarm1</IonButton>
       </div>
       <IonCardTitle style={{ textAlign: 'center' }}>
 

@@ -56,6 +56,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isStarted: false,
       foundDead: false,
       isPlayerDead: false,
+      isAlarmActive: false,
       players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false}],
     };
 

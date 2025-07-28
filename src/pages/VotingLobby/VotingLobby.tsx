@@ -4,13 +4,13 @@ import { useHistory } from 'react-router-dom';
 import './VotingLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { useGameSubscription } from '../../components/hooks/useGameSubscription';
+// import { useGameSubscription } from '../../components/hooks/useGameSubscription';
 import { addVote, toggleBooleanField, updateStringField } from '../../firebase/controller';
 import { auth } from '../../firebase/config';
 import { useAuth } from '../../firebase/AuthContext';
 
 const VotingLobby: React.FC = () => {
-  useGameSubscription();
+  // useGameSubscription();
   const history = useHistory();
   const game = useSelector((state: RootState) => state.games[0]);
   const [email, setEmail] = useState<string | null>(null);
@@ -34,6 +34,8 @@ const VotingLobby: React.FC = () => {
       
       if (selectedPlayer) {
         try {
+          console.log('gameID')
+          console.log(game.id)
           // Resetting foundDead
           await toggleBooleanField(game.id, "foundDead", false);
           

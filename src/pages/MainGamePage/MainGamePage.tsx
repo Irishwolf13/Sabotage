@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { setGames } from '../../stores/gameSlice';
 import { useHistory } from 'react-router';
-import FoundBodyModal from '../../components/Modals/FoundBodyModal';
 import Scanner from '../../components/Scanner/Scanner';
 import ControlPanel from '../../components/Modals/ControlPanel';
 import InnocentPanel from '../../components/Modals/InnocentPanel';
@@ -107,7 +106,6 @@ const MainGamePage: React.FC = () => {
         </div>
 
         {/* MODALS BELOW */}
-        <FoundBodyModal foundDead={!!game?.foundDead} currentGameId={game?.id} />
 
         <IonModal isOpen={showScannerModal} onDidDismiss={handleCloseScannerModal}>
           <div className='modalButtonContainer'>

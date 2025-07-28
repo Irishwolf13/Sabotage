@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  IonButton, 
-  IonContent, 
-  IonHeader, 
-  IonPage, 
-  IonTitle, 
-  IonToolbar, 
-  IonFooter, 
-  IonModal 
-} from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal } from '@ionic/react';
+import { clearVotes, evaluateVotes, evaluateGameStatus, toggleBooleanField, updateStringField, assignAndUpdatePlayers, createAvailableRooms  } from '../../firebase/controller';
 import { useHistory } from 'react-router-dom';
-import './TallyLobby.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import { useGameSubscription } from '../../components/hooks/useGameSubscription';
-import { clearVotes, evaluateVotes, evaluateGameStatus, toggleBooleanField, updateStringField, assignAndUpdatePlayers, createAvailableRooms  } from '../../firebase/controller';
 import { useAuth } from '../../firebase/AuthContext';
-
-interface gameResults { gameOver: boolean; innocentsWin: boolean;}
+import './TallyLobby.css';
 
 const TallyLobby: React.FC = () => {
   useGameSubscription();

@@ -9,7 +9,8 @@ interface ContainerProps {
 interface Mole {
   index: number;
   color: 'green' | 'red';
-  id: number; // unique ID to differentiate overlapping
+  id: number;
+  clicked?: boolean;
 }
 
 const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
@@ -18,10 +19,13 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
   const [strikes, setStrikes] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
-  // Ranges
-  const appearIntervalRange = { min: 600, max: 800 };
-  const moleDurationRange = { min: 500, max: 800 };
+  // Things to change for more difficulty
+  const targetChecks = 6
+  const targetStrikes = 2
+  const appearIntervalRange = { min: 600, max: 1200 };
+  const moleDurationRange = { min: 500, max: 1000 };
 
   const moleIdRef = useRef(0);
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
@@ -35,13 +39,13 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
   });
 
   useEffect(() => {
-    if (!gameOver) startGame();
+    if (!gameOver && gameStarted) startGame(); // Only start game if gameStarted is true
     return stopGame;
-  }, [gameOver]);
+  }, [gameOver, gameStarted]);
 
   const startGame = () => {
     const scheduleNext = () => {
-      if (gameOver) return;
+      if (gameOver || !gameStarted) return; // Check gameStarted state
 
       const delay = randomInRange(appearIntervalRange.min, appearIntervalRange.max);
       const duration = randomInRange(moleDurationRange.min, moleDurationRange.max);
@@ -55,10 +59,10 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
           const color: 'green' | 'red' = Math.random() < 0.7 ? 'green' : 'red';
           const id = moleIdRef.current++;
 
-          const newMole: Mole = { index, color, id };
+          const newMole: Mole = { index, color, id, clicked: false };
           setActiveMoles(prev => [...prev, newMole]);
 
-          // Remove this mole after duration
+          // Remove mole after duration (if not clicked)
           const timeout = setTimeout(() => {
             setActiveMoles(prev => prev.filter(m => m.id !== id));
           }, duration);
@@ -66,7 +70,7 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
           timeoutRefs.current.push(timeout);
         }
 
-        scheduleNext(); // Recursively loop
+        scheduleNext();
       }, delay);
     };
 
@@ -81,13 +85,22 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
   };
 
   const handleClick = (index: number) => {
-    const mole = activeMoles.find(m => m.index === index);
+    if (gameOver) return;
+
+    const mole = activeMoles.find(m => m.index === index && !m.clicked);
     if (!mole) return;
+
+    // Mark mole as clicked to prevent double clicks & trigger animation
+    setActiveMoles(prev =>
+      prev.map(m =>
+        m.id === mole.id ? { ...m, clicked: true } : m
+      )
+    );
 
     if (mole.color === 'green') {
       setChecks(prev => {
         const newVal = prev + 1;
-        if (newVal >= 6) {
+        if (newVal >= targetChecks) {
           setGameOver(true);
           setWon(true);
         }
@@ -96,7 +109,7 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
     } else {
       setStrikes(prev => {
         const newVal = prev + 1;
-        if (newVal >= 3) {
+        if (newVal >= targetStrikes) {
           setGameOver(true);
           setWon(false);
         }
@@ -104,8 +117,10 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
       });
     }
 
-    // Remove clicked mole
-    setActiveMoles(prev => prev.filter(m => m.id !== mole.id));
+    // Remove mole immediately after animation delay (pop animation length)
+    setTimeout(() => {
+      setActiveMoles(prev => prev.filter(m => m.id !== mole.id));
+    }, 200);
   };
 
   const resetGameState = () => {
@@ -114,53 +129,60 @@ const Puzzle6: React.FC<ContainerProps> = ({ solvePuzzle }) => {
     setGameOver(false);
     setWon(false);
     setActiveMoles([]);
+    setGameStarted(false); // Reset gameStarted state
     timeoutRefs.current.forEach(t => clearTimeout(t));
     timeoutRefs.current = [];
   };
 
   return (
-    <div className='puzzle6Main'>
-      <div className='scoreBoard'>
-        ✅ {checks} / 6 &nbsp;&nbsp; ❌ {strikes} / 3
-      </div>
-
-      <div className='puzzle6'>
-        {[...Array(9)].map((_, i) => {
-          const mole = activeMoles.find(m => m.index === i);
-          const colorClass = mole ? mole.color : '';
-
-          return (
-            <button
-              key={i}
-              className={`moleButton ${colorClass}`}
-              onClick={() => handleClick(i)}
-              disabled={gameOver}
-            />
-          );
-        })}
-      </div>
-
-      {gameOver && (
-        <div className='overlay'>
-          {won ? (
-            <>
-              <h1>YOU WIN!</h1>
-              <button className='resetButton' onClick={() => solvePuzzle(true)}>
-                OK
-              </button>
-            </>
-          ) : (
-            <>
-              <h1>YOU LOST</h1>
-              <button className='resetButton' onClick={resetGameState}>
-                Try Again?
-              </button>
-            </>
-          )}
-        </div>
-      )}
+  <div className='puzzle6Main'>
+    
+    <div className='hintTextHolder'>
+      <div className='hintText'>Click on Green Squares.</div>
+      <div className='hintText'>Avoid Red Squares.</div>
     </div>
-  );
+
+    <div className='puzzle6'>
+      {[...Array(9)].map((_, i) => {
+        const mole = activeMoles.find(m => m.index === i);
+        const colorClass = mole ? mole.color : '';
+        const clickedClass = mole?.clicked ? 'clicked' : '';
+
+        return (
+          <button
+            key={i}
+            className={`moleButton ${colorClass} ${clickedClass}`}
+            onClick={() => handleClick(i)}
+            disabled={!gameStarted || gameOver || !!mole?.clicked}
+            aria-label={colorClass === 'green' ? 'green mole' : 'red mole'}
+          />
+        );
+      })}
+    </div>
+
+    <div className='scoreBoard'>
+      ✅ {checks} / 6 &nbsp;&nbsp; ❌ {strikes} / {targetStrikes}
+    </div>
+    {gameOver && won && (
+      <div className='overlay'>
+        <div className='overlayPadding'>
+          <h1>YOU WIN!</h1>
+          <button className='resetButton' onClick={() => solvePuzzle(true)}>
+            OK
+          </button>
+        </div>
+      </div>
+    )}
+    <button 
+      onClick={() => {
+        if (gameOver) resetGameState();
+        setGameStarted(true);
+      }} 
+      className={`startButton ${(gameStarted && !gameOver) ? 'invisible' : ''}`}>
+      {gameOver ? 'Try Again?' : 'Start Game'}
+    </button>
+  </div>
+);
 };
 
 export default Puzzle6;

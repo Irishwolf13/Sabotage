@@ -10,6 +10,7 @@ interface Game {
   isStarted: boolean;
   foundDead: boolean;
   isPlayerDead: boolean;
+  isAlarmActive: boolean;
   currentRoom: number;
   calledMeeting: string;
   allVotesCast: boolean;
