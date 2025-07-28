@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonModal, IonToast} from '@ionic/react';
-import { listenForGameChanges } from '../../firebase/controller';
+// import { listenForGameChanges } from '../../firebase/controller';
+// import { setGames } from '../../stores/gameSlice';
 import { useAuth } from '../../firebase/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { setGames } from '../../stores/gameSlice';
 import { useHistory } from 'react-router';
 import Scanner from '../../components/Scanner/Scanner';
 import ControlPanel from '../../components/Modals/ControlPanel';
@@ -14,7 +14,7 @@ import './MainGamePage.css';
 const MainGamePage: React.FC = () => {
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const history = useHistory();
 
   const [showScannerModal, setShowScannerModal] = useState(false);
@@ -25,38 +25,37 @@ const MainGamePage: React.FC = () => {
 
   const currentPlayer = game.players.find( (player: any) => player.email === user?.email );
 
-  useEffect(() => {
-    if (game?.id && user) {
-      const unsubscribe = listenForGameChanges(game.id, (data) => {
-        // console.log('main Page Data')
-        // console.log(data)
-        const currentPlayer = data.players.find((player: any) => player.email === user.email);
+  // useEffect(() => {
+  //   if (game?.id && user) {
+  //     const unsubscribe = listenForGameChanges(game.id, (data) => {
+  //       // console.log('main Page Data')
+  //       // console.log(data)
+  //       const currentPlayer = data.players.find((player: any) => player.email === user.email);
 
-        if (currentPlayer) {
-          dispatch(
-            setGames([
-              {
-                ...game,
-                name: data.gameName,
-                code: data.gameCode,
-                players: data.players,
-                isEnded: data.isEnded,
-                isStarted: data.isStarted,
-                foundDead: data.foundDead,
-              },
-            ])
-          );
-        }
-      });
-      return () => unsubscribe();
-    }
-  }, [dispatch, game?.id, user]);
+  //       if (currentPlayer) {
+  //         dispatch(
+  //           setGames([
+  //             {
+  //               ...game,
+  //               name: data.gameName,
+  //               code: data.gameCode,
+  //               players: data.players,
+  //               isEnded: data.isEnded,
+  //               isStarted: data.isStarted,
+  //               foundDead: data.foundDead,
+  //             },
+  //           ])
+  //         );
+  //       }
+  //     });
+  //     return () => unsubscribe();
+  //   }
+  // }, [dispatch, game?.id, user]);
 
   // This is used to make sure all the modals are closed when being sent to dead player page
   useEffect(() => {
     if (game.foundDead) {
       if (user && user.email) { 
-        // Check if the player exists and their ghost status is false
         const player = game.players.find(p => p.email === user.email);
         if (player && !player.ghost) {
           setShowScannerModal(false);
