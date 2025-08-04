@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
+import { incrementNumberField } from '../../firebase/controller';
 
 const FoundBodyModal: React.FC = () => {
   const [showModal, setShowModal] = useState(false);

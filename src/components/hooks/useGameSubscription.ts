@@ -26,12 +26,13 @@ export const useGameSubscription = () => {
                 isStarted: data.isStarted,
                 saboteurWins: data.saboteurWins,
                 foundDead: data.foundDead,
+                isVoting: data.isVoting,
                 isPlayerDead: data.isPlayerDead,
                 isAlarmActive: data.isAlarmActive,
                 calledMeeting: data.calledMeeting,
                 allVotesCast: data.allVotesCast,
                 kickedPlayer: data.kickedPlayer,
-                votes: data.votes,
+                gameRound: data.gameRound,
               },
             ])
           );

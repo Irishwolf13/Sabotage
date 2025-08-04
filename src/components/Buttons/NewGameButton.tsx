@@ -56,8 +56,11 @@ const NewGameButton: React.FC = () => {
         code: randomCode,
         isEnded: false,
         isStarted: false,
+        gameRound: 0,
         foundDead: false,
+        isVoting: false,
         isPlayerDead: false,
+        isAlarmActive: false,
         saboteurWins: false, 
         currentRoom: -2,
         calledMeeting: '',
@@ -67,9 +70,9 @@ const NewGameButton: React.FC = () => {
           screenName: myPlayerName,
           email: email,
           ghost: false,
-          isSaboteur: false
+          isSaboteur: false,
+          votes: []
         }],
-        votes: []
       };
   
       // Dispatch the new game to the Redux store

@@ -38,17 +38,18 @@ const CreatorLobby: React.FC = () => {
               name: data.gameName,
               code: data.gameCode,
               players: data.players,
+              gameRound: data.gameRound,
               isEnded: data.isEnded,
               saboteurWins: false,
               isStarted: data.isStarted,
               foundDead: data.foundDead,
+              isVoting: data.isVoting,
               isAlarmActive: data.isAlarmActive,
               isPlayerDead: data.isPlayerDead,
               currentRoom: -1,
               calledMeeting: '',
               allVotesCast: false,
               kickedPlayer: '',
-              votes:[]
             },
           ])
         );
@@ -77,7 +78,7 @@ const CreatorLobby: React.FC = () => {
   };
 
   // This is the big one... evenly spreads out players across rooms in the best way possible... I hope.
-  type PlayerRoom = { room: number; order: number; solved: boolean };
+  type PlayerRoom = { room: number; order: number; solved: boolean; };
   const assignPlayersEvenly = (numberOfPlayers: number, roomNumbers: number[]): PlayerRoom[][] => {
     const numberOfRooms = roomNumbers.length;
     
@@ -141,9 +142,9 @@ const CreatorLobby: React.FC = () => {
     for (let roomIndex = 0; roomIndex < roomPuzzles.length; roomIndex++) {
       for (const { player, order, solved } of roomPuzzles[roomIndex]) {
         playerResults[player].push({
-          room: roomNumbers[roomIndex], // Get the actual room number here
+          room: roomNumbers[roomIndex],
           order,
-          solved,
+          solved
         });
       }
     }

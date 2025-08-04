@@ -6,9 +6,11 @@ interface Game {
   name: string;
   code: string;
   isEnded: boolean;
+  gameRound: number;
   saboteurWins: boolean;
   isStarted: boolean;
   foundDead: boolean;
+  isVoting: boolean;
   isPlayerDead: boolean;
   isAlarmActive: boolean;
   currentRoom: number;
@@ -16,7 +18,6 @@ interface Game {
   allVotesCast: boolean;
   kickedPlayer: string;
   players: Player[];
-  votes: Vote[];
 }
 
 // Define Player interface
@@ -25,15 +26,9 @@ interface Player {
   email: string;
   ghost: boolean;
   isSaboteur: boolean;
+  votes?: { voter: string; selected: string; gameRound: number }[];
   rooms?: { solved: boolean; puzzleNumber: number }[];
 }
-
-// Define Vote interface
-interface Vote {
-  voter: string;
-  selected: string;
-}
-
 
 // Define GamesState type
 type GamesState = Game[];

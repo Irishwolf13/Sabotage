@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc, DocumentData  } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc, increment, runTransaction  } from "firebase/firestore";
 
 
 //////////////////////////////// LISTENING ////////////////////////////////
@@ -52,12 +52,14 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       gameCode,
       creator,
       createdAt: new Date().toISOString(),
+      gameRound:1,
       isEnded: false,
       isStarted: false,
       foundDead: false,
+      isVoting: false,
       isPlayerDead: false,
       isAlarmActive: false,
-      players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false}],
+      players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false, votes:[]}],
     };
 
     await setDoc(gameDocRef, gameData);
@@ -74,36 +76,36 @@ export const joinGame = async (gameCode: string, email: string): Promise<string 
     const activeGamesRef = collection(db, 'activeGames');
     const q = query(activeGamesRef, where('gameCode', '==', gameCode));
     const querySnapshot = await getDocs(q);
-    const myEmail = await getPlayerNameByEmail(email)
+
+    const screenName = await getPlayerNameByEmail(email);
+
     if (!querySnapshot.empty) {
-      // Assume there is only one document with a matching game code
       const docSnap = querySnapshot.docs[0];
-      const gameData = docSnap.data();
-      
-      // Check if the gameName exists in the document
-      if (gameData && gameData.gameName) {
-        // Update to include an object with necessary details like email
-        const playerObject = {
-          email,          // User's email
-          screenName: myEmail, // Default or fetched screen name
-          ghost: false,   // Initial value, change as needed
-          isSaboteur: false // Initial role, adjust as per your logic
+      const gameDocRef = docSnap.ref;
+
+      await runTransaction(db, async (transaction) => {
+        const docData = (await transaction.get(gameDocRef)).data();
+        const players = docData?.players || [];
+
+        const alreadyJoined = players.some((p: any) => p.email === email);
+        if (alreadyJoined) return;
+
+        const playerObj = {
+          email,
+          screenName,
+          ghost: false,
+          isSaboteur: false,
+          votes: []
         };
 
-        await updateDoc(docSnap.ref, {
-          players: arrayUnion(playerObject)
+        transaction.update(gameDocRef, {
+          players: [...players, playerObj]
         });
+      });
 
-        console.log(`Successfully added ${email} to game named ${gameData.gameName}`);
-        
-        // Return the gameName after successful joining
-        return gameData.gameName; 
-      } else {
-        console.error('The game name is not defined in the document.');
-        return null;
-      }
+      return docSnap.data().gameName;
     } else {
-      console.error('No game found with the entered game code.');
+      console.error("Game code not found.");
       return null;
     }
   } catch (error) {
@@ -178,6 +180,18 @@ export const updateStringField = async (gameId: string, fieldName: string, newVa
     console.log(`Successfully updated ${fieldName} to ${newValue}`);
   } catch (error) {
     console.error(`Error updating ${fieldName}: `, error);
+  }
+};
+
+export const incrementNumberField = async (gameId: string, fieldName: string) => {
+  const gameDocRef = doc(db, "activeGames", gameId);
+  try {
+    await updateDoc(gameDocRef, {
+      [fieldName]: increment(1)
+    });
+    console.log(`Successfully incremented ${fieldName}`);
+  } catch (error) {
+    console.error(`Error incrementing ${fieldName}: `, error);
   }
 };
 
@@ -332,7 +346,7 @@ interface RoomOrder {
   order: number;
   room: number;
   solved: boolean;
-  puzzleNumber?: number; // Add puzzleNumber to RoomOrder
+  puzzleNumber?: number;
 }
 
 export const assignAndUpdatePlayers = async (
@@ -412,113 +426,71 @@ export const assignAndUpdatePlayers = async (
   }
 };
 
-// Function to add a vote to a game document in Firestore
-interface Vote { voter: string; selected: string;}
+
+interface Vote { voter: string; selected: string; gameRound: number }
 export const addVote = async (gameId: string, vote: Vote) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   try {
-    // Retrieve the current document snapshot
-    const docSnap = await getDoc(gameDocRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
+    await runTransaction(db, async (transaction) => {
+      const gameDocSnap = await transaction.get(gameDocRef);
       
-      // Check if 'votes' array exists; if not, initialize it
-      if (!data || !data.votes) {
-        await updateDoc(gameDocRef, {
-          votes: [vote]  // Initialize with the first vote
-        });
-        console.log("Votes array created and vote added successfully.");
-      } else {
-        await updateDoc(gameDocRef, {
-          votes: arrayUnion(vote)  // Add vote to existing array
-        });
-        console.log("Vote added successfully to existing votes array.");
+      if (!gameDocSnap.exists()) {
+        throw new Error("Document does not exist!");
       }
 
-    } else {
-      console.error("No such document found for the given gameId.");
-    }
+      const gameData = gameDocSnap.data();
+      let players = gameData.players || [];
+
+      players = players.map((player: { email: string; votes?: Vote[] }) => {
+        if (player.email === vote.voter) {
+          player.votes = player.votes || [];
+          player.votes.push(vote);
+        }
+        return player;
+      });
+
+      transaction.update(gameDocRef, { players });
+    });
+
+    console.log("Vote added successfully.");
   } catch (error) {
-    console.error("Error adding vote:", error);
+    console.error("Transaction failed: ", error);
   }
 };
 
-// Function to clear all votes from a game document in Firestore
-export const clearVotes = async (gameId: string) => {
+export const removePlayerFromGame = async (gameId: string, email: string) => {
   const gameDocRef = doc(db, "activeGames", gameId);
 
   try {
-    // Set the 'votes' field to an empty array
-    await updateDoc(gameDocRef, {
-      votes: []  // Clears all objects from the array
-    });
-    console.log("All votes cleared successfully.");
-  } catch (error) {
-    console.error("Error clearing votes:", error);
-  }
-};
+    await runTransaction(db, async (transaction) => {
+      const gameDoc = await transaction.get(gameDocRef);
 
-
-// Define interfaces for vote and player structures
-interface selectedVote { selected: string; voter: string;}
-interface selectedPlayer { email: string; ghost: boolean; isSaboteur: boolean; screenName: string;}
-export const evaluateVotes = async (gameId: string): Promise<{ screenName: string; isSaboteur: boolean } | null> => {
-  const gameDocRef = doc(db, "activeGames", gameId);
-
-  try {
-    // Fetch the game document
-    const gameDoc = await getDoc(gameDocRef);
-    if (!gameDoc.exists()) {
-      throw new Error("Game does not exist.");
-    }
-
-    const gameData = gameDoc.data() as DocumentData;
-    const votes: selectedVote[] = gameData?.votes || [];
-    const players: selectedPlayer[] = gameData?.players || [];
-
-    // Tally votes
-    const voteCount = votes.reduce<Record<string, number>>((acc, { selected }) => {
-      acc[selected] = (acc[selected] || 0) + 1;
-      return acc;
-    }, {});
-
-    // Determine the player(s) with the most votes
-    const maxVotes = Math.max(...Object.values(voteCount));
-    let candidates = Object.keys(voteCount).filter(email => voteCount[email] === maxVotes);
-
-    if (candidates.length > 1) {
-      // Filter out any saboteurs from candidates
-      candidates = candidates.filter(email => !players.find(player => player.email === email)?.isSaboteur);
-      
-      if (candidates.length < 1) {
-        // If all candidates were saboteurs, return no eligible candidate
-        console.log("No valid candidates after filtering for saboteurs.");
-        return null;
+      if (!gameDoc.exists()) {
+        throw new Error(`No game found with ID: ${gameId}`);
       }
-    }
 
-    // Select one candidate at random among potential candidates
-    const chosenEmail = candidates[Math.floor(Math.random() * candidates.length)];
+      const gameData = gameDoc.data();
+      const players = gameData?.players || [];
 
-    // Update the chosen player's 'ghost' status
-    const updatedPlayers = players.map(player => {
-      if (player.email === chosenEmail) {
-        return { ...player, ghost: true };
+      // Find the index of the player to update
+      const playerIndex = players.findIndex((player: any) => player.email === email);
+      if (playerIndex === -1) {
+        throw new Error(`Player with email ${email} not found.`);
       }
-      return player;
+
+      // Update the player's ghost status
+      players[playerIndex].ghost = true;
+
+      // Commit the transaction with updated data
+      transaction.update(gameDocRef, { players });
     });
 
-    await updateDoc(gameDocRef, { players: updatedPlayers });
-
-    // Find the chosen player and return their screenName and isSaboteur status
-    const chosenPlayer = players.find(player => player.email === chosenEmail);
-    return { screenName: chosenPlayer!.screenName, isSaboteur: chosenPlayer!.isSaboteur };
-
+    console.log('I incremented yo.')
+    incrementNumberField(gameId, 'gameRound')
+    console.log(`Player with email ${email} has been marked as ghost.`);
   } catch (error) {
-    console.error(`Error processing votes: `, error);
-    return null;
+    console.error(`Error removing player from game: `, error);
   }
 };
 
@@ -539,7 +511,7 @@ export const evaluateGameStatus = async (gameId: string) => {
     // Check for active saboteurs
     const activeSaboteursCount = players.filter(player => player.isSaboteur && !player.ghost).length;
     if (activeSaboteursCount === 0) {
-      // return { gameOver: true, innocentsWin: true }; // Innocents win if no active saboteurs are left
+      // Innocents win if no active saboteurs are left
       toggleBooleanField(gameDoc.id, 'isEnded', true)
       toggleBooleanField(gameDoc.id, 'saboteurWins', false)
       return
@@ -547,24 +519,20 @@ export const evaluateGameStatus = async (gameId: string) => {
 
     // Count active innocents
     const activeInnocentsCount = players.filter(player => !player.isSaboteur && !player.ghost).length;
-
     // Determine game outcome based on counts
     if (activeInnocentsCount <= activeSaboteursCount) {
-      // return { gameOver: true, innocentsWin: false }; // Saboteurs win if they are equal to or outnumber active innocents
-    
+      // Saboteurs win if they are equal to or outnumber active innocents 
       toggleBooleanField(gameDoc.id, 'isEnded', true)
       toggleBooleanField(gameDoc.id, 'saboteurWins', true)
       return
     }
-
-    // return { gameOver: false, innocentsWin: false }; // Game continues if innocents outnumber saboteurs
-
+    // // Game continues if innocents outnumber saboteurs
     toggleBooleanField(gameDoc.id, 'isEnded', false)
     toggleBooleanField(gameDoc.id, 'saboteurWins', false)
+    return;
 
   } catch (error) {
     console.error("Error evaluating game status:", error);
-    // Default return to indicate ongoing game in case of errors
     return;
   }
 };

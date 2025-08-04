@@ -51,18 +51,20 @@ const JoinGameButton: React.FC = () => {
             isEnded: false,
             isStarted: false,
             foundDead: false,
+            isVoting: false,
             isPlayerDead: false,
+            isAlarmActive: false,
             saboteurWins: false, 
             currentRoom: -3, 
             calledMeeting: '', 
-            allVotesCast: false, 
+            allVotesCast: false,
+            gameRound: 0,
             kickedPlayer: '',
-            votes: [],
             players: [{
               screenName: playerName,
               email: email,
               ghost: false,
-              isSaboteur: false
+              isSaboteur: false,
             }],
           }]));
 
