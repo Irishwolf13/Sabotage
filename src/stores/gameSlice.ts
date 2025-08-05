@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define Game interface
-interface Game {
+export interface Game {
   id: string;
   name: string;
   code: string;
@@ -21,7 +21,7 @@ interface Game {
 }
 
 // Define Player interface
-interface Player {
+export interface Player {
   screenName: string;
   email: string;
   ghost: boolean;

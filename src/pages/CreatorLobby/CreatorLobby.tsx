@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem } from '@ionic/react';
-import { listenForGameChanges, toggleBooleanField, setPlayerAsSaboteur, assignAndUpdatePlayers, createAvailableRooms } from '../../firebase/controller';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonFooter, IonButton, IonList, IonItem, IonButtons, IonBackButton } from '@ionic/react';
+import { listenForGameChanges, toggleBooleanField, setPlayerAsSaboteur, assignAndUpdatePlayers, createAvailableRooms, deleteGame } from '../../firebase/controller';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../stores/store';
-import { setGames } from '../../stores/gameSlice';
+import { removeGame, setGames } from '../../stores/gameSlice';
 import { auth } from '../../firebase/config';
 import StartGameModal from '../../components/Modals/StartGameModal';
 import './CreatorLobby.css';
@@ -29,39 +29,39 @@ const CreatorLobby: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (game?.id) {
-      const unsubscribe = listenForGameChanges(game.id, (data) => {
-        dispatch(
-          setGames([
-            {
-              id: game.id,
-              name: data.gameName,
-              code: data.gameCode,
-              players: data.players,
-              gameRound: data.gameRound,
-              isEnded: data.isEnded,
-              saboteurWins: false,
-              isStarted: data.isStarted,
-              foundDead: data.foundDead,
-              isVoting: data.isVoting,
-              isAlarmActive: data.isAlarmActive,
-              isPlayerDead: data.isPlayerDead,
-              currentRoom: -1,
-              calledMeeting: '',
-              allVotesCast: false,
-              kickedPlayer: '',
-            },
-          ])
-        );
-      });
-      return () => unsubscribe();
-    }
+    if (!game?.id) return;
+
+    const unsubscribe = listenForGameChanges(game.id, (data) => {
+      dispatch(
+        setGames([
+          {
+            id: game.id,
+            name: data.gameName,
+            code: data.gameCode,
+            players: data.players,
+            gameRound: data.gameRound,
+            isEnded: data.isEnded,
+            saboteurWins: false,
+            isStarted: data.isStarted,
+            foundDead: data.foundDead,
+            isVoting: data.isVoting,
+            isAlarmActive: data.isAlarmActive,
+            isPlayerDead: data.isPlayerDead,
+            currentRoom: -1,
+            calledMeeting: '',
+            allVotesCast: false,
+            kickedPlayer: '',
+          },
+        ])
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [dispatch, game?.id]);
 
-  if (!game) {
-    return <p>Oppps, something went wrong and your game is missing... Lost to the void... Sabotaged...? Not sure.</p>;
-  }
-
+  if (!game) { return }
 
   // Randomly assign saboteurs
   const selectRandomSaboteur = async (totalPlayers: any, myPlayers: any) => {
@@ -178,41 +178,33 @@ const CreatorLobby: React.FC = () => {
     }
   };
 
-  const decreaseNumSlots = () => {
-    setnumSlots((prev) => Math.max(prev - 1, game.players.length));
-  };
-
-  const increaseNumSlots = () => {
-    setnumSlots((prev) => Math.min(prev + 1, 16));
-  };
-
-  const decreaseNumRooms = () => {
-    setnumRooms((prev) => Math.max(prev - 1, 1));
-  };
-
-  const increaseNumRooms = () => {
-    setnumRooms((prev) => Math.min(prev + 1, 16));
-  };
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value, 10);
-    setNumSaboteurs(isNaN(value) ? 1 : value);
+  const goToHome = async () => {
+    try {
+      if (game.id) {
+        await deleteGame(game.id);
+        dispatch(removeGame());
+        history.push('/home');
+      }
+    } catch (error) {
+      console.error('Failed to delete game:', error);
+    }
   };
 
   return (
     <IonPage>
-      <IonContent fullscreen>
+      <IonContent>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons>
+              <IonButton onClick={goToHome}>Cancel</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
       <div className='mainPageButtonHolder'>
         <h1 className='joinCode'>Join Code: <strong>{game.code}</strong></h1>
         <IonButton className='yellowButton' onClick={() => handleStartGame(numSaboteurs)}>Start Game!</IonButton>
         <StartGameModal isStarted={!!game?.isStarted} currentGameId={game?.id} />
         <h3 className='coloredText'>{game.isStarted ? 'Get Ready!' : 'In Lobby'}</h3>
-        {/* <IonButton onClick={decreaseNumSlots}>Slot -</IonButton>
-        <IonButton onClick={increaseNumSlots}>Slot +</IonButton>
-        {numSlots}
-        <IonButton onClick={decreaseNumRooms}>Room -</IonButton>
-        <IonButton onClick={increaseNumRooms}>Room +</IonButton>
-        {numRooms} */}
         <div className='flex2Col'>
           {Array(numSlots)
             .fill(null)
@@ -225,18 +217,6 @@ const CreatorLobby: React.FC = () => {
             ))
           }
         </div>
-        {/* <div>
-          <label htmlFor="saboteurs">Number of Saboteurs:</label>
-          <input
-          id="saboteurs"
-          type="number" 
-          min="1"
-          max="3" // Adjust max based on your game constraints
-          value={numSaboteurs}
-          onChange={handleChange}
-          />
-          </div> */}
-
       </div>
       </IonContent>
       <IonFooter>

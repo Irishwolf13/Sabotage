@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc, increment, runTransaction  } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, updateDoc, collection, query, where, arrayUnion, getDocs, getDoc, increment, runTransaction, deleteDoc  } from "firebase/firestore";
 
 
 //////////////////////////////// LISTENING ////////////////////////////////
@@ -66,6 +66,41 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
     console.log("Game document created successfully in Firestore");
   } catch (err) {
     console.error("Error creating game document:", err);
+  }
+};
+
+// Function to check if a player name already exists in the Firestore database
+export const checkFirebasePlayerNames = async (playerName: string): Promise<boolean> => {
+  try {
+    // Reference to the 'playerAccounts' collection
+    const playerAccountsRef = collection(db, "playerAccounts");
+
+    // Query for documents with a matching playerName
+    const q = query(playerAccountsRef, where("playerName", "==", playerName));
+
+    // Execute the query
+    const querySnapshot = await getDocs(q);
+
+    // Check if any documents were returned
+    return !querySnapshot.empty;
+  } catch (err) {
+    console.error("Error checking player names:", err);
+    return false; // In case of an error, return false
+  }
+};
+
+//////////////////////////////// DELETE GAME ////////////////////////////////
+export const deleteGame = async (gameId: string) => {
+  try {
+    // Create a reference to the game document to be deleted
+    const gameDocRef = doc(db, "activeGames", gameId);
+
+    // Delete the document from the Firestore
+    await deleteDoc(gameDocRef);
+
+    console.log(`Game with ID ${gameId} deleted successfully`);
+  } catch (err) {
+    console.error("Error deleting game document:", err);
   }
 };
 

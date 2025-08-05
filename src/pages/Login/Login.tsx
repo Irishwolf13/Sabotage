@@ -2,23 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { auth } from '../../firebase/config';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { createPlayerAccount } from '../../firebase/controller';
-import {
-  IonButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
-  IonLoading,
-  useIonViewWillEnter
-} from '@ionic/react';
+import { createPlayerAccount, checkFirebasePlayerNames } from '../../firebase/controller';
+import { IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonPage, IonTitle, IonToolbar, IonSegment, IonSegmentButton, IonLabel, IonLoading, useIonViewWillEnter } from '@ionic/react';
+import { FirebaseError } from 'firebase/app';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -28,6 +14,7 @@ const Login: React.FC = () => {
   const history = useHistory();
   const [showLoading, setShowLoading] = useState(false);
   const [authSuccess, setAuthSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useIonViewWillEnter(() => {
     setAuthSuccess(false);
@@ -39,12 +26,25 @@ const Login: React.FC = () => {
     }
   }, [authSuccess, history]);
 
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setShowLoading(true);
+  // Clear error message when user types in email
+  useEffect(() => {
+    if (errorMessage) {
+      setErrorMessage(null); // Reset error message when user starts typing in email
+    }
+  }, [email]);
 
-    try {
-      if (isSignUp) {
+  const handleLogin = async (event: React.FormEvent) => {
+  event.preventDefault();
+  setShowLoading(true);
+
+  try {
+    if (isSignUp) {
+      const checkUniquePlayerName = await checkFirebasePlayerNames(playerName);
+      console.log(checkUniquePlayerName);
+      
+      if (checkUniquePlayerName) { // Adjusted condition
+        setErrorMessage('This player name is already taken. Please choose another one.');
+      } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         console.log('User registered successfully');
 
@@ -54,21 +54,33 @@ const Login: React.FC = () => {
         setEmail('');
         setPassword('');
         setPlayerName('');
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-        console.log('User signed in successfully');
-
-        setEmail('');
-        setPassword('');
+        setAuthSuccess(true);
       }
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log('User signed in successfully');
 
+      setEmail('');
+      setPassword('');
       setAuthSuccess(true);
-    } catch (err) {
-      alert(isSignUp ? 'Sign-up failed. Please check your inputs.' : 'Login failed. Please check your credentials.');
-    } finally {
-      setShowLoading(false);
     }
-  };
+
+  } catch (err) {
+    if (err instanceof FirebaseError) {
+      if (err.code === 'auth/email-already-in-use') {
+        setErrorMessage('The email address is already in use by another account.');
+      } else {
+        setErrorMessage(isSignUp ? 'Sign-up failed. Please check your inputs.' : 'Login failed. Please check your credentials.');
+      }
+    } else {
+      setErrorMessage('An unexpected error occurred. Please try again later.');
+    }
+    console.error("Authentication error:", err);
+  } finally {
+    setShowLoading(false);
+  }
+};
+
 
   const goToSplash = () => {
     history.push('/');
@@ -136,6 +148,9 @@ const Login: React.FC = () => {
                 placeholder="********"
               />
             </IonItem>
+            {errorMessage && (
+              <p style={{ color: 'red', margin: '10px 0' }}>{errorMessage}</p>
+            )}
             <IonButton expand="full" type="submit" style={{ marginTop: '20px' }}>
               {isSignUp ? 'Sign Up' : 'Login'}
             </IonButton>
