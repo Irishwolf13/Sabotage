@@ -42,11 +42,12 @@ export const createPlayerAccount = async (uid: string, email: string, playerName
 };
 
 // Function to create a new game instance in the Firestore database
-export const createGameDocument = async (id: string, gameName: string, gameCode: string, creator: string, screenName: string) => {
+export const createGameDocument = async (id: string, gameName: string, gameCode: string, creator: string, screenName: string ) => {
   try {
     const gameDocRef = doc(db, "activeGames", id);
 
     // Data to be saved in Firestore
+    //////////// IF YOU CHANGE THIS, MAKE SURE TO CHANGE NewGameButton.tsx AS WELL ////////////
     const gameData = {
       gameName,
       gameCode,
@@ -61,6 +62,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isAlarmActive: false,
       alarmDetonated: false,
       players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false, votes:[]}],
+      gameSettings: {alarmTimer: 30}
     };
 
     await setDoc(gameDocRef, gameData);
@@ -209,6 +211,24 @@ export const toggleBooleanField = async (gameId: string, fieldName: string, stat
     });
   } catch (error) {
     console.error(`Error updating ${fieldName} status: `, error);
+  }
+};
+
+// Function to handle multiple field updates in the document
+export const handleAlarmDetonated = async (
+  gameId: string,
+  isAlarmActive: boolean,
+  alarmDetonated: boolean,
+  isEnded: boolean
+) => {
+  try {
+    await updateDoc(doc(db, "activeGames", gameId), {
+      isAlarmActive,
+      alarmDetonated,
+      isEnded
+    });
+  } catch (error) {
+    console.error("Error updating game status: ", error);
   }
 };
 

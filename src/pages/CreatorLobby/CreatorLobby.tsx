@@ -52,6 +52,7 @@ const CreatorLobby: React.FC = () => {
             calledMeeting: '',
             allVotesCast: false,
             kickedPlayer: '',
+            gameSettings: data.gameSettings,
           },
         ])
       );

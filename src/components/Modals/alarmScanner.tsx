@@ -4,7 +4,7 @@ import { useAuth } from '../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import './alarmScanner.css';
-import { toggleBooleanField } from '../../firebase/controller';
+import { handleAlarmDetonated, toggleBooleanField } from '../../firebase/controller';
 
 const AlarmScanner: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
@@ -18,10 +18,17 @@ const AlarmScanner: React.FC = () => {
     const alarmActive = game?.isAlarmActive;
     const player = game?.players.find(p => p.email === user?.email);
 
+    
     if (alarmActive && player && !player.ghost ) {
       setShowToast(true);
+      if (game.gameSettings.alarmTimer) {
+        console.log('I set timmer')
+        console.log((game.gameSettings.alarmTimer))
+        setCountdown(game.gameSettings.alarmTimer);
+      } else {
+        setCountdown(15);
+      }
 
-      setCountdown(30);
       startCountdown();
 
       if (audioRef.current) {
@@ -60,10 +67,10 @@ const AlarmScanner: React.FC = () => {
     const saboteur = game?.players.find(player => player.isSaboteur);
 
     if (saboteur && user && saboteur.email === user.email) {
-      await toggleBooleanField(game.id, "isAlarmActive", false);
-      await toggleBooleanField(game.id, "alarmDetonated", true);
+      // gameId, isAlarmActive, alarmDetonated, isEnded
+      await handleAlarmDetonated(game.id, false, true, true);
     }
-  }
+  };
 
 
   const stopCountdown = () => {

@@ -52,6 +52,7 @@ const NewGameButton: React.FC = () => {
     await createGameDocument(newUUID, newUUID, randomCode, email, myPlayerName);
 
     // Now construct and dispatch game data
+    //////////// IF YOU CHANGE THIS, MAKE SURE TO CHANGE CONTROLLER createGameDocument AS WELL ////////////
     const newGame = {
       id: newUUID,
       name: `${newUUID}`,
@@ -76,6 +77,7 @@ const NewGameButton: React.FC = () => {
         isSaboteur: false,
         votes: []
       }],
+      gameSettings: { alarmTimer: 30 }
     };
 
     dispatch(addGame(newGame));
