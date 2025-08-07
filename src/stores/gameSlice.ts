@@ -13,6 +13,7 @@ export interface Game {
   isVoting: boolean;
   isPlayerDead: boolean;
   isAlarmActive: boolean;
+  alarmDetonated: boolean;
   currentRoom: number;
   calledMeeting: string;
   allVotesCast: boolean;

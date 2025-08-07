@@ -29,6 +29,7 @@ export const useGameSubscription = () => {
                 isVoting: data.isVoting,
                 isPlayerDead: data.isPlayerDead,
                 isAlarmActive: data.isAlarmActive,
+                alarmDetonated: data.alarmDetonated,
                 calledMeeting: data.calledMeeting,
                 allVotesCast: data.allVotesCast,
                 kickedPlayer: data.kickedPlayer,

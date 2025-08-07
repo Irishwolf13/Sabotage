@@ -46,6 +46,7 @@ const CreatorLobby: React.FC = () => {
             foundDead: data.foundDead,
             isVoting: data.isVoting,
             isAlarmActive: data.isAlarmActive,
+            alarmDetonated: data.alarmDetonated,
             isPlayerDead: data.isPlayerDead,
             currentRoom: -1,
             calledMeeting: '',
@@ -183,7 +184,7 @@ const CreatorLobby: React.FC = () => {
       if (game.id) {
         await deleteGame(game.id);
         dispatch(removeGame());
-        history.push('/home');
+        window.location.href = '/home';
       }
     } catch (error) {
       console.error('Failed to delete game:', error);

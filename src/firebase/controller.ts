@@ -59,6 +59,7 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isVoting: false,
       isPlayerDead: false,
       isAlarmActive: false,
+      alarmDetonated: false,
       players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false, votes:[]}],
     };
 
@@ -67,6 +68,12 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
   } catch (err) {
     console.error("Error creating game document:", err);
   }
+};
+
+export const getGameById = async (gameId: string) => {
+  const gameRef = doc(db, 'games', gameId);
+  const snapshot = await getDoc(gameRef);
+  return snapshot.exists() ? snapshot.data() : null;
 };
 
 // Function to check if a player name already exists in the Firestore database

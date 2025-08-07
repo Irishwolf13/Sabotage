@@ -54,7 +54,7 @@ const MainGamePage: React.FC = () => {
 
   // This is used to make sure all the modals are closed when being sent to dead player page
   useEffect(() => {
-    if (game.foundDead) {
+    if (game.foundDead || game.alarmDetonated) {
       if (user && user.email) { 
         const player = game.players.find(p => p.email === user.email);
         if (player && !player.ghost) {

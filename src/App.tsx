@@ -38,6 +38,7 @@ import FoundBodyModal from './components/Modals/FoundBodyModal';
 import AlarmScanner from './components/Modals/alarmScanner';
 
 import GameSubscriptionManager from './components/hooks/GlobalListener';
+import AlarmDetonated from './components/Modals/alarmDetonated';
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -82,6 +83,7 @@ return (
         <AuthProvider>
           <IonReactRouter>
             <FoundBodyModal />
+            <AlarmDetonated />
             <AlarmScanner />
             <GameSubscriptionManager />
             <IonRouterOutlet >

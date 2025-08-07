@@ -1,15 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {
-  IonContent, IonFooter, IonPage, IonTitle,
-  IonToolbar
-} from '@ionic/react';
-import './Home.css';
-import { signOut } from 'firebase/auth';
+import { IonContent, IonFooter, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { auth } from '../../firebase/config';
 import NewGameButton from '../../components/Buttons/NewGameButton';
 import JoinGameButton from '../../components/Buttons/JoinGameButton';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import LogoutButton from '../../components/Buttons/LogoutButton'; // Import the LogoutButton
+import LogoutButton from '../../components/Buttons/LogoutButton';
+import './Home.css';
 
 const Home: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
