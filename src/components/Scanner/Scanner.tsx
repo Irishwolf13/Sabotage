@@ -47,6 +47,13 @@ const Scanner: React.FC<ContainerProps> = ({ handleSolvePuzzleButton }) => {
           await toggleBooleanField(game.id, "foundDead", true);
         } 
       }
+      if (decodedText.includes("alarmScanner1")) {
+        await toggleBooleanField(game.id, "alarmInfo.alarmScanner1", true);
+        // Should direct the user to a waiting page
+      }
+      if (decodedText.includes("alarmScanner2")) {
+        await toggleBooleanField(game.id, "alarmInfo.alarmScanner2", true);
+      }
       setShowScanner(false);
     };
 

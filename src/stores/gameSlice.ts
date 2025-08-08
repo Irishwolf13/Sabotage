@@ -19,12 +19,14 @@ export interface Game {
   allVotesCast: boolean;
   kickedPlayer: string;
   players: Player[];
-  gameSettings: GameSettings;
+  alarmInfo: AlarmInfo;
 }
 
 // Game Settings interface
-export interface GameSettings {
+export interface AlarmInfo {
   alarmTimer: number;
+  alarmScanner1: boolean;
+  alarmScanner2: boolean;
 }
 
 // Define Player interface

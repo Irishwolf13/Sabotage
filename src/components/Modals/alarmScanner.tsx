@@ -4,7 +4,7 @@ import { useAuth } from '../../firebase/AuthContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../stores/store';
 import './alarmScanner.css';
-import { handleAlarmDetonated, toggleBooleanField } from '../../firebase/controller';
+import { handleAlarmDetonated, handleAlarmDisabled, toggleBooleanField } from '../../firebase/controller';
 
 const AlarmScanner: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
@@ -13,38 +13,49 @@ const AlarmScanner: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { user } = useAuth();
   const game = useSelector((state: RootState) => state.games?.[0]);
-
+  
   useEffect(() => {
     const alarmActive = game?.isAlarmActive;
     const player = game?.players.find(p => p.email === user?.email);
-
     
     if (alarmActive && player && !player.ghost ) {
       setShowToast(true);
-      if (game.gameSettings.alarmTimer) {
+      if (game.alarmInfo.alarmTimer) {
         console.log('I set timmer')
-        console.log((game.gameSettings.alarmTimer))
-        setCountdown(game.gameSettings.alarmTimer);
+        console.log((game.alarmInfo.alarmTimer))
+        setCountdown(game.alarmInfo.alarmTimer);
       } else {
         setCountdown(15);
       }
-
+      
       startCountdown();
-
+      
       if (audioRef.current) {
         audioRef.current.loop = true;
         audioRef.current.currentTime = 0;
         audioRef.current.play().catch(err => console.warn('Alarm sound play failed:', err));
       }
     }
-
     if (!alarmActive) { stopAlarm() }
-
+    
     return () => {
       stopCountdown();
     };
   }, [game?.isAlarmActive, user]);
 
+  useEffect(() => {
+    if (!game) return
+    handleAlarmScannerUsed()
+  },[game?.alarmInfo])
+
+  const handleAlarmScannerUsed = async () => {
+    if (game.alarmInfo.alarmScanner1 === true && game.alarmInfo.alarmScanner2 === true) {
+      stopCountdown()
+      stopAlarm()
+      handleAlarmDisabled(game.id)
+    }
+  }
+  
   const startCountdown = () => {
     if (countdownInterval.current) {
       clearInterval(countdownInterval.current);
@@ -71,7 +82,6 @@ const AlarmScanner: React.FC = () => {
       await handleAlarmDetonated(game.id, false, true, true);
     }
   };
-
 
   const stopCountdown = () => {
     if (countdownInterval.current) {

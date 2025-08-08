@@ -33,7 +33,7 @@ export const useGameSubscription = () => {
                 calledMeeting: data.calledMeeting,
                 allVotesCast: data.allVotesCast,
                 kickedPlayer: data.kickedPlayer,
-                gameSettings: data.gameSettings,
+                alarmInfo: data.alarmInfo,
                 gameRound: data.gameRound,
               },
             ])

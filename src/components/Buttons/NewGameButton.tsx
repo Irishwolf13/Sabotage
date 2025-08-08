@@ -77,7 +77,11 @@ const NewGameButton: React.FC = () => {
         isSaboteur: false,
         votes: []
       }],
-      gameSettings: { alarmTimer: 30 }
+      alarmInfo: { 
+        alarmTimer: 30,
+        alarmScanner1: false,
+        alarmScanner2: false,
+      }
     };
 
     dispatch(addGame(newGame));

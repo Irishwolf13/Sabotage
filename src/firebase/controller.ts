@@ -62,7 +62,11 @@ export const createGameDocument = async (id: string, gameName: string, gameCode:
       isAlarmActive: false,
       alarmDetonated: false,
       players: [{screenName: screenName, email:creator, ghost:false, isSaboteur: false, votes:[]}],
-      gameSettings: {alarmTimer: 30}
+      alarmInfo: {
+        alarmTimer: 30,
+        alarmScanner1: false,
+        alarmScanner2: false,
+      }
     };
 
     await setDoc(gameDocRef, gameData);
@@ -229,6 +233,20 @@ export const handleAlarmDetonated = async (
     });
   } catch (error) {
     console.error("Error updating game status: ", error);
+  }
+};
+
+// Function to handle disabling of the alarm scanners
+export const handleAlarmDisabled = async (gameId: string) => {
+  try {
+    await updateDoc(doc(db, "activeGames", gameId), {
+      "alarmInfo.alarmScanner1": false,
+      "alarmInfo.alarmScanner2": false,
+      isAlarmActive: false 
+    });
+    console.log("Successfully disabled alarms");
+  } catch (error) {
+    console.error("Error updating alarm scanners: ", error);
   }
 };
 

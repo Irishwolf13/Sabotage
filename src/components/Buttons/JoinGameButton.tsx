@@ -67,6 +67,11 @@ const JoinGameButton: React.FC = () => {
               ghost: false,
               isSaboteur: false,
             }],
+            alarmInfo: { 
+              alarmTimer: 30,
+              alarmScanner1: false,
+              alarmScanner2: false,
+            }
           }]));
 
         } else {
